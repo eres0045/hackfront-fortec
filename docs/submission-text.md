@@ -38,5 +38,5 @@ https://github.com/eres0045/hackfront-fortec
 - Open-source and tools disclosure: Python standard library, SQLite, gh CLI for
   ingestion, impress.js for the deck, Fish Audio for the demo video's narration.
   Django's history is public data. No paid APIs were used.
-- Tests: `python3 -m unittest discover -s tests` — 10/10 pass, including the
+- Tests: `python3 -m unittest discover -s tests` — 13/13 pass, including the
   refusal and supersession cases.

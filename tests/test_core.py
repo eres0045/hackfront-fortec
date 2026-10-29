@@ -59,6 +59,44 @@ class TestQA(unittest.TestCase):
         r = ask(demo_store(), "why token expiry race fix in auth refresh?")
         self.assertIn("superseded", r["answer"])
 
+    def test_title_match_breaks_token_tie(self):
+        # Both records match 2/2 tokens, but only one has them in its
+        # title; the title record must win over the passing mention.
+        s = GraphStore()
+        s.add_entity("t1", "issue", "Python compatibility notes", "", "u/t1")
+        s.add_entity("t2", "doc", "Mailers factory",
+                     "python compatibility mentioned in passing", "u/t2")
+        s.add_entity("x", "file", "notes.py", "", "u/x")
+        s.add_edge("t1", "x", "references")
+        r = ask(s, "why python compatibility?")
+        self.assertFalse(r["refused"])
+        self.assertEqual(r["match"]["id"], "t1")
+
+    def test_chain_size_breaks_remaining_tie(self):
+        # Same matched count, same title hits: richer chain wins.
+        s = GraphStore()
+        s.add_entity("t3", "issue", "Python compatibility A", "", "u/t3")
+        s.add_entity("t4", "issue", "Python compatibility B", "", "u/t4")
+        s.add_entity("x", "file", "a.py", "", "u/x")
+        s.add_entity("y", "file", "b.py", "", "u/y")
+        s.add_entity("z", "file", "c.py", "", "u/z")
+        s.add_edge("t3", "x", "references")
+        s.add_edge("t4", "y", "references")
+        s.add_edge("t4", "z", "references")
+        r = ask(s, "why python compatibility?")
+        self.assertFalse(r["refused"])
+        self.assertEqual(r["match"]["id"], "t4")
+
+    def test_refuses_when_best_match_has_no_evidence_chain(self):
+        # A passing mention with zero linked records is not an answer,
+        # even at full token confidence.
+        s = GraphStore()
+        s.add_entity("t2", "doc", "Mailers factory",
+                     "python compatibility mentioned in passing", "u/t2")
+        r = ask(s, "why python compatibility?")
+        self.assertTrue(r["refused"])
+        self.assertIn("no evidence chain", r["reason"])
+
 
 if __name__ == "__main__":
     unittest.main()
