@@ -58,7 +58,13 @@ first — no exceptions.
   Verified: narration lands in each section (silence analysis), frame readable.
 - Source ZIP: docs/video/whycode-source.zip — 203 KB (whycode, tests, data,
   README, plan, demo-qa). Matches the public repo.
-- Problem statement + Any Instructions: drafted at checkpoint time.
+- **DECK PICK (Ronit, 2026-10-29): impress.js.** Submission file:
+  docs/impress-deck/whycode-impress.pdf — 9 pages, 578 KB, built from the 9
+  rendered step frames (1280x800). The live animated deck stays in the repo at
+  docs/impress-deck/index.html and is linked in Any Instructions. Known caveat:
+  the closing zoom-out frame is busy (whole map behind the text) — simplify only
+  on his word.
+- Field texts: docs/submission-text.md (problem statement + Any Instructions).
 - Remaining: pre-submit checkpoint (Ronit's go-ahead), then DRILL upload.
 
 ## Size rule (standing)
