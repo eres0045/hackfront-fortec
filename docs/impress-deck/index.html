@@ -67,8 +67,8 @@
     <div class="kicker">03 · How it works</div>
     <h2>From history to answer</h2>
     <ol class="flow">
-      <li><span class="num">1</span><div><b>Ingest</b> — <code>gh</code> CLI for commits &amp; PRs, plus Trac tickets. Django uses Trac, not GitHub Issues.</div></li>
-      <li><span class="num">2</span><div><b>Graph</b> — entities: commit, PR, ticket, file, person. Edges: authored, fixes, references, touches, supersedes.</div></li>
+      <li><span class="num">1</span><div><b>Ingest</b> — <code>gh</code> CLI for commits &amp; PRs, plus Trac tickets and Django Enhancement Proposals. Django uses Trac, not GitHub Issues.</div></li>
+      <li><span class="num">2</span><div><b>Graph</b> — entities: commit, PR, ticket, file, person, design doc. Edges: authored, fixes, references, touches, supersedes, mentions.</div></li>
       <li><span class="num">3</span><div><b>Ask</b> — evidence chain, supersession flags, refusal when evidence is absent.</div></li>
       <li><span class="num">4</span><div><b>Runs anywhere</b> — bundled SQLite database, no credentials, no paid APIs.</div></li>
     </ol>
@@ -125,7 +125,8 @@
       <div class="stat"><div class="stat-num">100</div>Trac tickets</div>
       <div class="stat"><div class="stat-num">161</div>files</div>
       <div class="stat"><div class="stat-num">90</div>people</div>
-      <div class="stat"><div class="stat-num">630</div>edges</div>
+      <div class="stat"><div class="stat-num">27</div>design docs</div>
+      <div class="stat"><div class="stat-num">641</div>edges</div>
     </div>
     <p class="foot">Python standard library only · SQLite graph · <b>10/10 tests</b> ·
     bundled database runs with <b>zero credentials</b>.</p>

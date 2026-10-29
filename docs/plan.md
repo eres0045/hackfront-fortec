@@ -13,8 +13,8 @@
 1. Target repo: **django/django** (picked 2026-10-29). Ingestion scope:
    recent main-branch commits + recent issues + recent PRs, linked by
    `#NNN` references; file details for the most-connected commits.
-   Design docs (Django Enhancement Proposals, django/deps repo) are the
-   phase-2 enrichment.
+   Design docs (Django Enhancement Proposals, django/deps repo) ingested
+   2026-10-29 as doc entities: 27 DEPs, 11 mentions edges to files they name.
 2. Ingestion: commits, PRs, issues, design docs -> entity graph
    (code entities linked to decisions, people, incidents).
 3. QA: natural-language "why" questions -> evidence chain + confidence

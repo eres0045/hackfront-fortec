@@ -11,8 +11,11 @@ issue trackers — never linked to the code they explain — so new developers g
 and wrong guesses break things the original author fixed on purpose.
 
 WhyCode ingests a public repository's real history (for this prototype: django/django
-— 200 commits, 100 PRs, 100 Trac tickets, 161 files, 90 people, 630 edges) into a
+— 200 commits, 100 PRs, 100 Trac tickets, 161 files, 90 people, 27 design docs
+(Django Enhancement Proposals), 641 edges) into a
 graph linking code entities to the decisions, people, and incidents behind them.
+Design docs are included: 27 Django Enhancement Proposals ingested as doc
+entities, linked by mentions edges to the files they name.
 It answers plain-language "why" questions with a cited evidence chain and a
 confidence score — and refuses to answer when the graph holds no evidence, instead
 of inventing one. Django was chosen because it tracks decisions in Trac rather than
