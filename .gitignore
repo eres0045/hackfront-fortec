@@ -1,0 +1,4 @@
+
+# swept-in build junk
+__pycache__/
+*.log
