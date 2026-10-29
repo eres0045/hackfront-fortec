@@ -49,6 +49,12 @@ class TestQA(unittest.TestCase):
         r = ask(demo_store(), "why does the payment gateway use stripes?")
         self.assertTrue(r["refused"])
 
+    def test_refuses_when_a_term_is_absent_from_graph(self):
+        # "microservices" appears in no ingested record, so the question
+        # is refused even though generic words like "auth" match.
+        r = ask(demo_store(), "why auth microservices?")
+        self.assertTrue(r["refused"])
+
     def test_supersession_noted(self):
         r = ask(demo_store(), "why token expiry race fix in auth refresh?")
         self.assertIn("superseded", r["answer"])

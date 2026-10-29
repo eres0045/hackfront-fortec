@@ -9,21 +9,30 @@ Theme: AI and Developer Tools (T-1). Registration complete ("Team Ready").
 - National Finale (top 200 teams): **21–22 November 2026, IIIT Delhi** (24-hour, in person)
 - Prize pool: ₹3.5 lakh + partner tracks (Neo4j, Sarvam, Arduino)
 
-## Problem pick — PENDING (Ronit's choice)
+## Problem: T1.1 — Why The Code Is Like This (picked 2026-10-29)
 
-- **T1.1 — Why The Code Is Like This:** ingest a public repo's commits, PRs,
-  issues and design docs into a graph; answer "why" questions with a cited
-  evidence chain, supersession/override detection and a confidence score;
-  refuse to invent answers not in the graph. Natural partner track: Neo4j.
-- **T1.2 — The Cheap Phone Test:** harness running a real app under real
-  Indian conditions (device tier, intermittent network, storage/thermal/
-  memory pressure, battery saver); detect failures that matter; rank by
-  defended user-impact estimate; reproduction recipe per finding.
+Ingest a public repo's commits, PRs, issues and design docs into a graph;
+answer "why" questions with a cited evidence chain, supersession/override
+detection and a confidence score; refuse to invent answers not in the
+graph. Target public repo: pending Ronit's pick (shortlist in
+`docs/plan.md`). T1.2 dropped.
 
 ## Setup
 
-Setup steps land here once the problem is picked. Judges run the code from
-this README, so every step must work from a clean checkout.
+```text
+python3 -m whycode.cli --db data/whycode.db --question "Why ...?"
+```
+
+The bundled `data/whycode.db` holds the demo graph (200 Django commits,
+100 PRs, 100 Trac tickets), so the demo runs with no API calls and no
+credentials. To rebuild it from scratch:
+
+```text
+python3 -m whycode.ingest --repo django/django --db data/whycode.db
+python3 -m whycode.trac --db data/whycode.db --limit 100
+```
+
+Run the tests with `python3 -m unittest discover -s tests`.
 
 ## Judging (from the official criteria)
 

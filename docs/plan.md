@@ -2,14 +2,19 @@
 
 ## Timeline
 
-- 29 Oct 2026: project + repo started; problem pick pending (Ronit).
+- 29 Oct 2026: project + repo started; **T1.1 picked by Ronit** (T1.2
+  dropped); core graph + QA engine built first; target repo pick pending.
 - 30 Oct 2026: MST submission (noon) + AgentX deck (11:59 PM) run alongside.
 - 31 Oct 2026, 11:59 PM IST: prototype submission deadline (DRILL form).
 - 21–22 Nov 2026: National Finale, IIIT Delhi (top 200 only).
 
 ## Build plan — T1.1 (recommended)
 
-1. Pick target public repo (Ronit's choice).
+1. Target repo: **django/django** (picked 2026-10-29). Ingestion scope:
+   recent main-branch commits + recent issues + recent PRs, linked by
+   `#NNN` references; file details for the most-connected commits.
+   Design docs (Django Enhancement Proposals, django/deps repo) are the
+   phase-2 enrichment.
 2. Ingestion: commits, PRs, issues, design docs -> entity graph
    (code entities linked to decisions, people, incidents).
 3. QA: natural-language "why" questions -> evidence chain + confidence

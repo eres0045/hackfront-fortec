@@ -13,6 +13,7 @@ STOPWORDS = {
     "why", "is", "the", "a", "an", "does", "do", "did", "this", "that",
     "it", "its", "in", "on", "of", "to", "for", "how", "what", "was",
     "were", "are", "be", "been", "with", "by", "from", "as", "and", "or",
+    "use", "uses", "used", "using", "being",
 }
 
 REFUSAL = "No evidence in the graph answers this. Refusing to invent an answer."
@@ -29,13 +30,23 @@ def ask(store, question):
     if not toks:
         return {"question": question, "refused": True, "reason": REFUSAL,
                 "confidence": 0.0, "evidence": []}
+    # A question term that appears nowhere in the graph means the graph
+    # holds no record of what is asked about. That is a refusal, not a
+    # licence to answer from the nearest generic match: without this rule,
+    # "why does Django use microservices?" was answered from a docs commit
+    # merely because it contained the words "Django" and "use".
+    for t in toks:
+        if not store.find_by_tokens([t]):
+            return {"question": question, "refused": True,
+                    "reason": REFUSAL + f" The term '{t}' appears in no "
+                    "ingested record.",
+                    "confidence": 0.0, "evidence": []}
     ranked = store.find_by_tokens(toks)
     if not ranked:
         return {"question": question, "refused": True, "reason": REFUSAL,
                 "confidence": 0.0, "evidence": []}
     best_count, best, matched = ranked[0]
-    confidence = round(min(0.99, best_count / len(toks)
-                           + 0.1 * min(3, len(ranked))), 2)
+    confidence = round(min(0.99, best_count / len(toks)), 2)
     if confidence < WEAK:
         return {"question": question, "refused": True,
                 "reason": REFUSAL + " Closest match was too weak.",
@@ -47,7 +58,7 @@ def ask(store, question):
         nxt = []
         for eid in frontier:
             for nb in store.neighbors(eid):
-                key = (eid, nb["id"], nb["relation"])
+                key = (eid, nb["id"], nb["relation"], "out")
                 if key in seen:
                     continue
                 seen.add(key)
@@ -57,6 +68,21 @@ def ask(store, question):
                     "title": nb["title"],
                     "kind": nb["kind"],
                     "url": nb["url"],
+                    "direction": "out",
+                })
+                nxt.append(nb["id"])
+            for nb in store.neighbors_reverse(eid):
+                key = (nb["id"], eid, nb["relation"], "in")
+                if key in seen:
+                    continue
+                seen.add(key)
+                evidence.append({
+                    "from": nb["id"],
+                    "relation": nb["relation"],
+                    "title": nb["title"],
+                    "kind": nb["kind"],
+                    "url": nb["url"],
+                    "direction": "in",
                 })
                 nxt.append(nb["id"])
         frontier = nxt

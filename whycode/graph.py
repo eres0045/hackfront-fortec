@@ -50,6 +50,12 @@ class GraphStore:
         ).fetchone()
         return dict(row) if row else None
 
+    def neighbors_reverse(self, entity_id):
+        """Entities pointing at this one (e.g. commits fixing a ticket)."""
+        q = ("SELECT e.*, g.relation FROM edges g "
+             "JOIN entities e ON e.id = g.src WHERE g.dst = ?")
+        return [dict(r) for r in self.conn.execute(q, (entity_id,)).fetchall()]
+
     def find_by_tokens(self, tokens):
         """Rank entities by how many question tokens appear as whole words
         in title/body. Whole-word matching only: substring hits (e.g.
