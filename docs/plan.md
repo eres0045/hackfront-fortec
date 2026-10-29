@@ -51,6 +51,16 @@ Before submitting: repo is public, files within size limits, ZIP matches
 GitHub, dashboard shows "Submitted". Pre-submit checkpoint with Ronit
 first — no exceptions.
 
+## Submission package status (2026-10-29)
+- PPT: docs/whycode-pitch-deck.pptx — 9 slides, 38 KB, built from verified graph facts.
+- Video: docs/video/whycode-demo-video.mp4 — 38 s, 990 KB, terminal screens
+  (Q1 0.99, Q2 0.86, refusal) + Fish Audio narration + captions.
+  Verified: narration lands in each section (silence analysis), frame readable.
+- Source ZIP: docs/video/whycode-source.zip — 203 KB (whycode, tests, data,
+  README, plan, demo-qa). Matches the public repo.
+- Problem statement + Any Instructions: drafted at checkpoint time.
+- Remaining: pre-submit checkpoint (Ronit's go-ahead), then DRILL upload.
+
 ## Size rule (standing)
 
 Never build a toy or small entry. Bigger, advanced code with end-to-end
