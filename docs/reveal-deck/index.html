@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WhyCode — by FORTEC</title>
+<link rel="stylesheet" href="node_modules/reveal.js/dist/reset.css">
+<link rel="stylesheet" href="node_modules/reveal.js/dist/reveal.css">
+<link rel="stylesheet" href="node_modules/reveal.js/dist/theme/league.css">
+<link rel="stylesheet" href="node_modules/reveal.js/dist/plugin/highlight/monokai.css">
+<style>
+  .reveal .accent { color: #4ade80; }
+  .reveal .dim { color: #9aa5b1; }
+  .reveal pre {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 10px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
+    padding: 18px 22px;
+    text-align: left;
+  }
+  .reveal pre code {
+    font-size: 0.58em;
+    line-height: 1.55;
+    max-height: none;
+  }
+  .reveal .stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    justify-content: center;
+    margin-top: 30px;
+  }
+  .reveal .stat {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 16px 22px;
+    min-width: 170px;
+  }
+  .reveal .stat b {
+    display: block;
+    font-size: 1.6em;
+    color: #4ade80;
+  }
+  .reveal .stat span { font-size: 0.6em; color: #c8d0d8; }
+  .reveal ul { text-align: left; }
+  .reveal li { margin-bottom: 0.45em; }
+  .reveal .refusal-note {
+    border-left: 5px solid #f87171;
+    padding-left: 18px;
+    text-align: left;
+    font-size: 0.85em;
+  }
+</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- 1. Cover -->
+<section>
+  <h1>WhyCode</h1>
+  <p>Why is this code like this? Ask its own history.</p>
+  <p class="accent" style="margin-top: 1.2em;"><strong>Team FORTEC</strong> &middot; hackFront India 2026 &middot; AI and Developer Tools (T-1)</p>
+  <p class="dim" style="font-size: 0.7em; margin-top: 1em;">Ronit Shrimankar (lead) &middot; Anshul Kamthe &middot; Udita Singh<br>Built on django/django</p>
+</section>
+
+<!-- 2. Problem -->
+<section>
+  <h2>The problem</h2>
+  <ul>
+    <li>Codebases accumulate decisions <strong>nobody can explain</strong> any more</li>
+    <li>A new developer reads an odd function and <strong>guesses</strong> why it exists</li>
+    <li>A wrong guess breaks something the original author <strong>fixed on purpose</strong></li>
+    <li>The reasons live scattered across <strong>commits, pull requests and tickets</strong> &mdash; never in one place, never linked to the code they explain</li>
+  </ul>
+</section>
+
+<!-- 3. Solution -->
+<section>
+  <h2>The solution: WhyCode</h2>
+  <ul>
+    <li><strong>Ingest</strong> a public repo's history into a graph</li>
+    <li><strong>Ask</strong> plain-language <em>why</em> questions</li>
+    <li>Get a <strong>cited evidence chain</strong> and a confidence score</li>
+    <li><strong>Refuses</strong> when no evidence exists &mdash; no invented answers, ever</li>
+  </ul>
+</section>
+
+<!-- 4. How it works -->
+<section>
+  <h2>How it works</h2>
+  <ol>
+    <li><strong>Ingest</strong> &mdash; <code>gh</code> CLI for commits and PRs, plus Trac tickets, since Django uses Trac, not GitHub Issues</li>
+    <li><strong>Graph</strong> &mdash; entities: commit, PR, ticket, file, person; edges: authored, fixes, references, touches, supersedes</li>
+    <li><strong>Ask</strong> &mdash; evidence chain, supersession flags, and refusal when evidence is absent</li>
+    <li><strong>Runs anywhere</strong> &mdash; the bundled SQLite database needs no credentials</li>
+  </ol>
+</section>
+
+<!-- 5. Demo Q1 -->
+<section>
+  <h2>Demo: a real answer from Django's history</h2>
+  <pre><code class="bash" data-trim>
+$ python -m whycode.cli --question \
+    "Why does ignore_warnings match substrings by default?"
+
+refused: false   confidence: 0.99
+
+Best match: Fixed #37089 — Made ignore_warnings()
+match substrings by default. (commit)
+
+Evidence:
+→ fixes      Trac ticket #37089
+→ authored by HelmiDev03
+  </code></pre>
+</section>
+
+<!-- 6. Demo Q2 -->
+<section>
+  <h2>Demo: the template-tags option</h2>
+  <pre><code class="bash" data-trim>
+$ python -m whycode.cli --question \
+    "Why is there a transitional option to disable
+     multiline template tags?"
+
+refused: false   confidence: 0.86
+
+Best match: Refs #35899 — Added allow_multiline_tags
+transitional template option. (commit)
+
+Evidence:
+→ references Trac ticket #35899
+→ authored by boxed
+  </code></pre>
+</section>
+
+<!-- 7. Refusal -->
+<section>
+  <h2>The refusal, honestly demonstrated</h2>
+  <pre><code class="bash" data-trim>
+$ python -m whycode.cli --question \
+    "Why does Django use a microservices architecture?"
+
+refused: true   confidence: 0.0
+
+No evidence in the graph answers this.
+Refusing to invent an answer.
+  </code></pre>
+  <p class="refusal-note">An earlier version answered this from an unrelated docs commit; the absent-term rule + regression test fixed it.</p>
+</section>
+
+<!-- 8. Engineering -->
+<section>
+  <h2>Engineering: runnable, tested, no magic</h2>
+  <div class="stats">
+    <div class="stat"><b>200</b><span>commits</span></div>
+    <div class="stat"><b>100</b><span>pull requests</span></div>
+    <div class="stat"><b>100</b><span>Trac tickets</span></div>
+    <div class="stat"><b>161</b><span>files</span></div>
+    <div class="stat"><b>90</b><span>people</span></div>
+    <div class="stat"><b>630</b><span>edges</span></div>
+  </div>
+  <p style="margin-top: 1em;">Python standard library only &middot; SQLite graph &middot; <strong>10/10 tests</strong> &middot; bundled database runs with zero credentials</p>
+</section>
+
+<!-- 9. Closing -->
+<section>
+  <h2>WhyCode &mdash; by FORTEC</h2>
+  <p>Repo: <span class="accent">github.com/eres0045/hackfront-fortec</span></p>
+  <pre><code class="bash" data-trim>
+$ python -m whycode.cli --db data/whycode.db \
+    --question "Why ...?"
+  </code></pre>
+  <p class="accent" style="margin-top: 1em;"><strong>Questions welcome.</strong></p>
+</section>
+
+</div>
+</div>
+<script src="node_modules/reveal.js/dist/reveal.js"></script>
+<script src="node_modules/reveal.js/dist/plugin/highlight.js"></script>
+<script>
+  Reveal.initialize({
+    width: 1280,
+    height: 720,
+    hash: true,
+    slideNumber: true,
+    center: true,
+    plugins: [ RevealHighlight ]
+  });
+</script>
+</body>
+</html>

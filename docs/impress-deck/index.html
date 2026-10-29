@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1024">
+<title>WhyCode — by FORTEC</title>
+<link href="css/impress-demo.css" rel="stylesheet">
+<link href="css/whycode.css" rel="stylesheet">
+</head>
+<body class="impress-not-supported">
+
+<div class="fallback-message">
+  <p>Your browser <b>doesn't support the features required</b> by impress.js, so you are
+  presented with a simplified version of this presentation.</p>
+  <p>For the best experience please use the latest <b>Chrome</b>,
+  <b>Safari</b> or <b>Firefox</b> browser.</p>
+</div>
+
+<div class="brandbar">WhyCode <span>· FORTEC</span></div>
+
+<div id="impress"
+    data-transition-duration="1000"
+    data-width="1024"
+    data-height="768"
+    data-max-scale="3"
+    data-min-scale="0"
+    data-perspective="1000">
+
+  <!-- 1 · COVER -->
+  <div id="step-1" class="step" data-x="0" data-y="0" data-scale="3">
+    <div class="kicker">hackFront India 2026 · AI and Developer Tools (T-1)</div>
+    <h1 class="cover-title">WhyCode</h1>
+    <p class="cover-sub">Why is this code like this?<br>Ask its own history.</p>
+    <div class="cover-team">
+      <span class="fortec">Team FORTEC</span>
+      Ronit Shrimankar (lead) · Anshul Kamthe · Udita Singh
+    </div>
+    <p class="cover-built">Built on <b>django/django</b></p>
+  </div>
+
+  <!-- 2 · PROBLEM -->
+  <div id="step-2" class="step" data-x="1700" data-y="400" data-rotate="12" data-scale="1">
+    <div class="kicker">01 · The problem</div>
+    <h2>Decisions nobody<br>can explain any more</h2>
+    <ul class="rows">
+      <li><b>Codebases accumulate decisions</b> whose reasons are forgotten.</li>
+      <li><b>New developers guess</b> why a piece of code exists.</li>
+      <li><b>A wrong guess breaks things</b> the original author fixed on purpose.</li>
+      <li><b>The reasons are scattered</b> across commits, pull requests and tickets.</li>
+    </ul>
+  </div>
+
+  <!-- 3 · SOLUTION -->
+  <div id="step-3" class="step" data-x="3300" data-y="1500" data-rotate="-8" data-scale="1">
+    <div class="kicker">02 · The solution</div>
+    <h2>Ask the history,<br>get a cited answer</h2>
+    <div class="cards">
+      <div class="card"><div class="card-title">Ingest</div>A public repo's history becomes a graph.</div>
+      <div class="card"><div class="card-title">Ask</div>Plain-language <i>why</i> questions.</div>
+      <div class="card"><div class="card-title">Evidence</div>Every answer carries its chain + a confidence score.</div>
+      <div class="card"><div class="card-title">Refuse</div>No evidence? It refuses. Never invents.</div>
+    </div>
+  </div>
+
+  <!-- 4 · HOW IT WORKS -->
+  <div id="step-4" class="step" data-x="1900" data-y="2900" data-rotate="20" data-scale="1.5">
+    <div class="kicker">03 · How it works</div>
+    <h2>From history to answer</h2>
+    <ol class="flow">
+      <li><span class="num">1</span><div><b>Ingest</b> — <code>gh</code> CLI for commits &amp; PRs, plus Trac tickets. Django uses Trac, not GitHub Issues.</div></li>
+      <li><span class="num">2</span><div><b>Graph</b> — entities: commit, PR, ticket, file, person. Edges: authored, fixes, references, touches, supersedes.</div></li>
+      <li><span class="num">3</span><div><b>Ask</b> — evidence chain, supersession flags, refusal when evidence is absent.</div></li>
+      <li><span class="num">4</span><div><b>Runs anywhere</b> — bundled SQLite database, no credentials, no paid APIs.</div></li>
+    </ol>
+  </div>
+
+  <!-- 5 · DEMO Q1 -->
+  <div id="step-5" class="step" data-x="0" data-y="3700" data-rotate="0" data-scale="1">
+    <div class="kicker">04 · Demo — a real answer</div>
+    <h2>ignore_warnings, explained</h2>
+    <div class="terminal">
+      <div><span class="prompt">$</span> python -m whycode.cli --question "Why does<br>&nbsp;&nbsp;ignore_warnings match substrings by default?"</div>
+      <div class="t-dim">refused: false &nbsp; confidence: <span class="t-green">0.99</span></div>
+      <div>Best match: <span class="t-green">Fixed #37089</span> — Made ignore_warnings()<br>match substrings by default. (commit)</div>
+      <div class="t-dim">Evidence:</div>
+      <div><span class="t-green">→ fixes</span> Trac ticket #37089</div>
+      <div><span class="t-green">→ authored by</span> HelmiDev03</div>
+    </div>
+  </div>
+
+  <!-- 6 · DEMO Q2 -->
+  <div id="step-6" class="step" data-x="-1900" data-y="2900" data-rotate="-15" data-scale="1.5">
+    <div class="kicker">05 · Demo — the template-tags option</div>
+    <h2>Multiline tags, traced</h2>
+    <div class="terminal">
+      <div><span class="prompt">$</span> python -m whycode.cli --question "Why is there<br>&nbsp;&nbsp;a transitional option to disable multiline<br>&nbsp;&nbsp;template tags?"</div>
+      <div class="t-dim">refused: false &nbsp; confidence: <span class="t-green">0.86</span></div>
+      <div>Best match: <span class="t-green">Refs #35899</span> — Added allow_multiline_tags<br>transitional template option. (commit)</div>
+      <div class="t-dim">Evidence:</div>
+      <div><span class="t-green">→ references</span> Trac ticket #35899</div>
+      <div><span class="t-green">→ authored by</span> boxed</div>
+    </div>
+  </div>
+
+  <!-- 7 · REFUSAL -->
+  <div id="step-7" class="step" data-x="-3300" data-y="1500" data-rotate="8" data-scale="1">
+    <div class="kicker">06 · The refusal</div>
+    <h2>When it doesn't know,<br>it says so</h2>
+    <div class="terminal">
+      <div><span class="prompt">$</span> python -m whycode.cli --question "Why does<br>&nbsp;&nbsp;Django use a microservices architecture?"</div>
+      <div class="t-dim">refused: true &nbsp; confidence: 0.0</div>
+      <div class="t-red">No evidence in the graph answers this.<br>Refusing to invent an answer.</div>
+    </div>
+    <p class="note">An earlier version answered this from an unrelated docs commit.
+    The absent-term rule + a regression test fixed that for good.</p>
+  </div>
+
+  <!-- 8 · ENGINEERING -->
+  <div id="step-8" class="step" data-x="-1700" data-y="400" data-rotate="-20" data-scale="1">
+    <div class="kicker">07 · Engineering</div>
+    <h2>Runnable, tested,<br>no magic</h2>
+    <div class="stats">
+      <div class="stat"><div class="stat-num">200</div>commits</div>
+      <div class="stat"><div class="stat-num">100</div>pull requests</div>
+      <div class="stat"><div class="stat-num">100</div>Trac tickets</div>
+      <div class="stat"><div class="stat-num">161</div>files</div>
+      <div class="stat"><div class="stat-num">90</div>people</div>
+      <div class="stat"><div class="stat-num">630</div>edges</div>
+    </div>
+    <p class="foot">Python standard library only · SQLite graph · <b>10/10 tests</b> ·
+    bundled database runs with <b>zero credentials</b>.</p>
+  </div>
+
+  <!-- 9 · CLOSING -->
+  <div id="step-9" class="step" data-x="0" data-y="1850" data-scale="5">
+    <div class="kicker">WhyCode — by FORTEC</div>
+    <h2 class="close-title">Questions welcome.</h2>
+    <div class="terminal">
+      <div><span class="prompt">$</span> python -m whycode.cli --db data/whycode.db<br>&nbsp;&nbsp;--question "Why ...?"</div>
+    </div>
+    <p class="repo">Repo: <b>github.com/eres0045/hackfront-fortec</b></p>
+    <p class="foot">Built during the hackFront league timeline, from Django's real, public history.</p>
+  </div>
+
+</div>
+
+<div class="hint">
+  <p>Use a spacebar or arrow keys to navigate. Press <b>P</b> for the overview.</p>
+</div>
+
+<script src="js/impress.js"></script>
+<script>impress().init();</script>
+
+</body>
+</html>
