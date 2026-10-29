@@ -1,7 +1,7 @@
 # WhyCode demo Q&A (verified against the real Django graph)
 
 Graph: 200 recent commits, 100 PRs, 100 Trac tickets, 161 files,
-90 people, 635+ edges. Run any question with:
+90 people, 630 edges. Run any question with:
 
 ```text
 python3 -m whycode.cli --db data/whycode.db --question "Why ...?"

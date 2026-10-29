@@ -109,7 +109,7 @@ slide("Engineering: runnable, tested, no magic", [
     "The bundled database runs the whole demo with zero credentials.",
     "10/10 automated tests, including refusal and supersession cases.",
     "Graph today: 200 commits, 100 PRs, 100 Trac tickets, 161 files,",
-    "90 people, 635+ edges — all from Django's real, public history.",
+    "90 people, 630 edges — all from Django's real, public history.",
 ])
 
 slide("Who it helps, and what is next", [
