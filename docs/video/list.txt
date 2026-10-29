@@ -1,0 +1,5 @@
+file 'seg-title.mp4'
+file 'seg-q1.mp4'
+file 'seg-q2.mp4'
+file 'seg-refusal.mp4'
+file 'seg-closing.mp4'

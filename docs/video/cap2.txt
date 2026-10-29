@@ -1,0 +1,1 @@
+Same for template tags — traced to its ticket
