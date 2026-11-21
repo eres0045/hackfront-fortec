@@ -1,0 +1,8 @@
+# Dependencies for the whycode-mcp Render service ONLY.
+# The main web app keeps its own lean requirements.txt (Flask + neo4j).
+# fastmcp (Apache-2.0) is the MCP server framework; the official MCP
+# Python SDK (MIT) comes in underneath it.
+fastmcp==4.2.4
+mcp==2.3.0
+uvicorn==0.54.0
+neo4j==6.4.1

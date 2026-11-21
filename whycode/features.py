@@ -71,11 +71,12 @@ def _decision_date(entity):
 def governed_files(store, match, evidence=None):
     """Files a decision governs, as an {id: entity} dict.
 
-    Sources, in order: file entities in the evidence chain; files the
-    match touches / mentions; files touched / mentioned by evidence
-    commits / docs; files touched by commits that fix or reference the
-    match or an evidence issue / PR (those commits' files are the code
-    the decision governs). Only files that exist as entities in the
+    Sources, in order: the match itself when it is a file; file
+    entities in the evidence chain; files the match touches /
+    mentions; files touched / mentioned by evidence commits / docs;
+    files touched by commits that fix or reference the match or an
+    evidence issue / PR (those commits' files are the code the
+    decision governs). Only files that exist as entities in the
     graph are returned — a path mentioned in prose but absent from
     the graph is not a governed file.
     """
@@ -84,6 +85,8 @@ def governed_files(store, match, evidence=None):
     def _add(ent):
         if ent and ent.get("kind") == "file":
             files[ent["id"]] = ent
+
+    _add(match)
 
     evidence = evidence or []
     for rec in evidence:
