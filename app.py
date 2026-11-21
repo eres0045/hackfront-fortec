@@ -218,8 +218,12 @@ def index():
         store = GraphStore(DB_PATH)
         result = ask(store, question)
         if not result.get("refused"):
+            # Only an OUTGOING supersedes edge means this decision was
+            # replaced (see qa.py): the newer decision's chain holds the
+            # same edge incoming, and the banner must not fire on it.
             result["superseded"] = [
-                e for e in result["evidence"] if e["relation"] == "supersedes"
+                e for e in result["evidence"]
+                if e["relation"] == "supersedes" and e["direction"] == "out"
             ]
             result["timeline"] = decision_timeline(
                 store, result["match"], result["evidence"])

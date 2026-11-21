@@ -102,7 +102,11 @@ def ingest_deps(store, deps_dir):
             store.add_entity(eid, "doc", title, body, url)
             docs += 1
             mentions += link_files(store, eid, parsed["text"])
-    return docs, mentions
+    # Supersedes edges come from the DEP text itself (see
+    # whycode/supersedes.py): a rebuild must reproduce them.
+    from whycode.supersedes import extract_supersedes_edges
+    supersedes = extract_supersedes_edges(store)
+    return docs, mentions, len(supersedes["added"])
 
 
 def main():
@@ -111,11 +115,12 @@ def main():
     ap.add_argument("--deps-dir", required=True)
     args = ap.parse_args()
     store = GraphStore(args.db)
-    docs, mentions = ingest_deps(store, args.deps_dir)
+    docs, mentions, supersedes = ingest_deps(store, args.deps_dir)
     kinds = dict(store.conn.execute(
         "SELECT kind, COUNT(*) FROM entities GROUP BY kind").fetchall())
     edges = store.conn.execute("SELECT COUNT(*) FROM edges").fetchone()[0]
     print(json.dumps({"docs_ingested": docs, "mentions_edges": mentions,
+                      "supersedes_edges": supersedes,
                       "entities_by_kind": kinds, "total_edges": edges}))
 
 

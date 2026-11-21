@@ -35,10 +35,14 @@ def test_q1_answers_with_evidence(client):
     r = client.post("/", data={"question": Q1})
     assert r.status_code == 200
     assert b"99%" in r.data
-    assert b"8 linked record" in r.data
+    # Chain cleanup (block 2): 3 distinct records — the ticket, the
+    # author, the test-coverage commit. The same-author PR 22125 and the
+    # best match's duplicate of itself are gone.
+    assert b"3 linked record" in r.data
+    assert b"22125" not in r.data
     assert b"code.djangoproject.com/ticket/37089" in r.data
     assert b"Evidence graph" in r.data
-    assert b"Superseded decision" not in r.data  # zero supersedes edges in real DB
+    assert b"Superseded decision" not in r.data  # Q1's chain has no supersedes edge
 
 
 def test_q2_refuses_honestly(client):
