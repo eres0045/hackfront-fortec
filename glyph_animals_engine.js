@@ -2505,7 +2505,7 @@
   const sidebarAgentPill = document.getElementById('sidebarAgentPill');
   const sidebarCopyPillBtn = document.getElementById('sidebarCopyPillBtn');
   const sidebarCopyPillText = document.getElementById('sidebarCopyPillText');
-  const agentPromptText = "Read whycode/agent.md and configure the WhyCode MCP server in my editor so you can query architectural decisions and PR rationale.";
+  const agentPromptText = "Read agent.md (or run python setup_mcp.py) to configure the WhyCode MCP server in my editor so you can query architectural decisions and PR rationale with whycode_ask.";
 
   function copyAgentPrompt() {
     navigator.clipboard.writeText(agentPromptText).then(() => {

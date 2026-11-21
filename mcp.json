@@ -1,11 +1,10 @@
 {
   "mcpServers": {
     "whycode": {
-      "command": "python",
-      "args": ["whycode_mcp.py"],
-      "env": {
-        "PYTHONUNBUFFERED": "1"
-      }
+      "command": "C:\\Users\\ronit\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "args": [
+        "C:\\Users\\ronit\\Downloads\\hackfront-fortec-main\\hackfront-fortec-main\\whycode_mcp.py"
+      ]
     }
   }
 }

@@ -2546,7 +2546,7 @@
         </button>
       </div>
       <div class="hero-agent-pill-caption">
-        Paste one sentence into Claude Code, Codex, or Cursor. Your agent reads <code>whycode/agent.md</code> and sets it all up.
+        Paste one sentence into Claude Code, Codex, or Cursor. Your agent reads <code>agent.md</code> (or runs <code>python setup_mcp.py</code>) and sets it all up.
       </div>
     </div>
 
@@ -4140,7 +4140,7 @@
     const heroCopyBtn = document.getElementById("heroCopyPillBtn");
     const heroCopyPill = document.getElementById("heroAgentPill");
     const heroCopyText = document.getElementById("heroCopyPillText");
-    const agentPrompt = "Read whycode/agent.md and configure the WhyCode MCP server in my editor so you can query architectural decisions and PR rationale.";
+    const agentPrompt = "Read agent.md (or run python setup_mcp.py) to configure the WhyCode MCP server in my editor so you can query architectural decisions and PR rationale with whycode_ask.";
 
     function copyHeroPrompt() {
       navigator.clipboard.writeText(agentPrompt).then(() => {
