@@ -12,6 +12,8 @@ Run:
 import html
 import os
 import sqlite3
+import threading
+import time
 
 from flask import Flask, render_template, request
 
@@ -44,6 +46,72 @@ def add_security_headers(response):
 
 
 CANONICAL_URL = "https://whycode-ui.onrender.com"
+
+# Input validation (Build Plan "Reliability & access"): questions longer
+# than this are refused with a friendly message instead of being run
+# through the engine — a 10k-char paste must never become a 10k-token
+# scan of the graph.
+MAX_QUESTION_LENGTH = 500
+
+# Rate limiting (Build Plan "Reliability & access"): in-memory per-IP
+# limit for the question route only, 30 requests/minute/IP. The Flask
+# dev server is single-process, so a dict is enough; a lock guards it
+# because the server is threaded. Bypassed while TESTING so the suite
+# stays fast — the limit itself is proven by tests that flip TESTING
+# off (see tests/test_reliability.py).
+RATE_LIMIT_REQUESTS = 30
+RATE_LIMIT_WINDOW = 60  # seconds
+RATE_LIMIT_MESSAGE = (
+    "Slow down — too many questions in the last minute. "
+    "Try again in a moment."
+)
+_rate_hits = {}
+_rate_lock = threading.Lock()
+
+
+def _client_ip():
+    # Behind Render, X-Forwarded-For holds the real client first.
+    if request.access_route:
+        return request.access_route[0]
+    return request.remote_addr or "unknown"
+
+
+def _rate_limit_allowed(ip):
+    now = time.monotonic()
+    with _rate_lock:
+        hits = [t for t in _rate_hits.get(ip, [])
+                if now - t < RATE_LIMIT_WINDOW]
+        if len(hits) >= RATE_LIMIT_REQUESTS:
+            _rate_hits[ip] = hits
+            return False
+        hits.append(now)
+        _rate_hits[ip] = hits
+        return True
+
+
+def reset_rate_limits():
+    """Clear all recorded hits (tests only)."""
+    with _rate_lock:
+        _rate_hits.clear()
+
+
+@app.before_request
+def apply_rate_limit():
+    if app.testing:
+        return None
+    if request.endpoint != "index":
+        return None
+    if not _rate_limit_allowed(_client_ip()):
+        return (
+            render_template(
+                "index.html", question="", result=None,
+                notice=RATE_LIMIT_MESSAGE, examples=EXAMPLE_QUESTIONS,
+                entities=None, edges=None,
+            ),
+            429,
+            {"Retry-After": str(RATE_LIMIT_WINDOW)},
+        )
+    return None
 
 
 @app.route("/robots.txt")
@@ -210,9 +278,21 @@ def index():
         question = (request.form.get("question") or "").strip()
         if not question:
             notice = "Type a question first — for example, try one of the two below."
-    elif request.args.get("q"):
-        question = request.args.get("q").strip()
-    if question and request.method in ("GET", "POST"):
+    elif "q" in request.args:
+        # A ?q= link with nothing (or only spaces) in it is a submitted
+        # empty question, not an initial page load — say so, like POST.
+        question = (request.args.get("q") or "").strip()
+        if not question:
+            notice = "Type a question first — for example, try one of the two below."
+    if question and len(question) > MAX_QUESTION_LENGTH:
+        # Too long: friendly message, question kept in the box so it can
+        # be trimmed down. Never run through the engine.
+        notice = (
+            f"That question is too long ({len(question)} characters — "
+            f"the limit is {MAX_QUESTION_LENGTH}). "
+            "Shorten it and try again."
+        )
+    elif question:
         # Fresh store per request: sqlite3 connections are not thread-safe,
         # and the Flask dev server is threaded.
         store = GraphStore(DB_PATH)
