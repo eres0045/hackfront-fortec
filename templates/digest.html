@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WhyCode — Monthly digest</title>
+<meta name="description" content="New Django decisions, what changed, and the top experts — computed from the history graph.">
+<link rel="canonical" href="https://whycode-ui.onrender.com/digest">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="5" cy="13" r="3.2" fill="#fff"/>
+          <circle cx="21" cy="5" r="3.2" fill="#bbf7d0"/>
+          <circle cx="21" cy="21" r="3.2" fill="#bbf7d0"/>
+          <path d="M7.8 11.8 18.2 6.4M7.8 14.2l10.4 5.4" stroke="#fff" stroke-width="1.6"/>
+        </svg>
+      </span>
+      <div>
+        <h1>WhyCode <span>— django/django</span></h1>
+        <p class="tagline">Monthly digest — new decisions, what changed, who knows most.</p>
+      </div>
+    </div>
+    {% if entities is not none %}
+    <span class="status-pill"><span class="dot"></span>Live · {{ entities }} entities · {{ edges }} edges</span>
+    {% endif %}
+  </div>
+</header>
+
+<main>
+  <p class="nav-links"><a href="/">← Ask WhyCode</a> · Reports: <a href="/health">Decision health</a> · <a href="/decisions">Load-bearing decisions</a> · <strong>Monthly digest</strong></p>
+
+  <section class="card" aria-label="New decisions">
+    <h2>New decisions</h2>
+    <p class="hint">The most recently dated decisions in the graph. "New" means most
+    recently dated — the graph is a snapshot, so there is no previous digest to diff against.</p>
+    <ol class="ranked">
+      {% for row in data.new_decisions %}
+      <li>
+        {% if row.url %}<a href="{{ row.url }}" target="_blank" rel="noopener">{{ row.title }}</a>{% else %}{{ row.title }}{% endif %}
+        <span class="kind kind-doc">doc</span>
+        <span class="row-meta">decided {{ row.date }}</span>
+      </li>
+      {% endfor %}
+    </ol>
+  </section>
+
+  <section class="card" aria-label="What changed">
+    <h2>What changed</h2>
+    <p class="hint">The most recent commits in the graph, newest first.</p>
+    <ol class="ranked">
+      {% for row in data.recent_changes %}
+      <li>
+        {% if row.url %}<a href="{{ row.url }}" target="_blank" rel="noopener">{{ row.title }}</a>{% else %}{{ row.title }}{% endif %}
+        <span class="kind kind-commit">commit</span>
+        <span class="row-meta">{{ row.date }}</span>
+      </li>
+      {% endfor %}
+    </ol>
+  </section>
+
+  <section class="card" aria-label="Top experts">
+    <h2>Top experts</h2>
+    <p class="hint">People ranked by commits authored in the graph — the people to ask about this codebase.</p>
+    <ol class="ranked">
+      {% for row in data.top_experts %}
+      <li>
+        <span class="rank-score">{{ row.commits }}×</span>
+        {{ row.title }}
+        <span class="kind kind-person">person</span>
+        <span class="row-meta">{{ row.commits }} commit(s) authored</span>
+      </li>
+      {% endfor %}
+    </ol>
+    <p class="hint">Served from the {{ chain_source }} store, computed from the live graph on every load.</p>
+  </section>
+</main>
+
+<footer>
+  <p>WhyCode · Team FORTEC · hackFront India Grand Finale · Graph: django/django —
+  {% if entities is not none %}{{ entities }} entities, {{ edges }} edges{% else %}bundled SQLite graph{% endif %} ·
+  every answer is cited or refused, never invented.</p>
+</footer>
+</body>
+</html>

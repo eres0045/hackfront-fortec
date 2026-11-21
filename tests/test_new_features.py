@@ -267,6 +267,29 @@ def test_health_page_lists_ranked_decisions(client):
     assert b"churn" in r.data.lower()
 
 
+def test_digest_page_lists_all_three_sections(client):
+    r = client.get("/digest")
+    assert r.status_code == 200
+    assert b"Monthly digest" in r.data
+    assert b"New decisions" in r.data
+    assert b"What changed" in r.data
+    assert b"Top experts" in r.data
+
+
+def test_digest_sections_are_ordered():
+    from whycode.features import digest
+    data = digest(GraphStore("data/whycode.db"))
+    assert len(data["new_decisions"]) == 10
+    dates = [d["date"] for d in data["new_decisions"]]
+    assert dates == sorted(dates, reverse=True)
+    assert len(data["recent_changes"]) == 10
+    cdates = [c["date"] for c in data["recent_changes"]]
+    assert cdates == sorted(cdates, reverse=True)
+    assert len(data["top_experts"]) == 10
+    counts = [p["commits"] for p in data["top_experts"]]
+    assert counts == sorted(counts, reverse=True)
+
+
 def test_answer_page_shows_blast_grades_who_and_query(client):
     r = client.get("/", query_string={
         "q": "Why does ignore_warnings match substrings by default?"})

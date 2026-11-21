@@ -350,3 +350,48 @@ def decision_health(store, top_n=10):
     rows.sort(key=lambda r: r["last_change"] or "", reverse=True)
     rows.sort(key=lambda r: r["churn"], reverse=True)
     return rows[:top_n]
+
+
+def digest(store, top_n=10):
+    """The monthly digest: new decisions, what changed, top experts.
+
+    All three sections are computed from the graph as it stands —
+    "new" means most recently dated, not "since last month" (the
+    graph is a snapshot; there is no previous digest to diff
+    against, and inventing one would be fabrication). New decisions
+    are docs by decision date, most recent first; what changed is
+    commits by created_at, most recent first; top experts are people
+    ranked by commits authored.
+    """
+    entities = store.all_entities()
+    docs = []
+    for ent in entities:
+        if ent.get("kind") != "doc":
+            continue
+        date = _decision_date(ent)
+        if not date:
+            continue
+        docs.append({"id": ent["id"], "title": ent["title"],
+                     "url": ent.get("url") or "", "date": date})
+    docs.sort(key=lambda d: d["date"], reverse=True)
+    changes = [{
+        "id": ent["id"], "title": ent["title"],
+        "url": ent.get("url") or "",
+        "date": (ent.get("created_at") or "")[:10],
+    } for ent in entities if ent.get("kind") == "commit"
+        and ent.get("created_at")]
+    changes.sort(key=lambda c: c["date"], reverse=True)
+    authored = {}
+    for edge in store.all_edges():
+        if edge.get("relation") == "authored":
+            authored[edge["dst"]] = authored.get(edge["dst"], 0) + 1
+    people = {e["id"]: e for e in entities if e.get("kind") == "person"}
+    experts = sorted(
+        ({"id": pid, "title": people[pid]["title"], "commits": n}
+         for pid, n in authored.items() if pid in people),
+        key=lambda p: (-p["commits"], p["title"]))
+    return {
+        "new_decisions": docs[:top_n],
+        "recent_changes": changes[:top_n],
+        "top_experts": experts[:top_n],
+    }

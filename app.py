@@ -21,6 +21,7 @@ from whycode.features import (
     blast_radius,
     decision_freshness,
     decision_health,
+    digest,
     evidence_grade,
     load_bearing,
     who_to_ask,
@@ -142,6 +143,7 @@ def sitemap():
         "",
         "decisions",
         "health",
+        "digest",
         "?q=" + quote(EXAMPLE_QUESTIONS[0]),
         "?q=" + quote(EXAMPLE_QUESTIONS[1]),
     ]
@@ -407,6 +409,24 @@ def health():
     entities, edges = db_stats()
     return render_template(
         "health.html", rows=rows, entities=entities, edges=edges,
+        chain_source=source)
+
+
+@app.route("/digest")
+def digest_page():
+    """Monthly digest: new decisions, what changed, top experts.
+
+    The third report — decision health and load-bearing decisions
+    are the other two. Computed from the live graph on every load.
+    """
+    store, source = _store_for_request()
+    try:
+        data = digest(store)
+    finally:
+        _close_store(store)
+    entities, edges = db_stats()
+    return render_template(
+        "digest.html", data=data, entities=entities, edges=edges,
         chain_source=source)
 
 
