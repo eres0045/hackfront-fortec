@@ -26,8 +26,12 @@
         </svg>
       </span>
       <div>
-        <h1>WhyCode <span>— django/django</span></h1>
+        <h1>WhyCode <span>— {{ repo_label }}</span></h1>
+        {% if repo_is_byo %}
+        <p class="tagline">Why is the code like this? — answers from the {{ repo_label }} history graph, with the evidence to prove it.</p>
+        {% else %}
         <p class="tagline">Why is the code like this? — answers from the django/django history graph, with the evidence to prove it.</p>
+        {% endif %}
       </div>
     </div>
     {% if entities is not none %}
@@ -39,6 +43,16 @@
 <main>
   <section class="ask-card">
   <form method="post" action="/" class="ask-box">
+    <input type="hidden" name="repo" value="{{ repo }}">
+    {% if repo_is_byo %}
+    <label for="question">Ask about {{ repo_label }}</label>
+    <div class="ask-row">
+    <input id="question" name="question" type="text" autocomplete="off"
+           placeholder="e.g. Why was README changed?"
+           value="{{ question | e }}" required>
+    <button type="submit">Ask WhyCode</button>
+    </div>
+    {% else %}
     <label for="question">Ask about a Django decision</label>
     <div class="ask-row">
     <input id="question" name="question" type="text" autocomplete="off"
@@ -46,18 +60,40 @@
            value="{{ question | e }}" required>
     <button type="submit">Ask WhyCode</button>
     </div>
+    {% endif %}
   </form>
 
+  {% if examples %}
   <p class="examples">Try one:
     {% for ex in examples %}
-      <a class="chip" href="/?q={{ ex | urlencode }}">{{ ex }}</a>
+      <a class="chip" href="/?q={{ ex | urlencode }}&amp;repo={{ repo | urlencode }}">{{ ex }}</a>
     {% endfor %}
   </p>
-  <p class="nav-links">Reports: <a href="/health">Decision health</a> · <a href="/decisions">Load-bearing decisions</a> · <a href="/digest">Monthly digest</a></p>
+  {% else %}
+  <p class="examples">Ask about a commit, a file, or a change in this repo's history — a function name, a file path, or words from a commit message.</p>
+  {% endif %}
+  <p class="nav-links">Reports: <a href="/health?repo={{ repo | urlencode }}">Decision health</a> · <a href="/decisions?repo={{ repo | urlencode }}">Load-bearing decisions</a> · <a href="/digest?repo={{ repo | urlencode }}">Monthly digest</a></p>
+  {% if repo_is_byo %}
+  <p class="nav-links">Now answering about <strong>{{ repo_label }}</strong> · <a href="/repo/clear">Back to the Django demo</a> · <a href="#try-your-own-repo">Ingest another repo</a></p>
+  {% endif %}
+  </section>
+
+  <section class="card byo" id="try-your-own-repo" aria-label="Try your own repo">
+    <h2>Try your own repo</h2>
+    <p>Paste a public GitHub repo URL — WhyCode reads its commit history (commits, files, authors) and answers questions about <em>your</em> code. No login, no signup. History only: PRs and issues aren't ingested yet, and private repos can't be read.</p>
+    <form method="post" action="/ingest" class="byo-box">
+      <label for="repo_url">Public GitHub repo URL</label>
+      <div class="ask-row">
+      <input id="repo_url" name="repo_url" type="url" autocomplete="off"
+             placeholder="https://github.com/octocat/Hello-World" required>
+      <button type="submit">Ingest repo</button>
+      </div>
+    </form>
+    <p class="hint">Up to 300 most recent commits, ingested in under 90 seconds. At most 5 ingests per hour from one address. Your repo's graph is stored on this server only; the three most recent repos are kept.</p>
   </section>
 
   <div class="how">
-    <div class="how-step"><span class="num">1</span><h2>Ask</h2><p>Put a Django decision in your own words — a function, a file, a ticket number.</p></div>
+    <div class="how-step"><span class="num">1</span><h2>Ask</h2><p>{% if repo_is_byo %}Put a change in your own words — a function, a file, a commit message.{% else %}Put a Django decision in your own words — a function, a file, a ticket number.{% endif %}</p></div>
     <div class="how-step"><span class="num">2</span><h2>Get the answer</h2><p>Cited, with a confidence score — or an honest refusal when the graph has no evidence.</p></div>
     <div class="how-step"><span class="num">3</span><h2>Trace it</h2><p>Every claim links to its record: the commit, PR, ticket or DEP it came from.</p></div>
   </div>
@@ -73,8 +109,9 @@
         <h2>WhyCode refuses to answer this</h2>
         <p class="refusal-reason">{{ result.reason }}</p>
         <p class="refusal-note">Every claim here must trace to a record in the graph. When there is no
-        evidence, WhyCode says so instead of inventing an answer. Try rephrasing with
-        terms from the Django codebase — a function, file, or ticket number.</p>
+        evidence, WhyCode says so instead of inventing an answer. {% if repo_is_byo %}Try rephrasing with
+        terms from this repo's history — a function, file, or commit message.{% else %}Try rephrasing with
+        terms from the Django codebase — a function, file, or ticket number.{% endif %}</p>
       </section>
     {% else %}
       <section class="card answer" aria-label="Answer">
@@ -224,7 +261,7 @@
 </main>
 
 <footer>
-  <p>WhyCode · Team FORTEC · hackFront India Grand Finale · Graph: django/django —
+  <p>WhyCode · Team FORTEC · hackFront India Grand Finale · Graph: {{ repo_label }} —
   {% if entities is not none %}{{ entities }} entities, {{ edges }} edges{% else %}bundled SQLite graph{% endif %} ·
   every answer is cited or refused, never invented.</p>
 </footer>

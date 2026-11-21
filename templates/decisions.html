@@ -21,7 +21,7 @@
         </svg>
       </span>
       <div>
-        <h1>WhyCode <span>— django/django</span></h1>
+        <h1>WhyCode <span>— {{ repo_label }}</span></h1>
         <p class="tagline">Load-bearing decisions — the ten decisions that shaped this codebase.</p>
       </div>
     </div>
@@ -32,21 +32,28 @@
 </header>
 
 <main>
-  <p class="nav-links"><a href="/">← Ask WhyCode</a> · Reports: <a href="/health">Decision health</a> · <strong>Load-bearing decisions</strong> · <a href="/digest">Monthly digest</a></p>
+  <p class="nav-links"><a href="/?repo={{ repo | urlencode }}">← Ask WhyCode</a> · Reports: <a href="/health?repo={{ repo | urlencode }}">Decision health</a> · <strong>Load-bearing decisions</strong> · <a href="/digest?repo={{ repo | urlencode }}">Monthly digest</a></p>
 
   <section class="card" aria-label="Load-bearing decisions">
     <h2>The onboarding reading list</h2>
+    {% if repo_is_byo %}
+    <p class="hint">A change is load-bearing when many other records point at it. Ranked by
+    PageRank over the whole history graph — commits only, since this repo's graph
+    holds history, not design docs. The score is shown, so the ranking can be checked. If you are new
+    to this codebase, these are the ten changes to understand first.</p>
+    {% else %}
     <p class="hint">A decision is load-bearing when many other records point at it. Ranked by
     PageRank over the whole history graph (directed, all 678 entities and 644 edges) —
     design docs only. The score is shown, so the ranking can be checked. If you are new
     to this codebase, these are the ten decisions to understand first.</p>
+    {% endif %}
     <ol class="ranked">
       {% for row in rows %}
       <li>
         <span class="rank-score">{{ row.score }}</span>
         {% if row.url %}<a href="{{ row.url }}" target="_blank" rel="noopener">{{ row.title }}</a>{% else %}{{ row.title }}{% endif %}
-        <span class="kind kind-doc">doc</span>
-        <span class="row-meta">{% if row.date %}decided {{ row.date }} · {% endif %}{{ row.links }} linked record(s)</span>
+        <span class="kind kind-{{ row.kind }}">{{ row.kind }}</span>
+        <span class="row-meta">{% if row.date %}{{ row.date_label }} {{ row.date }} · {% endif %}{{ row.links }} linked record(s)</span>
       </li>
       {% endfor %}
     </ol>
@@ -55,7 +62,7 @@
 </main>
 
 <footer>
-  <p>WhyCode · Team FORTEC · hackFront India Grand Finale · Graph: django/django —
+  <p>WhyCode · Team FORTEC · hackFront India Grand Finale · Graph: {{ repo_label }} —
   {% if entities is not none %}{{ entities }} entities, {{ edges }} edges{% else %}bundled SQLite graph{% endif %} ·
   every answer is cited or refused, never invented.</p>
 </footer>

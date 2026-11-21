@@ -297,6 +297,10 @@ def load_bearing(store, top_n=10):
     Only kind=doc entities are ranked. Each row carries the score
     (so the ranking is checkable), the decision date when the graph
     has one, and how many records link to it.
+
+    A history-only graph (a bring-your-own repo) has no docs: the
+    same ranking then runs over commits, so the page still answers
+    "what shaped this codebase?" instead of coming back empty.
     """
     entities = {e["id"]: e for e in store.all_entities()}
     edges = [(e["src"], e["dst"]) for e in store.all_edges()]
@@ -308,6 +312,10 @@ def load_bearing(store, top_n=10):
         if dst in degree:
             degree[dst] += 1
     docs = [e for e in entities.values() if e["kind"] == "doc"]
+    kind = "doc"
+    if not docs:
+        docs = [e for e in entities.values() if e["kind"] == "commit"]
+        kind = "commit"
     docs.sort(key=lambda e: -scores.get(e["id"], 0.0))
     return [{
         "id": ent["id"],
@@ -315,6 +323,8 @@ def load_bearing(store, top_n=10):
         "url": ent.get("url") or "",
         "score": round(scores.get(ent["id"], 0.0), 4),
         "date": _decision_date(ent),
+        "date_label": "decided" if kind == "doc" else "landed",
+        "kind": kind,
         "links": degree.get(ent["id"], 0),
     } for ent in docs[:top_n]]
 
@@ -330,9 +340,15 @@ def decision_health(store, top_n=10):
     cannot be ranked on staleness.
     """
     rows = []
-    for ent in store.all_entities():
-        if ent.get("kind") != "doc":
-            continue
+    cands = [ent for ent in store.all_entities()
+             if ent.get("kind") == "doc"]
+    kind = "doc"
+    if not cands:
+        # History-only graph (bring-your-own repo): rank commits.
+        cands = [ent for ent in store.all_entities()
+                 if ent.get("kind") == "commit"]
+        kind = "commit"
+    for ent in cands:
         date = _decision_date(ent)
         if not date:
             continue
@@ -342,6 +358,8 @@ def decision_health(store, top_n=10):
             "title": ent["title"],
             "url": ent.get("url") or "",
             "date": date,
+            "date_label": "decided" if kind == "doc" else "landed",
+            "kind": kind,
             "file_count": fresh["file_count"] if fresh else 0,
             "churn": fresh["churn"] if fresh else 0,
             "last_change": fresh["last_change"] if fresh else None,

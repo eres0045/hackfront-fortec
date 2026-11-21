@@ -21,7 +21,7 @@
         </svg>
       </span>
       <div>
-        <h1>WhyCode <span>— django/django</span></h1>
+        <h1>WhyCode <span>— {{ repo_label }}</span></h1>
         <p class="tagline">Monthly digest — new decisions, what changed, who knows most.</p>
       </div>
     </div>
@@ -32,12 +32,13 @@
 </header>
 
 <main>
-  <p class="nav-links"><a href="/">← Ask WhyCode</a> · Reports: <a href="/health">Decision health</a> · <a href="/decisions">Load-bearing decisions</a> · <strong>Monthly digest</strong></p>
+  <p class="nav-links"><a href="/?repo={{ repo | urlencode }}">← Ask WhyCode</a> · Reports: <a href="/health?repo={{ repo | urlencode }}">Decision health</a> · <a href="/decisions?repo={{ repo | urlencode }}">Load-bearing decisions</a> · <strong>Monthly digest</strong></p>
 
   <section class="card" aria-label="New decisions">
     <h2>New decisions</h2>
     <p class="hint">The most recently dated decisions in the graph. "New" means most
     recently dated — the graph is a snapshot, so there is no previous digest to diff against.</p>
+    {% if data.new_decisions %}
     <ol class="ranked">
       {% for row in data.new_decisions %}
       <li>
@@ -47,6 +48,9 @@
       </li>
       {% endfor %}
     </ol>
+    {% else %}
+    <p class="hint">No design docs in this repo's graph — a history-only ingest has commits, not DEPs. See "What changed" below for the newest work.</p>
+    {% endif %}
   </section>
 
   <section class="card" aria-label="What changed">
@@ -81,7 +85,7 @@
 </main>
 
 <footer>
-  <p>WhyCode · Team FORTEC · hackFront India Grand Finale · Graph: django/django —
+  <p>WhyCode · Team FORTEC · hackFront India Grand Finale · Graph: {{ repo_label }} —
   {% if entities is not none %}{{ entities }} entities, {{ edges }} edges{% else %}bundled SQLite graph{% endif %} ·
   every answer is cited or refused, never invented.</p>
 </footer>

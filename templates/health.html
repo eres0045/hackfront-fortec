@@ -21,7 +21,7 @@
         </svg>
       </span>
       <div>
-        <h1>WhyCode <span>— django/django</span></h1>
+        <h1>WhyCode <span>— {{ repo_label }}</span></h1>
         <p class="tagline">Decision health — which decisions has the code outgrown?</p>
       </div>
     </div>
@@ -32,22 +32,31 @@
 </header>
 
 <main>
-  <p class="nav-links"><a href="/">← Ask WhyCode</a> · Reports: <strong>Decision health</strong> · <a href="/decisions">Load-bearing decisions</a> · <a href="/digest">Monthly digest</a></p>
+  <p class="nav-links"><a href="/?repo={{ repo | urlencode }}">← Ask WhyCode</a> · Reports: <strong>Decision health</strong> · <a href="/decisions?repo={{ repo | urlencode }}">Load-bearing decisions</a> · <a href="/digest?repo={{ repo | urlencode }}">Monthly digest</a></p>
 
   <section class="card" aria-label="Decision health">
+    {% if repo_is_byo %}
+    <h2>Changes ranked by code churn since they landed</h2>
+    <p class="hint">A change goes stale when the code it governs keeps moving. Churn is the
+    count of commits dated after the change that touch its files — a fact from the
+    graph, not a verdict. A change with no files recorded in the graph carries
+    churn 0 and is listed as such. Only dated changes appear: an undated one
+    cannot be ranked on staleness.</p>
+    {% else %}
     <h2>Decisions ranked by code churn since they were made</h2>
     <p class="hint">A decision goes stale when the code it governs keeps moving. Churn is the
     count of commits dated after the decision that touch its files — a fact from the
     graph, not a verdict. A decision with no files recorded in the graph carries
     churn 0 and is listed as such. Only dated decisions appear: an undated one
     cannot be ranked on staleness.</p>
+    {% endif %}
     <ol class="ranked">
       {% for row in rows %}
       <li>
         <span class="rank-score">{{ row.churn }}×</span>
         {% if row.url %}<a href="{{ row.url }}" target="_blank" rel="noopener">{{ row.title }}</a>{% else %}{{ row.title }}{% endif %}
-        <span class="kind kind-doc">doc</span>
-        <span class="row-meta">decided {{ row.date }} ·
+        <span class="kind kind-{{ row.kind }}">{{ row.kind }}</span>
+        <span class="row-meta">{{ row.date_label }} {{ row.date }} ·
           {% if row.file_count %}{{ row.file_count }} file(s) governed ·
           {% if row.churn %}last change {{ row.last_change }}{% else %}no changes since{% endif %}
           {% else %}no files recorded in the graph{% endif %}</span>
@@ -59,7 +68,7 @@
 </main>
 
 <footer>
-  <p>WhyCode · Team FORTEC · hackFront India Grand Finale · Graph: django/django —
+  <p>WhyCode · Team FORTEC · hackFront India Grand Finale · Graph: {{ repo_label }} —
   {% if entities is not none %}{{ entities }} entities, {{ edges }} edges{% else %}bundled SQLite graph{% endif %} ·
   every answer is cited or refused, never invented.</p>
 </footer>

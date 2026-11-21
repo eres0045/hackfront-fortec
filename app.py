@@ -27,6 +27,7 @@ from whycode.features import (
     who_to_ask,
 )
 from whycode.graph import GraphStore
+from whycode import byo
 from whycode.neo4j_chain import cached_store_from_env
 from whycode.prbot import handle_pull_request, verify_signature
 from whycode.qa import ask, decision_timeline
@@ -104,6 +105,55 @@ def reset_rate_limits():
     """Clear all recorded hits (tests only)."""
     with _rate_lock:
         _rate_hits.clear()
+
+
+# Bring-your-own-repo: repo selection is stateless (no Flask secret
+# key is set, so no signed sessions). The active repo comes from the
+# ask form / ?repo= first, then the plain unsigned whycode_repo
+# cookie set by a successful ingest; anything unknown falls back to
+# the Django demo. A repo is active only when its DB file exists.
+def _repo_context():
+    raw = (request.form.get("repo") or request.args.get("repo")
+           or request.cookies.get("whycode_repo") or "").strip()
+    if not raw or raw == "django":
+        return {"slug": "django", "label": "django/django",
+                "is_byo": False}
+    parts = raw.split("/")
+    if (len(parts) == 2 and byo.SEGMENT_RE.match(parts[0])
+            and byo.SEGMENT_RE.match(parts[1])
+            and byo.repo_exists(parts[0], parts[1])):
+        return {"slug": f"{parts[0]}/{parts[1]}",
+                "label": f"{parts[0]}/{parts[1]}", "is_byo": True}
+    return {"slug": "django", "label": "django/django", "is_byo": False}
+
+
+# Ingest rate limit: 5 ingests/hour/IP. Ingest is the one expensive
+# route (up to a 90s clone); the limit keeps one address from
+# queueing clones forever. Same in-memory pattern as the question
+# limiter.
+INGEST_LIMIT_REQUESTS = 5
+INGEST_LIMIT_WINDOW = 3600  # seconds
+_ingest_hits = {}
+_ingest_lock = threading.Lock()
+
+
+def _ingest_allowed(ip):
+    now = time.monotonic()
+    with _ingest_lock:
+        hits = [t for t in _ingest_hits.get(ip, [])
+                if now - t < INGEST_LIMIT_WINDOW]
+        if len(hits) >= INGEST_LIMIT_REQUESTS:
+            _ingest_hits[ip] = hits
+            return False
+        hits.append(now)
+        _ingest_hits[ip] = hits
+        return True
+
+
+def reset_ingest_limits():
+    """Clear all recorded ingest hits (tests only)."""
+    with _ingest_lock:
+        _ingest_hits.clear()
 
 
 # Finale redirect (2026-11-21 20:31 IST, Ronit's order): the app now lives
@@ -195,10 +245,15 @@ KIND_COLORS = {
 }
 
 
-def db_stats():
+def db_stats(repo_ctx=None):
     """Entity/edge counts for the footer; '-' if the DB is unreadable."""
+    if repo_ctx and repo_ctx["is_byo"]:
+        owner, repo = repo_ctx["slug"].split("/")
+        path = byo.repo_db_path(owner, repo)
+    else:
+        path = DB_PATH
     try:
-        conn = sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True)
+        conn = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
         entities = conn.execute("SELECT COUNT(*) FROM entities").fetchone()[0]
         edges = conn.execute("SELECT COUNT(*) FROM edges").fetchone()[0]
         conn.close()
@@ -308,6 +363,7 @@ def evidence_graph_svg(match, evidence):
 
 @app.route("/", methods=["GET", "POST"])
 def index():
+    repo_ctx = _repo_context()
     question = ""
     result = None
     notice = None
@@ -331,17 +387,20 @@ def index():
             "Shorten it and try again."
         )
     elif question:
-        result, chain_source = _answer(question)
-    entities, edges = db_stats()
+        result, chain_source = _answer(question, repo_ctx)
+    entities, edges = db_stats(repo_ctx)
     return render_template(
         "index.html",
         question=question,
         result=result,
         notice=notice,
-        examples=EXAMPLE_QUESTIONS,
+        examples=[] if repo_ctx["is_byo"] else EXAMPLE_QUESTIONS,
         entities=entities,
         edges=edges,
         chain_source=chain_source,
+        repo=repo_ctx["slug"],
+        repo_label=repo_ctx["label"],
+        repo_is_byo=repo_ctx["is_byo"],
     )
 
 
@@ -376,13 +435,20 @@ def _answer_with_store(store, question):
     return result
 
 
-def _store_for_request():
+def _store_for_request(repo_ctx=None):
     """(store, source): Neo4j first, SQLite fallback — same as _answer.
 
     The Neo4j store shares the process-wide snapshot; closing it is
     a no-op. The SQLite store is fresh per request (sqlite3
     connections are not thread-safe).
+
+    A bring-your-own repo never touches Neo4j (its graph lives only
+    in its own SQLite DB): it always gets a plain GraphStore on that
+    DB, source "sqlite".
     """
+    if repo_ctx and repo_ctx["is_byo"]:
+        owner, repo = repo_ctx["slug"].split("/")
+        return GraphStore(byo.repo_db_path(owner, repo)), "sqlite"
     try:
         neo4j_store = cached_store_from_env()
     except Exception:
@@ -408,15 +474,17 @@ def decisions():
     The onboarding reading list — the decisions a new hire must
     understand first. Computed from the live graph on every load.
     """
-    store, source = _store_for_request()
+    repo_ctx = _repo_context()
+    store, source = _store_for_request(repo_ctx)
     try:
         rows = load_bearing(store)
     finally:
         _close_store(store)
-    entities, edges = db_stats()
+    entities, edges = db_stats(repo_ctx)
     return render_template(
         "decisions.html", rows=rows, entities=entities, edges=edges,
-        chain_source=source)
+        chain_source=source, repo=repo_ctx["slug"],
+        repo_label=repo_ctx["label"], repo_is_byo=repo_ctx["is_byo"])
 
 
 @app.route("/health")
@@ -424,15 +492,17 @@ def health():
     """Decision health: every dated decision, ranked by code churn
     since it was made. The maintainer's page — the second user
     segment's live journey (Build Plan Challenge 05)."""
-    store, source = _store_for_request()
+    repo_ctx = _repo_context()
+    store, source = _store_for_request(repo_ctx)
     try:
         rows = decision_health(store)
     finally:
         _close_store(store)
-    entities, edges = db_stats()
+    entities, edges = db_stats(repo_ctx)
     return render_template(
         "health.html", rows=rows, entities=entities, edges=edges,
-        chain_source=source)
+        chain_source=source, repo=repo_ctx["slug"],
+        repo_label=repo_ctx["label"], repo_is_byo=repo_ctx["is_byo"])
 
 
 @app.route("/digest")
@@ -442,15 +512,17 @@ def digest_page():
     The third report — decision health and load-bearing decisions
     are the other two. Computed from the live graph on every load.
     """
-    store, source = _store_for_request()
+    repo_ctx = _repo_context()
+    store, source = _store_for_request(repo_ctx)
     try:
         data = digest(store)
     finally:
         _close_store(store)
-    entities, edges = db_stats()
+    entities, edges = db_stats(repo_ctx)
     return render_template(
         "digest.html", data=data, entities=entities, edges=edges,
-        chain_source=source)
+        chain_source=source, repo=repo_ctx["slug"],
+        repo_label=repo_ctx["label"], repo_is_byo=repo_ctx["is_byo"])
 
 
 @app.route("/github-webhook", methods=["POST"])
@@ -494,7 +566,7 @@ def github_webhook():
     return {"ok": True, "outcome": outcome}, 200
 
 
-def _answer(question):
+def _answer(question, repo_ctx=None):
     """(result, chain_source): Neo4j first, SQLite fallback.
 
     Neo4j is the partner technology in the core flow, so every
@@ -502,25 +574,78 @@ def _answer(question):
     bad credentials, unreachable instance, a mid-query error —
     falls back to the SQLite store silently and still answers.
     The evaluator gets an answer either way, never a 500.
+
+    A bring-your-own repo has no second store to fall back to: if
+    its engine fails, the answer is an honest refusal, still never
+    a 500.
     """
-    neo4j_store = None
+    store, source = _store_for_request(repo_ctx)
     try:
-        neo4j_store = cached_store_from_env()
+        return _answer_with_store(store, question), source
     except Exception:
-        neo4j_store = None
-    if neo4j_store is not None:
-        try:
-            return _answer_with_store(neo4j_store, question), "neo4j"
-        except Exception:
-            pass
-        finally:
-            try:
-                neo4j_store.close()
-            except Exception:
-                pass
+        pass
+    finally:
+        _close_store(store)
+    if repo_ctx and repo_ctx["is_byo"]:
+        return {"question": question, "refused": True,
+                "reason": "No evidence in the graph answers this. "
+                "Refusing to invent an answer.",
+                "confidence": 0.0, "evidence": []}, "sqlite"
     # Fresh store per request: sqlite3 connections are not thread-safe,
     # and the Flask dev server is threaded.
     return _answer_with_store(GraphStore(DB_PATH), question), "sqlite"
+
+
+@app.route("/ingest", methods=["GET", "POST"])
+def ingest():
+    """Bring-your-own-repo: paste a public GitHub repo URL, get its
+    history ingested, then ask about it. GET redirects home (there
+    is nothing to show); POST validates the URL, rate-limits, ingests
+    (up to 90s), sets the plain repo cookie and redirects to the ask
+    page for that repo. Failures render home with a friendly notice —
+    never a 500, never a stack trace."""
+    if request.method == "GET":
+        return redirect("/", code=302)
+    repo_ctx = _repo_context()
+    entities, edges = db_stats(repo_ctx)
+
+    def _home_with_notice(notice, status=200):
+        return render_template(
+            "index.html", question="", result=None, notice=notice,
+            examples=[] if repo_ctx["is_byo"] else EXAMPLE_QUESTIONS,
+            entities=entities, edges=edges, chain_source=None,
+            repo=repo_ctx["slug"], repo_label=repo_ctx["label"],
+            repo_is_byo=repo_ctx["is_byo"],
+        ), status
+
+    if not _ingest_allowed(_client_ip()):
+        return _home_with_notice(
+            "Too many ingests from this address — at most 5 per hour. "
+            "Try again later.", status=429)
+    url = (request.form.get("repo_url") or "").strip()
+    parsed = byo.parse_github_url(url)
+    if not parsed:
+        return _home_with_notice(
+            "That doesn't look like a public GitHub repo URL — paste "
+            "one like https://github.com/octocat/Hello-World")
+    owner, repo = parsed
+    try:
+        stats = byo.ingest_repo(owner, repo)
+    except byo.IngestError as exc:
+        return _home_with_notice(str(exc))
+    resp = redirect(f"/?repo={owner}/{repo}", code=302)
+    resp.set_cookie("whycode_repo", f"{owner}/{repo}",
+                    max_age=30 * 24 * 3600, httponly=True, samesite="Lax")
+    return resp
+
+
+@app.route("/repo/clear")
+def clear_repo():
+    """Forget the ingested repo and go back to the Django demo."""
+    resp = redirect("/", code=302)
+    resp.set_cookie("whycode_repo", "django",
+                    max_age=30 * 24 * 3600, httponly=True, samesite="Lax")
+    return resp
 
 
 if __name__ == "__main__":

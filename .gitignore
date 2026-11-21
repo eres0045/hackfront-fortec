@@ -2,3 +2,6 @@
 # swept-in build junk
 __pycache__/
 *.log
+
+# ingested per-repo graphs (bring-your-own-repo) — never commit
+data/repos/
