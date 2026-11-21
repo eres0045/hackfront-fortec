@@ -17,6 +17,14 @@ import time
 
 from flask import Flask, render_template, request
 
+from whycode.features import (
+    blast_radius,
+    decision_freshness,
+    decision_health,
+    evidence_grade,
+    load_bearing,
+    who_to_ask,
+)
 from whycode.graph import GraphStore
 from whycode.neo4j_chain import cached_store_from_env
 from whycode.qa import ask, decision_timeline
@@ -131,6 +139,8 @@ def sitemap():
 
     urls = [
         "",
+        "decisions",
+        "health",
         "?q=" + quote(EXAMPLE_QUESTIONS[0]),
         "?q=" + quote(EXAMPLE_QUESTIONS[1]),
     ]
@@ -322,10 +332,81 @@ def _answer_with_store(store, question):
         ]
         result["timeline"] = decision_timeline(
             store, result["match"], result["evidence"])
+        # New features: blast radius, freshness, grades, who-to-ask,
+        # and the query that fetched the chain. All read the same
+        # store the answer came from, so they agree with it — and
+        # none of them touches the refusal rules above.
+        result["blast"] = blast_radius(
+            store, result["match"], result["evidence"])
+        result["freshness"] = decision_freshness(
+            store, result["match"], result["evidence"])
+        result["who"] = who_to_ask(result["blast"])
+        result["query_text"] = store.chain_query(result["match"]["id"])
+        for rec in result["evidence"]:
+            rec["grade"] = evidence_grade(rec)
         if result["evidence"]:
             result["graph_svg"] = evidence_graph_svg(
                 result["match"], result["evidence"])
     return result
+
+
+def _store_for_request():
+    """(store, source): Neo4j first, SQLite fallback — same as _answer.
+
+    The Neo4j store shares the process-wide snapshot; closing it is
+    a no-op. The SQLite store is fresh per request (sqlite3
+    connections are not thread-safe).
+    """
+    try:
+        neo4j_store = cached_store_from_env()
+    except Exception:
+        neo4j_store = None
+    if neo4j_store is not None:
+        return neo4j_store, "neo4j"
+    return GraphStore(DB_PATH), "sqlite"
+
+
+def _close_store(store):
+    close = getattr(store, "close", None)
+    if close:
+        try:
+            close()
+        except Exception:
+            pass
+
+
+@app.route("/decisions")
+def decisions():
+    """Load-bearing decisions: the top 10 docs by PageRank.
+
+    The onboarding reading list — the decisions a new hire must
+    understand first. Computed from the live graph on every load.
+    """
+    store, source = _store_for_request()
+    try:
+        rows = load_bearing(store)
+    finally:
+        _close_store(store)
+    entities, edges = db_stats()
+    return render_template(
+        "decisions.html", rows=rows, entities=entities, edges=edges,
+        chain_source=source)
+
+
+@app.route("/health")
+def health():
+    """Decision health: every dated decision, ranked by code churn
+    since it was made. The maintainer's page — the second user
+    segment's live journey (Build Plan Challenge 05)."""
+    store, source = _store_for_request()
+    try:
+        rows = decision_health(store)
+    finally:
+        _close_store(store)
+    entities, edges = db_stats()
+    return render_template(
+        "health.html", rows=rows, entities=entities, edges=edges,
+        chain_source=source)
 
 
 def _answer(question):

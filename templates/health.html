@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WhyCode — Decision health</title>
+<meta name="description" content="Which Django decisions have gone stale? Every dated decision ranked by how much its code moved since it was made.">
+<link rel="canonical" href="https://whycode-ui.onrender.com/health">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="5" cy="13" r="3.2" fill="#fff"/>
+          <circle cx="21" cy="5" r="3.2" fill="#bbf7d0"/>
+          <circle cx="21" cy="21" r="3.2" fill="#bbf7d0"/>
+          <path d="M7.8 11.8 18.2 6.4M7.8 14.2l10.4 5.4" stroke="#fff" stroke-width="1.6"/>
+        </svg>
+      </span>
+      <div>
+        <h1>WhyCode <span>— django/django</span></h1>
+        <p class="tagline">Decision health — which decisions has the code outgrown?</p>
+      </div>
+    </div>
+    {% if entities is not none %}
+    <span class="status-pill"><span class="dot"></span>Live · {{ entities }} entities · {{ edges }} edges</span>
+    {% endif %}
+  </div>
+</header>
+
+<main>
+  <p class="nav-links"><a href="/">← Ask WhyCode</a> · Reports: <strong>Decision health</strong> · <a href="/decisions">Load-bearing decisions</a></p>
+
+  <section class="card" aria-label="Decision health">
+    <h2>Decisions ranked by code churn since they were made</h2>
+    <p class="hint">A decision goes stale when the code it governs keeps moving. Churn is the
+    count of commits dated after the decision that touch its files — a fact from the
+    graph, not a verdict. A decision with no files recorded in the graph carries
+    churn 0 and is listed as such. Only dated decisions appear: an undated one
+    cannot be ranked on staleness.</p>
+    <ol class="ranked">
+      {% for row in rows %}
+      <li>
+        <span class="rank-score">{{ row.churn }}×</span>
+        {% if row.url %}<a href="{{ row.url }}" target="_blank" rel="noopener">{{ row.title }}</a>{% else %}{{ row.title }}{% endif %}
+        <span class="kind kind-doc">doc</span>
+        <span class="row-meta">decided {{ row.date }} ·
+          {% if row.file_count %}{{ row.file_count }} file(s) governed ·
+          {% if row.churn %}last change {{ row.last_change }}{% else %}no changes since{% endif %}
+          {% else %}no files recorded in the graph{% endif %}</span>
+      </li>
+      {% endfor %}
+    </ol>
+    <p class="hint">Served from the {{ chain_source }} store, computed from the live graph on every load.</p>
+  </section>
+</main>
+
+<footer>
+  <p>WhyCode · Team FORTEC · hackFront India Grand Finale · Graph: django/django —
+  {% if entities is not none %}{{ entities }} entities, {{ edges }} edges{% else %}bundled SQLite graph{% endif %} ·
+  every answer is cited or refused, never invented.</p>
+</footer>
+</body>
+</html>

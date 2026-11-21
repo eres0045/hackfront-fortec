@@ -227,6 +227,38 @@ class Neo4jGraphStore:
             out.append(rec)
         return out
 
+    def all_entities(self):
+        """Every entity, as dicts (for graph-wide features)."""
+        return [dict(e) for e in self._entities.values()]
+
+    def all_edges(self):
+        """Every edge, as {src, dst, relation} dicts."""
+        out = []
+        for src, edges in self._out.items():
+            for e in edges:
+                out.append({"src": src, "dst": e["dst"],
+                            "relation": e["relation"]})
+        return out
+
+    def chain_query(self, entity_id):
+        """The exact Cypher that pulls the data the chain is walked over.
+
+        The Neo4j store answers from a snapshot loaded once per
+        process by these two queries; the 2-hop chain itself is then
+        walked in Python (whycode/qa.py: evidence_chain), exactly as
+        on SQLite. The entity id is not part of the query — the whole
+        graph is loaded, and the walk starts from the id in Python.
+        """
+        return (
+            "-- the chain is a 2-hop walk over the graph snapshot\n"
+            "-- loaded by these two queries (whycode/qa.py: evidence_chain)\n"
+            "MATCH (n:Entity)\n"
+            "RETURN n.id, n.kind, n.title, n.body, n.url, n.created_at;\n"
+            "MATCH (a:Entity)-[r]->(b:Entity)\n"
+            "RETURN a.id AS src, b.id AS dst, type(r) AS relation,\n"
+            "       r.seq AS seq;"
+        )
+
 
 def store_from_env():
     """Build a Neo4jGraphStore from NEO4J_URI/USERNAME/PASSWORD.

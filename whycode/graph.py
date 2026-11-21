@@ -81,3 +81,35 @@ class GraphStore:
             q += " AND g.relation = ?"
             args.append(relation)
         return [dict(r) for r in self.conn.execute(q, args).fetchall()]
+
+    def all_entities(self):
+        """Every entity, as dicts (for graph-wide features)."""
+        return [dict(r) for r in
+                self.conn.execute("SELECT * FROM entities").fetchall()]
+
+    def all_edges(self):
+        """Every edge, as {src, dst, relation} dicts."""
+        return [dict(r) for r in self.conn.execute(
+            "SELECT src, dst, relation FROM edges").fetchall()]
+
+    def chain_query(self, entity_id):
+        """The exact SQL that pulls the evidence chain for an entity.
+
+        The chain is a 2-hop walk (see whycode.qa.evidence_chain) over
+        these two neighbour queries — out-neighbours (this record
+        points at) and in-neighbours (records pointing at this one).
+        The id is a graph id, not user input; quotes are doubled.
+        """
+        safe = entity_id.replace("'", "''")
+        return (
+            "-- out-neighbours: records this decision points at\n"
+            "SELECT e.*, g.relation FROM edges g\n"
+            "  JOIN entities e ON e.id = g.dst\n"
+            f"  WHERE g.src = '{safe}';\n"
+            "-- in-neighbours: records pointing at this decision\n"
+            "SELECT e.*, g.relation FROM edges g\n"
+            "  JOIN entities e ON e.id = g.src\n"
+            f"  WHERE g.dst = '{safe}';\n"
+            "-- the chain is a 2-hop walk over these two queries,\n"
+            "-- computed in Python (whycode/qa.py: evidence_chain)"
+        )

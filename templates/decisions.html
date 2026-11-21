@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WhyCode — Load-bearing decisions</title>
+<meta name="description" content="The ten decisions that shaped django/django, ranked by PageRank over the history graph.">
+<link rel="canonical" href="https://whycode-ui.onrender.com/decisions">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="5" cy="13" r="3.2" fill="#fff"/>
+          <circle cx="21" cy="5" r="3.2" fill="#bbf7d0"/>
+          <circle cx="21" cy="21" r="3.2" fill="#bbf7d0"/>
+          <path d="M7.8 11.8 18.2 6.4M7.8 14.2l10.4 5.4" stroke="#fff" stroke-width="1.6"/>
+        </svg>
+      </span>
+      <div>
+        <h1>WhyCode <span>— django/django</span></h1>
+        <p class="tagline">Load-bearing decisions — the ten decisions that shaped this codebase.</p>
+      </div>
+    </div>
+    {% if entities is not none %}
+    <span class="status-pill"><span class="dot"></span>Live · {{ entities }} entities · {{ edges }} edges</span>
+    {% endif %}
+  </div>
+</header>
+
+<main>
+  <p class="nav-links"><a href="/">← Ask WhyCode</a> · Reports: <a href="/health">Decision health</a> · <strong>Load-bearing decisions</strong></p>
+
+  <section class="card" aria-label="Load-bearing decisions">
+    <h2>The onboarding reading list</h2>
+    <p class="hint">A decision is load-bearing when many other records point at it. Ranked by
+    PageRank over the whole history graph (directed, all 678 entities and 644 edges) —
+    design docs only. The score is shown, so the ranking can be checked. If you are new
+    to this codebase, these are the ten decisions to understand first.</p>
+    <ol class="ranked">
+      {% for row in rows %}
+      <li>
+        <span class="rank-score">{{ row.score }}</span>
+        {% if row.url %}<a href="{{ row.url }}" target="_blank" rel="noopener">{{ row.title }}</a>{% else %}{{ row.title }}{% endif %}
+        <span class="kind kind-doc">doc</span>
+        <span class="row-meta">{% if row.date %}decided {{ row.date }} · {% endif %}{{ row.links }} linked record(s)</span>
+      </li>
+      {% endfor %}
+    </ol>
+    <p class="hint">Served from the {{ chain_source }} store, computed from the live graph on every load.</p>
+  </section>
+</main>
+
+<footer>
+  <p>WhyCode · Team FORTEC · hackFront India Grand Finale · Graph: django/django —
+  {% if entities is not none %}{{ entities }} entities, {{ edges }} edges{% else %}bundled SQLite graph{% endif %} ·
+  every answer is cited or refused, never invented.</p>
+</footer>
+</body>
+</html>

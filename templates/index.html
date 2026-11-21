@@ -53,6 +53,7 @@
       <a class="chip" href="/?q={{ ex | urlencode }}">{{ ex }}</a>
     {% endfor %}
   </p>
+  <p class="nav-links">Reports: <a href="/health">Decision health</a> · <a href="/decisions">Load-bearing decisions</a></p>
   </section>
 
   <div class="how">
@@ -88,6 +89,9 @@
           </div>
         {% endif %}
         <p class="answer-text">{{ result.answer }}</p>
+        {% if result.freshness %}
+        <p class="freshness">{{ result.freshness.line }}</p>
+        {% endif %}
         <dl class="meta">
           <div><dt>Confidence</dt><dd class="conf-value">
             <span class="conf-bar"><span style="width: {{ (result.confidence * 100) | int }}%"></span></span>
@@ -106,6 +110,40 @@
           {% endif %}
         </dl>
       </section>
+
+      {% if result.blast and result.blast.total %}
+      <section class="card blast" aria-label="Blast radius">
+        <h2>Blast radius — what breaks if I change this?</h2>
+        <p class="blast-summary">Blast radius: {{ result.blast.file_count }} file(s), {{ result.blast.commit_count }} commit(s), {{ result.blast.issue_count }} issue(s) / PR(s){% if result.blast.decision_count %}, {{ result.blast.decision_count }} related decision(s){% endif %}{% if result.who %} — talk to: {% for p in result.who %}{{ p.title }} ({{ p.count }} commit{% if p.count != 1 %}s{% endif %}){% if not loop.last %}, {% endif %}{% endfor %}{% endif %}</p>
+        {% if result.blast.files %}
+        <h3>Files governed</h3>
+        <ul class="blast-list">
+          {% for f in result.blast.files %}<li><code>{{ f.id[5:] }}</code></li>{% endfor %}
+        </ul>
+        {% if result.blast.file_count > result.blast.files | length %}<p class="hint">Showing {{ result.blast.files | length }} of {{ result.blast.file_count }} files.</p>{% endif %}
+        {% endif %}
+        {% if result.blast.commits %}
+        <h3>Commits in the radius</h3>
+        <ul class="blast-list">
+          {% for c in result.blast.commits %}<li>{% if c.url %}<a href="{{ c.url }}" target="_blank" rel="noopener">{{ c.title }}</a>{% else %}{{ c.title }}{% endif %}{% if c.created_at %} <span class="hint">{{ c.created_at[:10] }}</span>{% endif %}</li>{% endfor %}
+        </ul>
+        {% if result.blast.commit_count > result.blast.commits | length %}<p class="hint">Showing {{ result.blast.commits | length }} of {{ result.blast.commit_count }} commits (most recent first).</p>{% endif %}
+        {% endif %}
+        {% if result.blast.issues %}
+        <h3>Issues / PRs in the radius</h3>
+        <ul class="blast-list">
+          {% for i in result.blast.issues %}<li>{% if i.url %}<a href="{{ i.url }}" target="_blank" rel="noopener">{{ i.title }}</a>{% else %}{{ i.title }}{% endif %} <span class="kind kind-{{ i.kind }}">{{ i.kind }}</span></li>{% endfor %}
+        </ul>
+        {% if result.blast.issue_count > result.blast.issues | length %}<p class="hint">Showing {{ result.blast.issues | length }} of {{ result.blast.issue_count }} issues / PRs.</p>{% endif %}
+        {% endif %}
+        {% if result.blast.decisions %}
+        <h3>Related decisions</h3>
+        <ul class="blast-list">
+          {% for d in result.blast.decisions %}<li>{% if d.url %}<a href="{{ d.url }}" target="_blank" rel="noopener">{{ d.title }}</a>{% else %}{{ d.title }}{% endif %}</li>{% endfor %}
+        </ul>
+        {% endif %}
+      </section>
+      {% endif %}
 
       {% if result.mode == "why_not" and result.rejected %}
       <section class="card why-not" aria-label="Rejected alternative">
@@ -134,6 +172,7 @@
             <li>
               <span class="rel">{{ rec.relation }}</span>
               <span class="kind kind-{{ rec.kind }}">{{ rec.kind }}</span>
+              {% if rec.grade %}<span class="grade" title="Grade {{ rec.grade[0] }} — {{ rec.grade[1] }}">Grade {{ rec.grade[0] }}</span>{% endif %}
               {% if rec.url %}
                 <a href="{{ rec.url }}" target="_blank" rel="noopener">{{ rec.title }}</a>
               {% else %}
@@ -167,6 +206,17 @@
           </li>
           {% endfor %}
         </ol>
+      </section>
+      {% endif %}
+
+      {% if result.query_text %}
+      <section class="card query" aria-label="How this answer was fetched">
+        <h2>How this answer was fetched</h2>
+        <details>
+          <summary>Show the query</summary>
+          <p class="hint">The exact query that pulled the chain from the {{ chain_source }} store. The answer is computed from what it returns — not generated.</p>
+          <pre>{{ result.query_text }}</pre>
+        </details>
       </section>
       {% endif %}
     {% endif %}
