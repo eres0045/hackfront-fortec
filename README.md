@@ -1,167 +1,108 @@
-# WhyCode — Git remembers what changed. WhyCode remembers why.
+# WhyCode
 
-Ask "why is the code like this?" and get an answer quoted from the project's
-own record — a cited evidence chain, a confidence score, and an honest
-refusal when the evidence is not there. No invented answers, ever.
+> Git remembers what changed. WhyCode remembers why.
 
-**Live:** https://whycode.embarko.app — paste a repo link and ask about your
-own code, or ask about the Django demo. No login, no signup.
+WhyCode answers the question every codebase eventually asks — *"why is the code like this?"* — with an answer quoted from the project's own record: a cited evidence chain, a confidence score, and an honest refusal when the evidence isn't there.
 
-Team FORTEC (Ronit Shrimankar + Udita Singh), hackFront India Grand Finale,
-IIIT Delhi, 21–22 Nov 2026. Problem T1.1 — "Why The Code Is Like This".
+**Live demo:** https://whycode.embarko.app — ask about the Django demo, or paste a public GitHub repo URL and ask about your own code. No account, no sign-up.
 
-## What it is
+![WhyCode home page](docs/embarko-home-byo-card.png)
 
-Codebases forget why. A senior answers "why is this like this?" from memory;
-an AI agent changes code blind. WhyCode ingests a repo's commits, PRs,
-tickets and design docs into a knowledge graph and answers "why" questions
-from that graph — every claim linked to the commit, PR, ticket or DEP it
-came from.
+## What it does
 
-The demo corpus is **django/django**: 678 entities / 644 edges (200 commits,
-100 PRs, 100 Trac tickets, 161 files, 90 people, 27 DEPs). Try:
+WhyCode ingests a repository's commits, pull requests, tickets and design documents into a knowledge graph, then answers "why" questions from that graph. Every claim in an answer links back to the commit, PR, ticket or design doc it came from.
 
-- "Why does Django need a steering council?" → 0.99, with a **superseded**
-  banner (DEP 0019 supersedes DEP 0010 + 0012)
-- "Why didn't Django fork instead of adding async?" → the rejected
-  alternative, cited verbatim from DEP 0009
-- "Why should Django move to microservices?" → refused, not invented
+The demo corpus is django/django: 678 entities and 644 edges — 200 commits, 100 PRs, 100 Trac tickets, 161 files, 90 people, 27 DEPs.
 
-## Features (finale build)
+Try it:
 
-- **Evidence chain + confidence** on every answer, with a hand-rolled inline
-  SVG graph view of the chain.
-- **Blast radius** on every answer: files, commits and issues/PRs a change
-  touches, plus who to ask.
-- **Show the query**: the real SQL / Cypher that produced the answer, under
-  each answer in a `<details>` block.
-- **Load-bearing decisions** (`/decisions`): top-10 decisions ranked by
-  PageRank (25-line stdlib implementation, no NetworkX).
-- **Freshness + decision health** (`/health`): "decided on <date>, the code
-  it governs changed <N> times since" — facts only, never a verdict.
-- **Evidence grades A–D** on chain records; **who-to-ask** (top-2 authors by
-  commits on the blast radius).
-- **"Why NOT"**: alternatives a DEP proposed and rejected, quoted from the
-  DEP text — plus a dated **decision timeline** per answer.
-- **Supersedes banner**: 3 real edges from DEP text (DEP 0019 supersedes
-  DEP 0010 + 0012; DEP 0020 supersedes DEP 0004). "Still true?" was
-  evaluated and cut honestly — no verdict in the data is groundable.
-- **Honest refusal** under 4 rules (no tokens / term absent / confidence
-  < 0.35 / empty chain). BM25 ranking (title weighted 2×) inside the
-  maximal token-coverage tier.
-- **Reports**: `/digest` (monthly digest) + Reports nav on every page.
-- **Reliability**: input validation, friendly messages for empty / too-long
-  questions, rate limiting (30 req/min/IP on the question route),
-  keep-alive so the free tier never cold-starts for an evaluator.
+- "Why does Django need a steering council?" — answered at 0.99 confidence, with a banner noting DEP 0019 supersedes DEP 0010 and DEP 0012.
+- "Why didn't Django fork instead of adding async?" — the rejected alternative, quoted from DEP 0009.
+- "Why should Django move to microservices?" — refused. No evidence, no invented answer.
+
+## Features
+
+- **Cited evidence chain** — every answer shows the records it was built from, with a confidence score and a graph view of the chain.
+- **Blast radius** — the files, commits and issues a change touches, and who to ask about them.
+- **Show the query** — the exact SQL or Cypher that produced the answer, visible under each answer.
+- **Load-bearing decisions** (`/decisions`) — the ten decisions the graph leans on most, ranked by PageRank.
+- **Decision health** (`/health`) — when a decision was made and how often the code it governs has changed since. Facts only, never a verdict.
+- **Evidence grades** — each chain record graded A–D by how directly it supports the answer.
+- **Why not** — alternatives a design doc proposed and rejected, quoted verbatim, plus a dated timeline of each decision.
+- **Superseded decisions** — when a decision was replaced, the answer says so and links to the replacement.
+- **Honest refusal** — if a question has no grounding in the record, WhyCode says so instead of guessing.
+- **Reports** — decision health, load-bearing decisions and a monthly digest, under Reports.
 
 ## Bring your own repo
 
-Paste any **public GitHub repo URL** on the home page — no login. WhyCode
-clones its history (commits, files, authors; max 300 commits, 90s cap) into
-a per-repo SQLite graph and you ask the same "why" questions about your own
-code. The Django demo is untouched; switch back with "Back to the Django
-demo". One SQLite DB per repo under `data/repos/<owner>__<repo>.db`
-(gitignored, max 3 repos kept). Ingest is rate-limited (5/hour/IP).
+Paste any public GitHub repository URL on the home page. WhyCode clones its history — commits, files and authors, up to 300 commits — into a per-repo graph and answers the same "why" questions about your code. Switch back to the Django demo at any time.
 
-Stated plainly, the limits: history-only in v1 — no PRs/issues, no file
-contents, nothing from the repo is ever executed. Public repos only, SQLite
-only (no Neo4j for BYO repos), no auto-sync on push yet.
+Current limits, stated plainly: history only (no pull requests, issues or file contents), public repositories only, and no automatic re-sync on push yet. Nothing from a repository is ever executed.
 
-## Neo4j — inside the core flow
+## How it works
 
-Neo4j AuraDB Free instance "whycode" (678 nodes / 644 relationships,
-mirrored from SQLite, all with body). Honest split: the **MCP server**
-serves evidence chains from Neo4j (Cypher, verified 0.99); the **Embarko
-web copy** serves the same graph from SQLite (`chain-source: sqlite`).
-SQLite is the source of truth and the fallback if Neo4j is unreachable.
+```text
+ingest.py → trac.py → deps.py → graph.py   # SQLite graph: entities + edges
+qa.py                                        # asking, ranking, refusal
+app.py                                       # Flask web UI
+whycode/neo4j_chain.py                       # Neo4j mirror and serving
+whycode/byo.py                               # bring-your-own-repo ingest
+whycode/mcp_server.py  whycode/prbot.py      # MCP server, PR bot
+```
 
-## MCP server + PR bot
+The UI reads its answers from `qa.py`. The graph is stored in SQLite, which is the source of truth. A Neo4j mirror serves the same graph over Cypher for the MCP server; the web app falls back to SQLite if Neo4j is unreachable.
 
-- **MCP server** (FastMCP, streamable HTTP): https://whycode-mcp.onrender.com/mcp
-  — 4 tools on the same graph and refusal rules: `why_code`,
-  `blast_radius`, `who_knows`, `decision_health`. Runs as a separate Render
-  service (`uvicorn whycode.mcp_server:app`, deps in `requirements-mcp.txt`).
-- **GitHub PR bot**: `POST /github-webhook` (HMAC-verified) comments on a
-  PR only when a cited decision governs the PR's files — with blast radius
-  and who to ask. It never blocks a merge. Raw GitHub REST via `requests`;
-  no PyGithub (LGPL).
+## MCP server and PR bot
 
-## Hosting
-
-- Web app: https://whycode.embarko.app (claimed, permanent, free plan).
-  The Render URL https://whycode-ui.onrender.com 302-redirects there
-  (`/github-webhook` exempt, so the PR bot still answers on Render).
-- MCP server: https://whycode-mcp.onrender.com (Render, free tier).
+- **MCP server** (FastMCP, streamable HTTP): https://whycode-mcp.onrender.com/mcp — four tools on the same graph and the same refusal rules: `why_code`, `blast_radius`, `who_knows`, `decision_health`.
+- **GitHub PR bot**: a HMAC-verified webhook (`POST /github-webhook`) comments on a pull request only when a cited decision governs the files it touches — with blast radius and who to ask. It never blocks a merge.
 
 ## Security
 
-ArgosX free re-scan **99/100** (baseline was 81/100; all 13 findings fixed
-live). Official report PDF in `docs/argosx-scan-report/`. Security headers
-(HSTS, CSP, X-Frame-Options, nosniff, Permissions-Policy,
-Referrer-Policy), robots.txt + sitemap.xml, axe-core 0 violations.
-
-## Architecture
-
-```text
-ingest.py → trac.py → deps.py → graph.py   (SQLite: entities + edges)
-qa.py                                        (ask, refusal, BM25, chain)
-app.py                                       (Flask web UI, read-only)
-whycode/neo4j_chain.py                       (Neo4j mirror + serving)
-whycode/byo.py                               (BYO ingest: dulwich or git CLI)
-whycode/mcp_server.py  whycode/prbot.py      (MCP server, PR bot)
-```
-
-The UI reads the answer object from `qa.py`; Neo4j swaps how the chain is
-fetched, not its shape. Zero dependencies before the finale build; the web
-app now needs only Flask + neo4j + requests + dulwich.
+Scored 99/100 on an independent ArgosX scan (baseline 81; all 13 findings fixed). Security headers (HSTS, CSP, X-Frame-Options, nosniff, Permissions-Policy, Referrer-Policy), robots.txt and sitemap.xml included; axe-core reports zero accessibility violations. The official report is in `docs/argosx-scan-report/`.
 
 ## Run it locally
 
-```text
+```bash
 git clone https://github.com/eres0045/hackfront-fortec.git
 cd hackfront-fortec
 pip install -r requirements.txt
-python app.py          # http://localhost:5000 (PORT env honoured)
+python app.py          # http://localhost:5000 (PORT honoured)
 ```
 
-The bundled `data/whycode.db` holds the demo graph, so the demo runs with
-no API calls and no credentials. To rebuild it from scratch:
+The bundled `data/whycode.db` contains the demo graph, so the demo runs with no credentials and no network calls. To rebuild it from scratch:
 
-```text
+```bash
 python -m whycode.ingest --repo django/django --db data/whycode.db
 python -m whycode.trac --db data/whycode.db --limit 100
 ```
 
-Or ask from the CLI:
+Or ask from the command line:
 
-```text
+```bash
 python -m whycode.cli --db data/whycode.db --question "Why ...?"
 ```
 
-Environment: `WHYCODE_DB` (path to the SQLite DB), `PORT`,
-`WHYCODE_REDIRECT_TO` (redirect target — set on Render only),
-`NEO4J_URI` / `NEO4J_USERNAME` / `NEO4J_PASSWORD` (optional; falls back to
-SQLite silently). MCP server: `pip install -r requirements-mcp.txt` then
-`uvicorn whycode.mcp_server:app`.
+Environment variables: `WHYCODE_DB` (SQLite path), `PORT`, `NEO4J_URI` / `NEO4J_USERNAME` / `NEO4J_PASSWORD` (optional — falls back to SQLite). MCP server: `pip install -r requirements-mcp.txt`, then `uvicorn whycode.mcp_server:app`.
 
 ## Tests
 
-```text
-~/workspace/.venvs/neo4j/bin/python -m pytest tests/ -q
+```bash
+python -m pytest tests/ -q
 ```
 
-**121 passed, 7 skipped.** The 7 skipped tests need live Neo4j env vars
-(they run green with a live instance). Run the suite with the neo4j venv —
-system python lacks the driver.
+121 passed, 7 skipped. The skipped tests need live Neo4j credentials.
 
 ## Docs
 
-- `docs/finale-build-plan-v2-ui/` — the 1-page Finale Build Plan
+- `docs/finale-build-plan-v2-ui/` — the one-page Finale Build Plan
 - `docs/finale-build-plan-detailed/` — the full detail behind it
-- `docs/argosx-scan-report/` — ArgosX reports (official PDF + summary)
-- `docs/finale-notes.md` — build log for the finale
-- `docs/oss-gold-research.md` — open-source components used / evaluated
+- `docs/argosx-scan-report/` — ArgosX reports
+- `docs/finale-notes.md` — build log
+- `docs/oss-gold-research.md` — open-source components evaluated
 
 ## License
 
-MIT — see `LICENSE`. "Every codebase has amnesia. WhyCode is its memory."
+MIT — see `LICENSE`.
+
+Built by Team FORTEC (Ronit Shrimankar + Udita Singh) for the hackFront India Grand Finale, IIIT Delhi, November 2026.
