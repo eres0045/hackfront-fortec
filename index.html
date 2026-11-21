@@ -1,0 +1,3851 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhyCode — Built for Developers. Proven by History.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;500;600;700&family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-sans: "Inter", "Google Sans Flex", system-ui, -apple-system, sans-serif;
+      --font-serif: "Newsreader", Georgia, serif;
+      --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+
+      --hot: #FF5A1F;
+      --amber: #F0A24C;
+      --amber-light: #FFB86C;
+      --amber-dark: #5A3418;
+      --amber-glow: rgba(240, 162, 76, 0.35);
+      --amber-soft: rgba(240, 162, 76, 0.12);
+      --hot-glow: rgba(255, 90, 31, 0.45);
+      --green: #00E676;
+      --cyan: #00F0FF;
+
+      /* FULL OLED PITCH DARK BLACK */
+      --bg: #000000;
+      --bg-alt: #050505;
+      --surface-1: #0A0A0B;
+      --surface-2: #111114;
+      --surface-3: #18191F;
+      --border: #1C1D24;
+      --border-bright: #2C2E3B;
+      --border-amber: rgba(240, 162, 76, 0.35);
+      --ink: #FFFFFF;
+      --body: #A0A5B2;
+      --muted: #656A76;
+
+      --cw: min(44vw, 540px);
+      --ch: clamp(340px, 46vh, 430px);
+      --gap: 4vw;
+      --top: clamp(410px, 48vh, 500px);
+    }
+
+    [data-theme="light"] {
+      --bg: #EEF0F2;
+      --bg-alt: #E5E7EB;
+      --surface-1: #F8F9FA;
+      --surface-2: #E9ECEF;
+      --surface-3: #DEE2E6;
+      --border: #C8CDD5;
+      --border-bright: #A0A6B2;
+      --border-amber: rgba(240, 162, 76, 0.5);
+      --ink: #0F1115;
+      --body: #2A2E35;
+      --muted: #8B9098;
+      --amber-dark: #8C4E23;
+    }
+
+    @media (max-width: 767px) {
+      :root {
+        --cw: 86vw;
+        --ch: 56vw;
+        --gap: 7vw;
+        --top: 54svh;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      max-width: 100vw;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 72px;
+      background: var(--bg);
+      text-size-adjust: 100%;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    /* HARDWARE LAYER PROMOTION FOR ZERO-JANK COMPOSITING */
+    .hero-stage,
+    .belt,
+    .fx,
+    #topoCanvas,
+    .perf-cards .card,
+    .perf-motion,
+    .card__media,
+    .hands-stage,
+    .marble-hand-left,
+    .marble-hand-right {
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    /* NAVIGATION */
+    nav {
+      height: 64px;
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      transition: background-color 0.3s, border-color 0.3s;
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
+      will-change: transform;
+    }
+
+    [data-theme="light"] nav {
+      background: rgba(238, 240, 242, 0.88);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--ink);
+      flex-shrink: 0;
+    }
+
+    .brand-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #FF5A1F 0%, #F0A24C 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 14px var(--hot-glow);
+    }
+
+    .brand-icon svg {
+      width: 16px;
+      height: 16px;
+      stroke: #fff;
+    }
+
+    .brand-name {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+    }
+
+    .brand-name span {
+      color: var(--hot);
+    }
+
+    .live-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 230, 118, 0.08);
+      border: 1px solid rgba(0, 230, 118, 0.25);
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--green);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      animation: pulse-dot 2s infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .nav-link {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--body);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .nav-link:hover {
+      color: var(--ink);
+    }
+
+    .nav-actions {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .theme-toggle-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--surface-1);
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .theme-toggle-btn:hover {
+      border-color: var(--amber);
+    }
+
+    .btn-github {
+      height: 36px;
+      padding: 0 16px;
+      border-radius: 9999px;
+      border: 1px solid var(--border);
+      background: var(--surface-1);
+      color: var(--ink);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: border-color 0.2s;
+    }
+
+    .btn-github:hover {
+      border-color: var(--border-bright);
+    }
+
+    /* GLOSSY AMBER-GLASS CTA BUTTON */
+    .btn-amber-glass {
+      height: 38px;
+      padding: 0 20px;
+      border-radius: 9999px;
+      background: linear-gradient(180deg, #2C241D 0%, #7A5832 100%);
+      border: 1px solid rgba(240, 162, 76, 0.6);
+      box-shadow: 0 0 20px rgba(240, 162, 76, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+      color: #FFF2E6;
+      font-size: 13px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
+    }
+
+    .btn-amber-glass:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 28px rgba(240, 162, 76, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+      filter: brightness(1.1);
+    }
+
+    /* HERO STAGE */
+    .hero-stage {
+      position: relative;
+      max-width: 100vw;
+      overflow: hidden;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      padding-top: 96px;
+      padding-bottom: 40px;
+      background: radial-gradient(circle at 50% 16%, rgba(240, 162, 76, 0.08) 0%, transparent 65%);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 4vw;
+      padding: 18px 6vw 0;
+      position: relative;
+      z-index: 40;
+    }
+
+    .hero-eyebrow {
+      max-width: 100%;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hero-eyebrow-pill {
+      background: #1D1510;
+      border: 1px solid rgba(240, 162, 76, 0.45);
+      padding: 4px 12px;
+      border-radius: 9999px;
+      color: #FFB86C;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 0 16px rgba(240, 162, 76, 0.15);
+    }
+
+    .hero-title {
+      font-family: var(--font-serif);
+      font-weight: 400;
+      font-size: clamp(34px, 3.4vw, 66px);
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+    }
+
+    .hero-title em {
+      font-style: italic;
+      color: var(--amber);
+      display: block;
+    }
+
+    .hero-right {
+      max-width: min(440px, 100%);
+      width: 100%;
+    }
+
+    .hero-desc {
+      font-size: clamp(14px, 1.05vw, 17px);
+      line-height: 1.6;
+      color: var(--body);
+      margin-bottom: 22px;
+    }
+
+    .hero-ctas {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    /* THE SCANNER BELT */
+    .belt {
+      touch-action: pan-y;
+      position: absolute;
+      left: 0;
+      width: 100%;
+      max-width: 100vw;
+      overflow: hidden;
+      top: calc(var(--top) - 70px);
+      height: calc(var(--ch) + 140px);
+      cursor: grab;
+      touch-action: pan-y;
+      z-index: 20;
+    }
+
+    .belt.is-dragging {
+      cursor: grabbing;
+    }
+
+    .codes-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      mask-image: linear-gradient(90deg, transparent 0, #000 24vw);
+      -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 24vw);
+    }
+
+    .cards-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    canvas.fx {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 30;
+    }
+
+    /* SCANNER LINE */
+    .scan {
+      position: absolute;
+      left: 50%;
+      top: calc(var(--top) - 20px);
+      height: calc(var(--ch) + 50px);
+      width: 0;
+      pointer-events: none;
+      z-index: 45;
+    }
+
+    .scan-core {
+      position: absolute;
+      left: -2px;
+      top: 0;
+      width: 4px;
+      height: 100%;
+      border-radius: 4px;
+      background: linear-gradient(180deg, #FFB86C 0%, #FF5A1F 15%, #F0A24C 85%, #FFB86C 100%);
+      box-shadow: 0 0 16px 3px rgba(240, 162, 76, 0.95), 0 0 45px 15px rgba(255, 90, 31, 0.5);
+    }
+
+    .scan-halo {
+      position: absolute;
+      left: 0;
+      top: 2%;
+      width: 50px;
+      height: 96%;
+      background: linear-gradient(90deg, rgba(240, 162, 76, 0.6) 0%, transparent 100%);
+      filter: blur(8px);
+    }
+
+    /* BADGE / COUNTER */
+    .badge {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      top: calc(var(--top) - 52px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 48;
+    }
+
+    .badge-pill {
+      height: 32px;
+      border-radius: 9999px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 20px rgba(240, 162, 76, 0.35);
+      font-family: var(--font-mono);
+      font-weight: 600;
+      font-size: 11.5px;
+      display: inline-flex;
+      align-items: center;
+      background: rgba(15, 17, 21, 0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(240, 162, 76, 0.45);
+      padding: 0 12px 0 10px;
+      gap: 8px;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--amber);
+      box-shadow: 0 0 8px var(--amber);
+      animation: pulse-dot 2s infinite;
+    }
+
+    .badge-label {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      color: var(--amber-light);
+      text-transform: uppercase;
+    }
+
+    .badge-num {
+      background: linear-gradient(135deg, #FF7A3C 0%, #FF5A1F 100%);
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-variant-numeric: tabular-nums;
+      font-size: 11.5px;
+      box-shadow: 0 0 10px rgba(255, 90, 31, 0.4);
+    }
+
+    .badge-pct {
+      color: var(--body);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    /* CARD SHELL */
+    .why-card {
+      position: absolute;
+      top: 70px;
+      left: 0;
+      width: var(--cw);
+      height: var(--ch);
+      border-radius: 1.6vw;
+      overflow: hidden;
+      color: #fff;
+      font-family: var(--font-sans);
+      container-type: inline-size;
+      will-change: transform, clip-path;
+      user-select: none;
+      background: var(--surface-1);
+      border: 1px solid var(--border);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85);
+    }
+
+    .why-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 3.5cqw 4.2cqw;
+    }
+
+    .card-meta-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2.2cqw;
+    }
+
+    .card-tag {
+      font-family: var(--font-mono);
+      font-size: 1.3cqw;
+      font-weight: 500;
+      padding: 0.5cqw 1.2cqw;
+      border-radius: 0.6cqw;
+      background: var(--surface-3);
+      border: 1px solid var(--border);
+      color: var(--amber);
+    }
+
+    .card-sha {
+      font-family: var(--font-mono);
+      font-size: 1.25cqw;
+      color: var(--muted);
+    }
+
+    .card-question {
+      font-family: var(--font-serif);
+      font-size: 3.6cqw;
+      line-height: 1.15;
+      font-weight: 400;
+      color: #FFFFFF;
+      margin-bottom: 1.8cqw;
+    }
+
+    .card-question em {
+      color: var(--amber);
+      font-style: italic;
+    }
+
+    .card-body-box {
+      background: rgba(0, 0, 0, 0.65);
+      border: 1px solid var(--border);
+      border-radius: 1.2cqw;
+      padding: 2.2cqw;
+      margin-bottom: 2cqw;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .card-decision-text {
+      font-size: 1.65cqw;
+      line-height: 1.5;
+      color: #E2E8F0;
+    }
+
+    .card-banner-superseded {
+      background: rgba(240, 162, 76, 0.12);
+      border: 1px solid var(--amber);
+      border-radius: 0.8cqw;
+      padding: 0.9cqw 1.3cqw;
+      display: flex;
+      align-items: center;
+      gap: 1.2cqw;
+      font-size: 1.3cqw;
+      color: #FFB86C;
+      margin-top: 1cqw;
+    }
+
+    .card-stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2cqw;
+      border-top: 1px solid var(--border);
+      padding-top: 1.8cqw;
+    }
+
+    .c-stat-col h5 {
+      font-family: var(--font-mono);
+      font-size: 2.3cqw;
+      font-weight: 600;
+      color: var(--amber);
+    }
+
+    .c-stat-col span {
+      font-size: 1.2cqw;
+      color: var(--muted);
+    }
+
+    /* CODE LAYER */
+    .why-code {
+      position: absolute;
+      top: 70px;
+      left: 0;
+      width: var(--cw);
+      height: var(--ch);
+      white-space: pre;
+      overflow: hidden;
+      font-family: var(--font-mono);
+      container-type: inline-size;
+      will-change: transform, clip-path;
+      visibility: hidden;
+      background: #020203;
+      border: 1px solid var(--border);
+      border-radius: 1.6vw;
+      padding: 3cqw;
+    }
+
+    .why-code pre {
+      font-family: var(--font-mono);
+      font-size: 1.5cqw;
+      line-height: 1.4;
+      position: absolute;
+      top: 3cqw;
+    }
+
+    .code-tree {
+      left: 3cqw;
+      color: #7A7F88;
+    }
+
+    .code-meta {
+      left: 54%;
+      color: #4A5160;
+    }
+
+    
+    /* ==================================================
+       SECTION 2: BUILT FOR INTELLIGENT PERFORMANCE
+       ================================================== */
+    .section-performance {
+      position: relative;
+      isolation: isolate;
+      max-width: 100vw;
+      overflow: hidden;
+      padding: 110px 5vw 120px;
+      background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(240, 162, 76, 0.05) 0%, transparent 70%), #000000;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      overflow: hidden;
+    }
+
+    [data-theme="light"] .section-performance {
+      background: radial-gradient(circle at 50% 20%, rgba(173, 49, 77, 0.06) 0%, transparent 65%), #ececeb;
+    }
+
+    .perf-motion {
+      display: none !important;
+    }
+
+    .perf-masthead, .perf-cards {
+      max-width: 1333px;
+      margin-inline: auto;
+    }
+
+    .perf-kicker {
+      flex-wrap: wrap;
+      max-width: 100%;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--amber);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    [data-theme="dark"] .perf-kicker {
+      color: var(--amber);
+    }
+
+    .perf-masthead {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, clamp(280px, 34vw, 500px));
+      gap: 40px;
+      align-items: start;
+      z-index: 2;
+      position: relative;
+    }
+
+    .perf-headline {
+      margin: 0;
+      max-width: 100%;
+      color: #ffffff;
+      font-size: clamp(26px, min(3.1vw, 5.9vh), 47px);
+      font-weight: 500;
+      letter-spacing: .015em;
+      line-height: 1.22;
+      font-family: var(--font-sans);
+    }
+
+    .headline__line {
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+    }
+
+    .dot-word {
+      display: inline-block;
+      flex: 0 0 auto;
+      width: 4.851em;
+      height: .766em;
+      margin-left: .319em;
+      color: #ff5a1f;
+      transform: translateY(.085em);
+      filter: drop-shadow(0 0 12px rgba(255, 90, 31, 0.5));
+    }
+
+    [data-theme="dark"] .dot-word {
+      color: #ff5a1f;
+    }
+
+    .dot-svg {
+      display: block;
+      overflow: visible;
+      color: inherit;
+    }
+
+    .perf-intro {
+      container-type: inline-size;
+      width: 100%;
+      margin: .34em 0 0;
+      color: var(--body);
+      font-size: clamp(14px, min(1.36vw, 2.6vh), 19px);
+      font-weight: 400;
+      letter-spacing: -.017em;
+      line-height: 1.62;
+    }
+
+    .desktop-break {
+      display: none;
+    }
+    @container (min-width: 26.5em) {
+      .desktop-break { display: inline; }
+    }
+
+    /* CARDS ROW */
+    .perf-cards {
+      container-type: inline-size;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: clamp(16px, 2.2vw, 28px);
+      margin-top: 60px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .perf-cards .card {
+      container-type: inline-size;
+      position: relative;
+      flex: 1 1 0;
+      max-width: 429px;
+      aspect-ratio: 429 / 554;
+      overflow: hidden;
+      border-radius: 18px;
+      background-origin: border-box;
+      color: #fff;
+      --u: 1px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s, border-color 0.35s;
+    }
+
+    @supports (width: 1cqw) {
+      .perf-cards .card {
+        --u: clamp(0.72px, calc(100cqw / 429), 1.05px);
+      }
+    }
+
+    .perf-cards .card:hover {
+      transform: translateY(-8px);
+    }
+
+    .perf-cards .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      mix-blend-mode: screen;
+      pointer-events: none;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.07) 0%, transparent 40%, rgba(255,255,255,.03) 100%),
+        radial-gradient(ellipse 85% 34% at 50% 0%, rgba(255,255,255,.16), transparent 70%);
+    }
+
+    .perf-cards .card__grain {
+      position: absolute;
+      z-index: 2;
+      inset: -8%;
+      width: 116%;
+      height: 116%;
+      opacity: .28;
+      mix-blend-mode: soft-light;
+      pointer-events: none;
+    }
+
+    .perf-cards .card__media {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: fill;
+      pointer-events: none;
+      mix-blend-mode: screen;
+      opacity: 0.32;
+    }
+
+    /* CARD 1: SPEED */
+    .card--speed {
+      background:
+        radial-gradient(ellipse 80% 55% at 50% 12%, rgba(255, 65, 105, 0.22) 0%, transparent 70%),
+        radial-gradient(ellipse 65% 45% at 50% 85%, rgba(240, 162, 76, 0.12) 0%, transparent 72%),
+        linear-gradient(180deg, #160c12 0%, #0c0709 60%, #050304 100%);
+      border: 1px solid rgba(255, 80, 115, 0.28);
+      background-origin: border-box;
+    }
+
+    .card--speed:hover {
+      border-color: rgba(255, 80, 115, 0.55);
+      box-shadow: 0 28px 70px rgba(0, 0, 0, 0.95), 0 0 35px rgba(255, 80, 115, 0.22);
+    }
+
+    .card--speed .card__grain { opacity: .35; }
+    .card--speed .card__title { top: 6.3%; color: #fff; font-size: clamp(16px, calc(22.7 * var(--u)), 24px); }
+
+    svg.gauge {
+      position: absolute;
+      z-index: 2;
+      top: 27.63%;
+      left: 10.5%;
+      width: 79%;
+      height: 59%;
+      overflow: visible;
+      pointer-events: none;
+    }
+
+    .metric--speed {
+      top: 48.6%;
+    }
+    .metric--speed .dot-number {
+      width: 31.2%;
+    }
+    .metric--speed .dot-svg {
+      transform: translate(calc(4 * var(--u)), calc(2 * var(--u))) scale(.925, 1.018);
+      transform-origin: left top;
+    }
+    .metric--speed .dot-svg circle {
+      fill: #ffffff;
+      filter: drop-shadow(0 0 5px rgba(255, 80, 115, 0.8));
+    }
+    .metric--speed .metric__unit {
+      margin-left: 1%;
+      font-size: clamp(20px, calc(30.6 * var(--u)), 32px);
+      transform: translateY(calc(5 * var(--u)));
+      color: #ffffff;
+    }
+    .card--speed .caption {
+      top: 64.75%;
+      font-size: clamp(13px, calc(20.33 * var(--u)), 21px);
+    }
+
+    /* CARD 2: CONTEXT */
+    .card--context {
+      background:
+        radial-gradient(ellipse 80% 55% at 50% 12%, rgba(168, 85, 247, 0.22) 0%, transparent 70%),
+        radial-gradient(ellipse 65% 45% at 50% 85%, rgba(236, 72, 153, 0.12) 0%, transparent 72%),
+        linear-gradient(180deg, #130c1c 0%, #0a0610 60%, #040307 100%);
+      border: 1px solid rgba(168, 85, 247, 0.28);
+      background-origin: border-box;
+    }
+
+    .card--context:hover {
+      border-color: rgba(168, 85, 247, 0.55);
+      box-shadow: 0 28px 70px rgba(0, 0, 0, 0.95), 0 0 35px rgba(168, 85, 247, 0.22);
+    }
+
+    .card--context .card__title {
+      font-size: clamp(16px, calc(23 * var(--u)), 24px);
+      line-height: 1.48;
+    }
+    .card--context .card__grain { opacity: .42; }
+
+    .context-glow {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .context-backdrop {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      width: 100%;
+      height: 100%;
+    }
+
+    .context-backdrop svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .context-window {
+      position: absolute;
+      z-index: 3;
+      top: 32.4%;
+      left: 20.4%;
+      width: 59%;
+      height: 30.1%;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: calc(10 * var(--u));
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.12) 0%, rgba(255,255,255,.02) 100%),
+        linear-gradient(105deg, rgba(168,85,247,.32) 0%, rgba(236,72,153,.36) 100%);
+      box-shadow: 0 calc(13 * var(--u)) calc(25 * var(--u)) rgba(0,0,0,.65), inset 0 1px 0 rgba(255,255,255,.2);
+      backdrop-filter: blur(calc(9 * var(--u))) saturate(1.4);
+      -webkit-backdrop-filter: blur(calc(9 * var(--u))) saturate(1.4);
+    }
+
+    .window-grain {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: .2;
+      mix-blend-mode: soft-light;
+      pointer-events: none;
+    }
+
+    .window-lines {
+      position: absolute;
+      top: 9%;
+      left: 6.7%;
+      width: 87%;
+      height: 24%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .window-lines span:nth-child(1) {
+      height: calc(6 * var(--u));
+      border-radius: calc(2.5 * var(--u));
+      background: rgba(255,255,255,.72);
+      width: 29%;
+      margin-bottom: calc(3 * var(--u));
+    }
+
+    .window-lines span:nth-child(2) {
+      width: 100%;
+      height: calc(22 * var(--u));
+      border-radius: calc(6 * var(--u));
+      background: linear-gradient(90deg, rgba(255,240,253,.72), rgba(255,170,242,.75) 42%, rgba(255,108,235,.78));
+    }
+
+    .window-lines span:nth-child(3) {
+      width: 86%;
+      margin-top: calc(3 * var(--u));
+      height: calc(6 * var(--u));
+      border-radius: calc(2.5 * var(--u));
+      background: rgba(255,255,255,.72);
+      opacity: .64;
+    }
+
+    .metric--context {
+      top: 48.0%;
+      transform: translateX(2.1cqw);
+    }
+    .metric--context .dot-number {
+      width: 30.5%;
+    }
+    .metric--context .dot-svg {
+      transform: translate(calc(-1 * var(--u)), calc(-.5 * var(--u))) scale(.96, 1.02);
+      transform-origin: center;
+    }
+    .metric--context .dot-svg circle {
+      fill: #ffffff;
+      filter: drop-shadow(0 0 5px rgba(168, 85, 247, 0.8));
+    }
+    .metric--context .metric__unit {
+      color: #ffffff;
+    }
+    .card--context .caption {
+      top: 65.72%;
+      color: rgba(255,255,255,.84);
+      font-size: clamp(13px, calc(19.1 * var(--u)), 20px);
+      letter-spacing: calc(-.28 * var(--u));
+      line-height: 1.38;
+    }
+
+    /* CARD 3: CONNECTIONS */
+    .card--connections {
+      background:
+        radial-gradient(ellipse 80% 55% at 50% 12%, rgba(240, 162, 76, 0.24) 0%, transparent 70%),
+        radial-gradient(ellipse 65% 45% at 50% 85%, rgba(255, 90, 31, 0.15) 0%, transparent 72%),
+        linear-gradient(180deg, #1a1007 0%, #0d0803 60%, #050301 100%);
+      border: 1px solid rgba(240, 162, 76, 0.32);
+      background-origin: border-box;
+    }
+
+    .card--connections:hover {
+      border-color: rgba(240, 162, 76, 0.6);
+      box-shadow: 0 28px 70px rgba(0, 0, 0, 0.95), 0 0 35px rgba(240, 162, 76, 0.25);
+    }
+
+    .card--connections .card__grain { opacity: .35; }
+
+    .connections-map {
+      position: absolute;
+      z-index: 2;
+      top: 21.7%;
+      left: 0;
+      width: 100%;
+      height: 43%;
+      opacity: .85;
+      mask: linear-gradient(180deg, #000 0%, #000 50%, rgba(0,0,0,.46) 67%, rgba(0,0,0,.15) 83%, transparent 96%);
+      -webkit-mask: linear-gradient(180deg, #000 0%, #000 50%, rgba(0,0,0,.46) 67%, rgba(0,0,0,.15) 83%, transparent 96%);
+      pointer-events: none;
+    }
+
+    .connections-map svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .metric--connections {
+      top: 48.5%;
+      transform: translateX(2.1cqw);
+    }
+    .metric--connections .dot-number {
+      width: 23%;
+    }
+    .metric--connections .dot-svg circle {
+      fill: #ffffff;
+      filter: drop-shadow(0 0 5px rgba(240, 162, 76, 0.9));
+    }
+    .metric--connections .metric__unit {
+      margin-left: 1.3%;
+      font-size: clamp(20px, calc(30.46 * var(--u)), 32px);
+      font-weight: 400;
+      line-height: 1;
+      letter-spacing: calc(-.8 * var(--u));
+      color: #ffffff;
+    }
+
+    /* SHARED CARD CONTROLS */
+    .card__title {
+      position: absolute;
+      z-index: 4;
+      top: 6.1%;
+      left: 5%;
+      width: 90%;
+      margin: 0;
+      color: #ffffff;
+      font-size: clamp(16px, calc(22.95 * var(--u)), 24px);
+      font-weight: 600;
+      letter-spacing: 0;
+      line-height: 1.42;
+      text-align: center;
+      text-shadow: 0 2px 4px rgba(0,0,0,.8);
+    }
+
+    .perf-cards .metric {
+      position: absolute;
+      z-index: 5;
+      left: 0;
+      width: 100%;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      color: #ffffff;
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,.8));
+    }
+
+    .perf-cards .caption {
+      position: absolute;
+      z-index: 5;
+      top: 65.1%;
+      left: 8%;
+      width: 84%;
+      margin: 0;
+      color: rgba(255,255,255,.78);
+      font-size: clamp(13px, calc(19.95 * var(--u)), 20px);
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      line-height: 1.45;
+      text-align: center;
+      text-shadow: 0 1px 3px rgba(0,0,0,.8);
+    }
+
+    .perf-cards .learn-more {
+      position: absolute;
+      z-index: 6;
+      top: 83.75%;
+      left: 50%;
+      width: clamp(96px, calc(111 * var(--u)), 126px);
+      height: clamp(38px, calc(45 * var(--u)), 48px);
+      transform: translateX(-50%);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 999px;
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+      font-size: clamp(12px, calc(14 * var(--u)), 15px);
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      transition: all .2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .card--speed .learn-more:hover {
+      background: rgba(255, 80, 115, 0.25);
+      border-color: rgba(255, 80, 115, 0.6);
+      color: #ffffff;
+      transform: translateX(-50%) translateY(calc(-3 * var(--u)));
+      box-shadow: 0 8px 24px rgba(255, 80, 115, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    }
+
+    .card--context .learn-more:hover {
+      background: rgba(168, 85, 247, 0.25);
+      border-color: rgba(168, 85, 247, 0.6);
+      color: #ffffff;
+      transform: translateX(-50%) translateY(calc(-3 * var(--u)));
+      box-shadow: 0 8px 24px rgba(168, 85, 247, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    }
+
+    .card--connections .learn-more:hover {
+      background: rgba(240, 162, 76, 0.25);
+      border-color: rgba(240, 162, 76, 0.6);
+      color: #ffffff;
+      transform: translateX(-50%) translateY(calc(-3 * var(--u)));
+      box-shadow: 0 8px 24px rgba(240, 162, 76, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    }
+
+
+
+    /* SECTION 3: 3D STUDIO TERMINAL & COCKPIT */
+    .section-studio {
+      max-width: 100vw;
+      overflow: hidden;
+      padding: 120px 6vw 100px;
+      position: relative;
+      background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(240, 162, 76, 0.05) 0%, transparent 70%), #000000;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      overflow: hidden;
+    }
+
+    .studio-glow-bg {
+      position: absolute;
+      top: 10%;
+      right: 5%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(240, 162, 76, 0.08) 0%, transparent 70%);
+      filter: blur(90px);
+      pointer-events: none;
+    }
+
+    .studio-layout {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 48px;
+      max-width: 1280px;
+      margin: 0 auto;
+      align-items: center;
+    }
+
+    .studio-left {
+      position: relative;
+      z-index: 10;
+    }
+
+    .studio-kicker {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--amber);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .studio-title {
+      font-family: var(--font-serif);
+      font-size: clamp(32px, 3vw, 52px);
+      line-height: 1.1;
+      letter-spacing: -0.025em;
+      margin-bottom: 18px;
+    }
+
+    .studio-desc {
+      color: var(--body);
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+
+    .cockpit-box {
+      background: var(--surface-1);
+      border: 1px solid var(--border-bright);
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+    }
+
+    .cockpit-input-wrap {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .cockpit-input {
+      flex: 1;
+      height: 48px;
+      background: #000000;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0 18px;
+      color: #fff;
+      font-family: var(--font-sans);
+      font-size: 14.5px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .cockpit-input:focus {
+      border-color: var(--amber);
+      box-shadow: 0 0 16px var(--amber-glow);
+    }
+
+    .cockpit-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .chip-btn {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--body);
+      font-size: 12px;
+      padding: 5px 12px;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .chip-btn:hover {
+      border-color: var(--amber);
+      color: #fff;
+      background: var(--surface-3);
+    }
+
+    .chip-btn.active {
+      border-color: var(--amber);
+      color: #FFB86C;
+      background: #1D1510;
+    }
+
+    .chip-btn.chip-refusal {
+      border-color: rgba(255, 95, 86, 0.4);
+      color: #FF8E88;
+    }
+
+    .live-card-result {
+      background: #000000;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .res-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .res-badge-grounded {
+      background: rgba(0, 230, 118, 0.15);
+      color: var(--green);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 4px;
+      border: 1px solid rgba(0, 230, 118, 0.3);
+    }
+
+    .res-badge-refusal {
+      background: rgba(255, 95, 86, 0.15);
+      color: #FF5F56;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 95, 86, 0.3);
+    }
+
+    .res-speed {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--amber);
+    }
+
+    .res-text {
+      font-size: 14.5px;
+      line-height: 1.55;
+      color: #E2E8F0;
+      margin-bottom: 14px;
+    }
+
+    .res-evidence-preview {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .res-ev-row {
+      background: var(--surface-1);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 7px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+    }
+
+    /* RIGHT LIVE TOPOLOGY GRAPH INSPECTOR */
+    .studio-right {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .graph-inspector-panel {
+      position: relative;
+      width: 100%;
+      background: var(--surface-1);
+      border: 1px solid var(--border-bright);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.95), 0 0 40px rgba(240, 162, 76, 0.15);
+      border-top: 2px solid var(--amber);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .graph-inspector-header {
+      height: 44px;
+      background: var(--surface-2);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+    }
+
+    .graph-header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .terminal-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .dot-red { background: #FF5F56; }
+    .dot-yellow { background: #FFBD2E; }
+    .dot-green { background: #27C93F; }
+
+    .graph-title {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    .graph-header-badge {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      font-weight: 600;
+      color: var(--amber);
+      background: rgba(240, 162, 76, 0.12);
+      border: 1px solid rgba(240, 162, 76, 0.3);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .graph-canvas-container {
+      position: relative;
+      width: 100%;
+      height: 380px;
+      background: radial-gradient(circle at 50% 50%, rgba(240, 162, 76, 0.04) 0%, transparent 70%), #000000;
+      overflow: hidden;
+    }
+
+    #topoCanvas {
+      touch-action: pan-y;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .graph-overlay-info {
+      position: absolute;
+      bottom: 12px;
+      left: 14px;
+      right: 14px;
+      background: rgba(0, 0, 0, 0.85);
+      border: 1px solid var(--border-bright);
+      backdrop-filter: blur(8px);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .graph-cypher-box {
+      background: #000000;
+      border-top: 1px solid var(--border);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: #7A7F88;
+      overflow-x: auto;
+    }
+
+    .cypher-prompt {
+      color: var(--amber);
+      font-weight: bold;
+    }
+
+    .graph-cypher-box code {
+      color: #E2E8F0;
+    }
+
+    /* SECTION 3: BYO REPO INGESTION COMMAND */
+    .section-byo {
+      max-width: 100vw;
+      overflow: hidden;
+      padding: 100px 6vw;
+      background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(240, 162, 76, 0.05) 0%, transparent 70%), #000000;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .byo-station {
+      max-width: 960px;
+      margin: 0 auto;
+      background: var(--surface-1);
+      border: 1px solid var(--border-bright);
+      border-radius: 24px;
+      padding: 44px;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.85);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .byo-station::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 10%;
+      right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, var(--amber) 50%, transparent 100%);
+    }
+
+    .byo-form {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .byo-input {
+      flex: 1;
+      height: 50px;
+      background: #000000;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0 20px;
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      outline: none;
+    }
+
+    .byo-input:focus {
+      border-color: var(--amber);
+      box-shadow: 0 0 16px var(--amber-glow);
+    }
+
+    .byo-status-box {
+      margin-top: 20px;
+      background: #000000;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 20px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      display: none;
+    }
+
+    /* SECTION 4: ARCHITECTURE & AUDIT CARDS */
+    .section-specs {
+      padding: 110px 6vw;
+      background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(240, 162, 76, 0.05) 0%, transparent 70%), #000000;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .specs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 28px;
+      max-width: 1240px;
+      margin: 0 auto;
+    }
+
+    .spec-card {
+      background: var(--surface-1);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 34px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s;
+    }
+
+    .spec-card:hover {
+      border-color: var(--amber);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7), 0 0 30px rgba(240, 162, 76, 0.15);
+    }
+
+    .spec-card-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: #1D1510;
+      border: 1px solid rgba(240, 162, 76, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 22px;
+      color: var(--amber);
+    }
+
+    .spec-card h3 {
+      font-size: 19px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .spec-card p {
+      font-size: 14.5px;
+      line-height: 1.6;
+      color: var(--body);
+    }
+
+    .spec-metric-tag {
+      display: inline-block;
+      margin-top: 18px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--amber);
+      background: var(--surface-2);
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+
+    /* SECTION 6: EPIC CLOSING CTA & MARBLE HANDS FINALE */
+    .section-closing-cta {
+      position: relative;
+      max-width: 100vw;
+      overflow: hidden;
+      background: radial-gradient(ellipse at 50% 85%, rgba(240, 162, 76, 0.14) 0%, transparent 65%), #000000;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 130px 6vw 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .cta-pill {
+      background: #1D1510;
+      border: 1px solid rgba(240, 162, 76, 0.45);
+      padding: 6px 18px;
+      border-radius: 9999px;
+      color: #FFB86C;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .cta-headline {
+      font-family: var(--font-serif);
+      font-size: clamp(38px, 4.4vw, 72px);
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      color: #FFFFFF;
+      max-width: 800px;
+      margin-bottom: 20px;
+    }
+
+    .cta-headline em {
+      font-style: italic;
+      color: var(--amber);
+    }
+
+    .cta-paragraph {
+      font-size: clamp(15px, 1.15vw, 19px);
+      line-height: 1.6;
+      color: var(--body);
+      max-width: 580px;
+      margin-bottom: 34px;
+    }
+
+    /* REACHING MARBLE HANDS STAGE */
+    .hands-stage {
+      position: relative;
+      width: 100%;
+      max-width: 100vw;
+      overflow: hidden;
+      height: 240px;
+      margin-top: 50px;
+      pointer-events: none;
+    }
+
+    .marble-hand-left {
+      position: absolute;
+      left: -20px;
+      top: 0;
+      width: 420px;
+      max-width: 42vw;
+      height: auto;
+      filter: drop-shadow(0 0 25px rgba(240, 162, 76, 0.35));
+    }
+
+    .marble-hand-right {
+      position: absolute;
+      right: -20px;
+      top: 0;
+      width: 400px;
+      max-width: 40vw;
+      height: auto;
+      filter: drop-shadow(0 0 25px rgba(240, 162, 76, 0.35));
+    }
+
+    .hands-center-content {
+      position: absolute;
+      top: 45%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hands-center-title {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      color: #FFFFFF;
+      text-transform: uppercase;
+    }
+
+    .hands-center-sub {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    /* GIANT SINKING WORDMARK */
+    .giant-wordmark {
+      font-family: var(--font-sans);
+      font-weight: 700;
+      font-size: clamp(90px, 17vw, 240px);
+      letter-spacing: -0.05em;
+      color: var(--amber-dark);
+      opacity: 0.35;
+      line-height: 0.75;
+      margin-top: 20px;
+      pointer-events: none;
+      user-select: none;
+      width: 100%;
+      text-align: center;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+
+
+    /* RESPONSIVE & MOBILE ENGINE */
+    .live-text-mobile {
+      display: none;
+    }
+
+    @media (max-width: 1024px) {
+      .perf-cards {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        justify-items: center;
+        gap: 24px;
+      }
+      .perf-cards .card {
+        width: 100%;
+        max-width: 380px;
+      }
+      .perf-cards .card:last-child {
+        grid-column: 1 / -1;
+        justify-self: center;
+      }
+    }
+
+    @media (max-width: 900px) {
+      nav {
+        padding: 0 16px;
+        height: 56px;
+        gap: 12px;
+      }
+      .nav-links {
+        display: none !important;
+      }
+      .live-status-pill {
+        font-size: 10.5px;
+        padding: 4px 10px;
+      }
+      .studio-layout {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      .graph-canvas-container {
+        height: 300px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      /* MOBILE ROOT METRICS */
+      :root {
+        --cw: min(86vw, 340px);
+        --ch: 420px;
+        --gap: 16px;
+        --top: 520px;
+      }
+
+      /* NAVIGATION */
+      nav {
+        padding: 0 10px;
+        height: 50px;
+        gap: 6px;
+        justify-content: space-between;
+        max-width: 100vw;
+        box-sizing: border-box;
+      }
+      .brand {
+        gap: 8px;
+        flex-shrink: 0;
+      }
+      .brand-name {
+        font-size: 16px;
+      }
+      .brand-icon {
+        width: 24px;
+        height: 24px;
+      }
+      .brand-icon svg {
+        width: 14px;
+        height: 14px;
+      }
+      .live-status-pill {
+        font-size: 9.5px !important;
+        padding: 3px 8px !important;
+        gap: 5px !important;
+        flex-shrink: 1;
+      }
+      .live-text-desktop {
+        display: none !important;
+      }
+      .live-text-mobile {
+        display: inline !important;
+      }
+      .nav-actions {
+        gap: 6px !important;
+        margin-left: auto;
+        flex-shrink: 0;
+      }
+      .theme-toggle-btn {
+        width: 30px !important;
+        height: 30px !important;
+      }
+      .theme-toggle-btn svg {
+        width: 14px !important;
+        height: 14px !important;
+      }
+      .nav-github-link {
+        display: none !important;
+      }
+      .btn-nav-demo {
+        height: 30px !important;
+        padding: 0 10px !important;
+        font-size: 11.5px !important;
+      }
+
+      /* 1. HERO SCANNER STAGE */
+      .hero-stage {
+        height: auto;
+        min-height: 870px;
+        padding: 72px 5vw 36px;
+        overflow: hidden !important;
+        max-width: 100vw;
+      }
+      .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+        padding: 10px 0 0;
+      }
+      .hero-eyebrow {
+        flex-wrap: wrap;
+        font-size: 10px;
+        gap: 6px;
+        margin-bottom: 8px;
+      }
+      .hero-title {
+        font-size: clamp(28px, 8vw, 38px);
+        line-height: 1.12;
+        letter-spacing: -0.03em;
+      }
+      .hero-desc {
+        font-size: 14px;
+        line-height: 1.55;
+        margin-bottom: 16px;
+      }
+      .hero-ctas {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .hero-ctas .btn-amber-glass,
+      .hero-ctas .btn-github {
+        flex: 1 1 auto;
+        height: 42px;
+        padding: 0 16px;
+        font-size: 13px;
+        justify-content: center;
+      }
+      .badge {
+        top: 480px;
+        transform: translateX(-50%);
+      }
+      .badge-pill {
+        height: 28px;
+        padding: 0 10px 0 8px;
+        gap: 6px;
+        font-size: 10.5px;
+      }
+      .badge-label {
+        display: none;
+      }
+      .belt {
+        top: 525px;
+        height: 400px;
+        touch-action: pan-y;
+        overflow: hidden !important;
+        max-width: 100vw;
+      }
+      .cards-layer {
+        overflow: hidden !important;
+      }
+      .scan {
+        top: 525px;
+        height: 400px;
+      }
+
+      /* 2. INTELLIGENT PERFORMANCE */
+      .section-performance {
+        padding: 70px 4vw 80px;
+      }
+      .perf-masthead {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      .perf-headline {
+        font-size: clamp(24px, 7.5vw, 36px);
+      }
+      .perf-intro {
+        font-size: 14px;
+        line-height: 1.55;
+      }
+      .perf-cards {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 36px;
+        margin-top: 36px;
+        width: 100%;
+      }
+      .perf-cards .card {
+        flex: 0 0 auto !important;
+        width: 100% !important;
+        max-width: 350px !important;
+        aspect-ratio: 429 / 554 !important;
+        height: auto !important;
+        --u: clamp(0.72px, calc(100cqw / 429), 0.82px);
+      }
+      .perf-cards .card:last-child {
+        grid-column: auto;
+      }
+
+      /* 3. COCKPIT & GRAPH VISUALIZER */
+      .section-studio {
+        padding: 70px 4vw 70px;
+      }
+      .studio-header {
+        margin-bottom: 24px;
+      }
+      .studio-title {
+        font-size: clamp(26px, 7vw, 36px);
+      }
+      .studio-subtitle {
+        font-size: 14px;
+        line-height: 1.55;
+      }
+      .studio-panel {
+        padding: 18px 14px;
+        border-radius: 18px;
+      }
+      .query-input-box {
+        flex-direction: column;
+        gap: 8px;
+        padding: 8px;
+      }
+      .query-input-box input {
+        width: 100%;
+        height: 42px;
+        font-size: 13.5px;
+      }
+      .query-input-box button {
+        width: 100%;
+        height: 42px;
+      }
+      .query-presets {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .preset-chip {
+        font-size: 11.5px;
+        padding: 6px 10px;
+      }
+      .graph-canvas-container {
+        height: 280px;
+        touch-action: pan-y;
+      }
+      .topo-legend {
+        flex-wrap: wrap;
+        gap: 8px;
+        font-size: 10.5px;
+      }
+
+      /* 4. BRING YOUR OWN REPO */
+      .section-byo {
+        padding: 70px 4vw;
+      }
+      .byo-station {
+        padding: 24px 16px;
+        border-radius: 18px;
+      }
+      .byo-station h2 {
+        font-size: clamp(24px, 6.5vw, 32px) !important;
+      }
+      .byo-station p {
+        font-size: 14px !important;
+      }
+      .byo-form {
+        flex-direction: column;
+        gap: 10px;
+      }
+      .byo-input {
+        width: 100%;
+        height: 46px;
+        font-size: 13px;
+        padding: 0 14px;
+      }
+      .byo-form button {
+        width: 100%;
+        height: 46px;
+        justify-content: center;
+      }
+      .byo-status-box {
+        font-size: 12.5px;
+        padding: 12px;
+      }
+
+      /* 5. ARCHITECTURE SPECS */
+      .section-specs {
+        padding: 70px 4vw;
+        max-width: 100vw;
+        overflow: hidden;
+      }
+      .specs-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        width: 100%;
+        max-width: 100%;
+      }
+      .spec-card {
+        padding: 22px 18px;
+        border-radius: 18px;
+        word-break: break-word;
+        overflow-wrap: break-word;
+      }
+      .spec-card h3 {
+        font-size: 16.5px;
+        line-height: 1.3;
+        margin-bottom: 8px;
+        word-break: break-word;
+        overflow-wrap: break-word;
+      }
+      .spec-card p {
+        font-size: 13.5px;
+        line-height: 1.55;
+      }
+      .spec-metric-tag {
+        font-size: 11px;
+      }
+
+      /* 6. CLOSING CTA & MARBLE HANDS */
+      .section-closing-cta {
+        padding: 70px 4vw 30px;
+        overflow: hidden;
+        max-width: 100vw;
+      }
+      .cta-headline {
+        font-size: clamp(30px, 7.5vw, 44px);
+        margin-bottom: 14px;
+      }
+      .cta-paragraph {
+        font-size: 14px;
+        line-height: 1.55;
+        margin-bottom: 24px;
+      }
+      .hands-stage {
+        height: 190px;
+        margin-top: 30px;
+        overflow: hidden;
+        max-width: 100vw;
+      }
+      .marble-hand-left {
+        width: 150px;
+        max-width: 40vw;
+        left: -10px;
+        top: 15px;
+      }
+      .marble-hand-right {
+        width: 140px;
+        max-width: 38vw;
+        right: -10px;
+        top: 15px;
+      }
+      .hands-center-content {
+        top: 25%;
+        width: 88%;
+        gap: 4px;
+      }
+      .hands-center-title {
+        font-size: 11px;
+        letter-spacing: 0.06em;
+      }
+      .hands-center-sub {
+        font-size: 10px;
+      }
+      .giant-wordmark {
+        font-size: clamp(44px, 14vw, 76px);
+        margin-top: -10px;
+        max-width: 100vw;
+        overflow: hidden;
+      }
+    }
+    </style>
+</head>
+<body>
+  <!-- PERFORMANCE FILTER DEFINITIONS -->
+  <svg class="filter-defs" aria-hidden="true" style="position:absolute; width:0; height:0; overflow:hidden;">
+    <defs>
+      <filter id="cardNoise">
+        <feTurbulence type="fractalNoise" baseFrequency=".54" numOctaves="3" seed="27" stitchTiles="stitch"/>
+        <feColorMatrix type="saturate" values="0"/>
+        <feComponentTransfer>
+          <feFuncR type="linear" slope="1.8" intercept="-.25"/>
+          <feFuncG type="linear" slope="1.8" intercept="-.25"/>
+          <feFuncB type="linear" slope="1.8" intercept="-.25"/>
+          <feFuncA type="table" tableValues="0 .52"/>
+        </feComponentTransfer>
+      </filter>
+
+      <filter id="radarSoft" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="1.35"/>
+      </filter>
+      <filter id="radarHalo" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="5.2"/>
+      </filter>
+      <filter id="gaugeBlur" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="11"/>
+      </filter>
+
+      <filter id="tileSoft" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="3.4"/>
+      </filter>
+      <filter id="groutSoft" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="6.5"/>
+      </filter>
+
+      <filter id="wallNoiseF">
+        <feTurbulence type="fractalNoise" baseFrequency=".68" numOctaves="2" seed="71" stitchTiles="stitch"/>
+        <feColorMatrix type="saturate" values="0"/>
+      </filter>
+      <filter id="wallNoiseF2">
+        <feTurbulence type="fractalNoise" baseFrequency=".58" numOctaves="2" seed="57" stitchTiles="stitch"/>
+        <feColorMatrix type="saturate" values="0"/>
+      </filter>
+      <filter id="deepNoiseF">
+        <feTurbulence type="fractalNoise" baseFrequency=".62" numOctaves="2" seed="29" stitchTiles="stitch"/>
+        <feColorMatrix type="saturate" values="0"/>
+      </filter>
+      <filter id="panelNoiseF">
+        <feTurbulence type="fractalNoise" baseFrequency=".72" numOctaves="2" seed="13" stitchTiles="stitch"/>
+        <feColorMatrix type="saturate" values="0"/>
+      </filter>
+    </defs>
+  </svg>
+
+
+  <!-- FIXED NAVIGATION -->
+  <nav>
+    <a href="#" class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="18" cy="5" r="3"/>
+          <circle cx="6" cy="12" r="3"/>
+          <circle cx="18" cy="19" r="3"/>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+        </svg>
+      </div>
+      <div class="brand-name">Why<span>Code</span></div>
+    </a>
+
+    <div class="live-status-pill">
+      <span class="live-dot"></span>
+      <span class="live-text-desktop">LIVE: 678 NODES · 644 EDGES · 99/100 ARGOSX</span>
+      <span class="live-text-mobile">678 NODES · 99/100</span>
+    </div>
+
+    <div class="nav-links">
+      <a href="#scanner" class="nav-link">Why Scanner</a>
+      <a href="#performance" class="nav-link">Performance</a>
+      <a href="#cockpit" class="nav-link">3D Cockpit</a>
+      <a href="#byo" class="nav-link">BYO Repo</a>
+      <a href="#architecture" class="nav-link">Architecture</a>
+      <a href="glyph_animals.html" class="nav-link" target="_blank" style="color: #7aa2ff; display: inline-flex; align-items: center; gap: 5px;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #7aa2ff; box-shadow: 0 0 8px #7aa2ff;"></span>Query Area</a>
+    </div>
+
+    <div class="nav-actions">
+      <button class="theme-toggle-btn" id="themeToggleBtn" title="Toggle OLED Dark / Light Mode">
+        <svg id="themeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"/>
+          <line x1="12" y1="1" x2="12" y2="3"/>
+          <line x1="12" y1="21" x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1" y1="12" x2="3" y2="12"/>
+          <line x1="21" y1="12" x2="23" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+      </button>
+
+      <a href="https://github.com/eres0045/hackfront-fortec" target="_blank" class="btn-github nav-github-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+        </svg>
+        <span>GitHub</span>
+      </a>
+
+      <a href="glyph_animals.html" class="btn-amber-glass btn-nav-demo">Ask a Decision</a>
+    </div>
+  </nav>
+
+  <!-- 1. HERO SCANNER STAGE -->
+  <section class="hero-stage" id="scanner">
+    <div class="hero-grid">
+      <div class="hero-left">
+        <div class="hero-eyebrow">
+          <span class="hero-eyebrow-pill">✦ HACKFRONT INDIA 2026 · AI & DEV TOOLS</span>
+        </div>
+        <h1 class="hero-title">Built for developers.<em>Proven by history.</em></h1>
+      </div>
+      <div class="hero-right">
+        <p class="hero-desc">
+          Turn commits, pull requests, and Trac tickets into a verifiable knowledge graph. Ask plain-language "why" questions with cited evidence chains and zero hallucinations.
+        </p>
+        <div class="hero-ctas">
+          <a href="glyph_animals.html" class="btn-amber-glass">
+            <span>Ask a Decision</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </a>
+          <a href="#byo" class="btn-github">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span>Ingest Your Repo</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- INTEGRATED TELEMETRY BADGE -->
+    <div class="badge">
+      <div class="badge-pill">
+        <span class="badge-dot"></span>
+        <span class="badge-label">CONFIDENCE</span>
+        <span class="badge-num" id="badgeNum">0.99</span>
+        <span class="badge-pct" id="badgePct">8 Evidence Records</span>
+      </div>
+    </div>
+
+    <!-- LASER SCANNER BEAM -->
+    <div class="scan">
+      <div class="scan-core"></div>
+      <div class="scan-halo"></div>
+    </div>
+
+    <!-- CONVEYOR BELT -->
+    <div class="belt" id="belt">
+      <div class="codes-layer" id="codesLayer"></div>
+      <div class="cards-layer" id="cardsLayer"></div>
+      <canvas class="fx" id="fxCanvas"></canvas>
+    </div>
+  </section>
+
+    <!-- 2. BUILT FOR INTELLIGENT PERFORMANCE SECTION -->
+  <section class="section-performance" id="performance">
+    <video class="perf-motion" autoplay muted loop playsinline preload="auto" aria-hidden="true"
+      poster="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/5c3ec08f-2dbf-4c0a-8588-f6106a789443.webp"
+      src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260826_125226_45cb4f38-aa7e-47e1-885d-ae0b69745369.mp4"></video>
+
+    <div class="perf-masthead">
+      <div>
+        <div class="perf-kicker">
+          <span>✦ PROVEN BY BENCHMARKS · HACKFRONT INDIA 2026</span>
+        </div>
+        <h2 class="perf-headline">
+          <span class="headline__line">Built for <span class="dot-word" data-dots="Intelligent" aria-label="Intelligent"></span></span>
+          <span class="headline__line">Performance</span>
+        </h2>
+      </div>
+      <p class="perf-intro">
+        Every capability is engineered for speed, scale and<br class="desktop-break"> contextual understanding, giving your AI the foundation<br class="desktop-break"> to reason, adapt and perform in production.
+      </p>
+    </div>
+
+    <div class="perf-cards" aria-label="Performance capabilities">
+      <!-- CARD 1: SPEED -->
+      <article class="card card--speed">
+        <video class="card__media" autoplay muted loop playsinline preload="auto" aria-hidden="true"
+          poster="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/167977c6-8539-46b1-9a15-8dba566f50b8.png"
+          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260826_130045_1a612b69-4854-4b34-8043-ccb91f2c60af.mp4"></video>
+
+        <svg class="card__grain" viewBox="0 0 429 554" preserveAspectRatio="none" aria-hidden="true">
+          <rect width="429" height="554" filter="url(#cardNoise)"/>
+        </svg>
+
+        <h3 class="card__title">Inference Speed<br>Graph Traversal Latency</h3>
+
+        <!-- GAUGE -->
+        <svg class="gauge" viewBox="0 0 326 326">
+          <defs>
+            <linearGradient id="gaugeArc" gradientUnits="userSpaceOnUse" x1="7" y1="136" x2="312" y2="109">
+              <stop offset="0" stop-color="#ff9ab7" stop-opacity="0.06"/>
+              <stop offset="0.08" stop-color="#ff8caf" stop-opacity="0.44"/>
+              <stop offset="0.34" stop-color="#ff6796" stop-opacity="0.94"/>
+              <stop offset="0.58" stop-color="#ff6796" stop-opacity="1"/>
+              <stop offset="0.82" stop-color="#ffe7ed" stop-opacity="0.74"/>
+              <stop offset="0.94" stop-color="#fff8fa" stop-opacity="0.28"/>
+              <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="gaugeShadow" gradientUnits="userSpaceOnUse" x1="11" y1="136" x2="308" y2="110">
+              <stop offset="0" stop-color="#6e1639" stop-opacity="0.04"/>
+              <stop offset="0.09" stop-color="#6e1639" stop-opacity="0.17"/>
+              <stop offset="0.52" stop-color="#72163d" stop-opacity="0.18"/>
+              <stop offset="0.78" stop-color="#7b1a43" stop-opacity="0.1"/>
+              <stop offset="1" stop-color="#7b1a43" stop-opacity="0"/>
+            </linearGradient>
+            <radialGradient id="radarBeam" cx="163" cy="163" r="145" gradientUnits="userSpaceOnUse">
+              <stop offset="0.3" stop-color="#650f35" stop-opacity="0"/>
+              <stop offset="0.45" stop-color="#650f35" stop-opacity="0.025"/>
+              <stop offset="0.7" stop-color="#650f35" stop-opacity="0.065"/>
+              <stop offset="0.9" stop-color="#650f35" stop-opacity="0.08"/>
+              <stop offset="1" stop-color="#650f35" stop-opacity="0.05"/>
+            </radialGradient>
+            <linearGradient id="radarBeamEdge" gradientUnits="userSpaceOnUse" x1="238" y1="33" x2="190.5" y2="115.4">
+              <stop offset="0" stop-color="#ffe7ef" stop-opacity="0.19"/>
+              <stop offset="0.48" stop-color="#ffd1df" stop-opacity="0.11"/>
+              <stop offset="0.82" stop-color="#ffc6d7" stop-opacity="0.045"/>
+              <stop offset="1" stop-color="#ffc6d7" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+
+          <path d="M11.34 136.26A154 154 0 0 1 307.71 110.33" fill="none" stroke-width="3.2" stroke-linecap="round" stroke="url(#gaugeShadow)"/>
+          <path d="M6.91 135.48A158.5 158.5 0 0 1 311.94 108.79" fill="none" stroke-width="2.2" stroke-linecap="round" stroke="url(#gaugeArc)"/>
+          <path d="M19.22 137.65A146 146 0 0 1 236 36.56" fill="none" stroke-width="1.15" stroke="rgba(255,166,194,.31)"/>
+          <path d="M238 33.1A150 150 0 0 1 277.9 66.6L199.8 119.5A55 55 0 0 0 190.5 115.4Z" fill="#6a1238" opacity=".022" filter="url(#radarHalo)"/>
+          <path d="M238 33.1A150 150 0 0 1 277.9 66.6L199.8 119.5A55 55 0 0 0 190.5 115.4Z" fill="url(#radarBeam)" filter="url(#radarSoft)"/>
+          <path d="M238 33.1L190.5 115.4" stroke="url(#radarBeamEdge)" stroke-width="1.25" stroke-linecap="round" filter="url(#radarSoft)"/>
+          <g id="gaugeTicks"></g>
+          <ellipse cx="225" cy="166" rx="92" ry="76" fill="#fff" opacity=".055" filter="url(#gaugeBlur)"/>
+        </svg>
+
+        <!-- METRIC -->
+        <div class="metric metric--speed">
+          <div class="dot-number" data-dots="118"></div>
+          <span class="metric__unit">ms</span>
+        </div>
+
+        <p class="caption">Average global<br>response</p>
+        <a href="#cockpit" class="learn-more">Learn More</a>
+      </article>
+
+      <!-- CARD 2: CONTEXT -->
+      <article class="card card--context">
+        <video class="card__media" autoplay muted loop playsinline preload="auto" aria-hidden="true"
+          poster="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/0446d1d5-e65e-4db5-8090-3e30d09afc43.png"
+          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260826_130054_dd005674-d693-4d81-80a5-357f7f10b3a3.mp4"></video>
+
+        <svg class="card__grain" viewBox="0 0 429 554" preserveAspectRatio="none" aria-hidden="true">
+          <rect width="429" height="554" filter="url(#cardNoise)"/>
+        </svg>
+
+        <div class="context-glow"></div>
+
+        <!-- TILE WALL SVG -->
+        <div class="context-backdrop">
+          <svg viewBox="0 0 429 554" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="wallMaskGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#fff" stop-opacity="1"/>
+                <stop offset="54%" stop-color="#fff" stop-opacity="1"/>
+                <stop offset="58%" stop-color="#fff" stop-opacity="0.72"/>
+                <stop offset="62%" stop-color="#fff" stop-opacity="0.18"/>
+                <stop offset="65%" stop-color="#000" stop-opacity="0"/>
+              </linearGradient>
+
+              <mask id="wallM">
+                <rect width="429" height="554" fill="url(#wallMaskGrad)"/>
+              </mask>
+              <mask id="tTCshadeM">
+                <rect x="88" y="22" width="247" height="150" rx="15" fill="#fff"/>
+              </mask>
+              <mask id="tB3m">
+                <rect x="344" y="175" width="113" height="176" rx="15" fill="#fff"/>
+              </mask>
+              <linearGradient id="deepMaskGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#fff" stop-opacity="1"/>
+                <stop offset="1" stop-color="#000" stop-opacity="0"/>
+              </linearGradient>
+              <mask id="deepM">
+                <rect x="-24" y="384" width="480" height="170" fill="url(#deepMaskGrad)"/>
+              </mask>
+              <mask id="noiseM">
+                <rect width="429" height="554" fill="url(#wallMaskGrad)"/>
+              </mask>
+
+              <linearGradient id="tTLf" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#d4b0ee" stop-opacity="0.05"/>
+                <stop offset="1" stop-color="#c6bbff" stop-opacity="0.18"/>
+              </linearGradient>
+              <linearGradient id="tTCf" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#d5c2ff" stop-opacity="0.22"/>
+                <stop offset="0.33" stop-color="#e0bdff" stop-opacity="0.26"/>
+                <stop offset="0.67" stop-color="#f2a0ee" stop-opacity="0.32"/>
+                <stop offset="1" stop-color="#ff96da" stop-opacity="0.34"/>
+              </linearGradient>
+              <linearGradient id="tTRf" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#ffe8da" stop-opacity="0.56"/>
+                <stop offset="0.5" stop-color="#f9c6d0" stop-opacity="0.26"/>
+                <stop offset="1" stop-color="#eba4bf" stop-opacity="0.08"/>
+              </linearGradient>
+              <linearGradient id="tMLf" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#c6bbff" stop-opacity="0.18"/>
+                <stop offset="1" stop-color="#b695e8" stop-opacity="0.35"/>
+              </linearGradient>
+              <linearGradient id="tMLx" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#d4b0ee" stop-opacity="0.15"/>
+                <stop offset="1" stop-color="#793246" stop-opacity="0.30"/>
+              </linearGradient>
+              <linearGradient id="tMCf" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#ff96da" stop-opacity="0.28"/>
+                <stop offset="0.5" stop-color="#e27eb7" stop-opacity="0.35"/>
+                <stop offset="1" stop-color="#ad5088" stop-opacity="0.45"/>
+              </linearGradient>
+              <linearGradient id="tMRf" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="#e858b8" stop-opacity="0.52"/>
+                <stop offset="0.5" stop-color="#e6459c" stop-opacity="0.46"/>
+                <stop offset="1" stop-color="#de74ba" stop-opacity="0.16"/>
+              </linearGradient>
+              <linearGradient id="mrLShade" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="#561b40" stop-opacity="0.32"/>
+                <stop offset="1" stop-color="#561b40" stop-opacity="0"/>
+              </linearGradient>
+              <linearGradient id="deepX" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="#55001f" stop-opacity="0.8"/>
+                <stop offset="0.35" stop-color="#a63854" stop-opacity="0.7"/>
+                <stop offset="0.70" stop-color="#d975a5" stop-opacity="0.6"/>
+                <stop offset="1" stop-color="#8080ff" stop-opacity="0.4"/>
+              </linearGradient>
+              <linearGradient id="gV1" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="#461145" stop-opacity="0.3"/>
+                <stop offset="0.5" stop-color="#7a2a68" stop-opacity="0.5"/>
+                <stop offset="1" stop-color="#461145" stop-opacity="0.3"/>
+              </linearGradient>
+              <linearGradient id="gV2" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="#561b40" stop-opacity="0.35"/>
+                <stop offset="0.5" stop-color="#8c2e64" stop-opacity="0.55"/>
+                <stop offset="1" stop-color="#561b40" stop-opacity="0.35"/>
+              </linearGradient>
+              <linearGradient id="gH1" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#4a1538" stop-opacity="0.3"/>
+                <stop offset="0.5" stop-color="#732352" stop-opacity="0.5"/>
+                <stop offset="1" stop-color="#4a1538" stop-opacity="0.3"/>
+              </linearGradient>
+              <linearGradient id="tileSheen" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#fff" stop-opacity="0.25"/>
+                <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+
+            <g mask="url(#wallM)">
+              <rect x="-24" y="22" width="106" height="149" rx="15" fill="url(#tTLf)" filter="url(#tileSoft)"/>
+              <rect x="88" y="22" width="247" height="150" rx="15" fill="url(#tTCf)" filter="url(#tileSoft)"/>
+              <rect x="88" y="22" width="247" height="46" rx="15" fill="url(#tileSheen)"/>
+              <rect x="346" y="22" width="111" height="147" rx="15" fill="url(#tTRf)" filter="url(#tileSoft)"/>
+              <rect x="346" y="22" width="111" height="46" rx="15" fill="url(#tileSheen)"/>
+
+              <rect x="-24" y="177" width="108" height="174" rx="15" fill="url(#tMLf)" filter="url(#tileSoft)"/>
+              <rect x="-24" y="177" width="108" height="174" rx="15" fill="url(#tMLx)"/>
+              <rect x="-24" y="177" width="108" height="52" rx="15" fill="url(#tileSheen)"/>
+              <rect x="88" y="177" width="247" height="174" rx="15" fill="url(#tMCf)" filter="url(#tileSoft)"/>
+              <rect x="344" y="175" width="113" height="176" rx="15" fill="url(#tMRf)" filter="url(#tileSoft)"/>
+              <rect x="344" y="175" width="60" height="176" fill="url(#mrLShade)" mask="url(#tB3m)"/>
+
+              <rect x="-24" y="384" width="480" height="170" fill="url(#deepX)" mask="url(#deepM)"/>
+
+              <rect x="81" y="30" width="8" height="150" fill="url(#gV1)" filter="url(#groutSoft)"/>
+              <rect x="338" y="30" width="8" height="322" fill="url(#gV2)" filter="url(#groutSoft)"/>
+              <rect x="0" y="167" width="429" height="12" fill="url(#gH1)" filter="url(#groutSoft)"/>
+
+              <ellipse cx="352" cy="86" rx="140" ry="108" fill="rgba(255,232,218,.18)" filter="url(#tileSoft)"/>
+              <ellipse cx="75" cy="150" rx="82" ry="54" fill="rgba(213,194,255,.24)" filter="url(#tileSoft)"/>
+              <ellipse cx="8" cy="334" rx="76" ry="58" fill="rgba(103,41,148,.18)" filter="url(#tileSoft)"/>
+              <ellipse cx="56" cy="215" rx="56" ry="62" fill="rgba(198,187,255,.22)" filter="url(#tileSoft)"/>
+
+              <rect width="429" height="554" filter="url(#wallNoiseF)" opacity=".34" style="mix-blend-mode:soft-light;" mask="url(#noiseM)"/>
+              <rect x="-24" y="400" width="480" height="154" filter="url(#deepNoiseF)" opacity=".22" style="mix-blend-mode:soft-light;"/>
+              <rect x="-24" y="177" width="108" height="174" filter="url(#wallNoiseF2)" opacity=".3" style="mix-blend-mode:soft-light;"/>
+              <rect x="344" y="175" width="113" height="176" filter="url(#wallNoiseF2)" opacity=".3" style="mix-blend-mode:soft-light;"/>
+            </g>
+          </svg>
+        </div>
+
+        <h3 class="card__title">Context Window<br>Long-form Understanding</h3>
+
+        <!-- CONTEXT WINDOW PANEL -->
+        <div class="context-window">
+          <svg class="window-grain" viewBox="0 0 252 166" preserveAspectRatio="none">
+            <rect width="252" height="166" filter="url(#panelNoiseF)"/>
+          </svg>
+          <div class="window-lines">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+
+        <!-- METRIC -->
+        <div class="metric metric--context">
+          <div class="dot-number" data-dots="2.4"></div>
+          <span class="metric__unit">M</span>
+        </div>
+
+        <p class="caption">Tokens processed<br>simultaneously</p>
+        <a href="#byo" class="learn-more">Learn More</a>
+      </article>
+
+      <!-- CARD 3: CONNECTIONS -->
+      <article class="card card--connections">
+        <video class="card__media" autoplay muted loop playsinline preload="auto" aria-hidden="true"
+          poster="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/da8d0242-4dee-4f6d-813f-a5887e86ad77.png"
+          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260826_130103_7550f407-f14b-40a6-9616-7a26d7a8bd9f.mp4"></video>
+
+        <svg class="card__grain" viewBox="0 0 429 554" preserveAspectRatio="none" aria-hidden="true">
+          <rect width="429" height="554" filter="url(#cardNoise)"/>
+        </svg>
+
+        <h3 class="card__title">Intelligent Connections<br>Cross-Source Context</h3>
+
+        <!-- CONNECTIONS MAP -->
+        <div class="connections-map">
+          <svg viewBox="0 0 429 238" preserveAspectRatio="none">
+            <path d="M0 5H128c27 0 36 7 39 26 2 16 9 22 24 22h106c16 0 23-8 25-25 2-16 10-23 31-23h76" fill="none" stroke="#fff" stroke-width="1" opacity=".20"/>
+            <path d="M0 117h46c15 0 22 8 26 25 5 23 12 31 31 31h174c18 0 25-8 30-31 4-17 11-25 26-25h96" fill="none" stroke="#fff" stroke-width="1" opacity=".30"/>
+            <path d="M0 173h87c15 0 22 7 27 25 4 15 11 22 28 22h140c17 0 25-7 29-22 5-18 12-25 28-25h90" fill="none" stroke="#fff" stroke-width="1" opacity=".34"/>
+            <path d="M0 228h120c17 0 25-5 28-18 4-15 10-20 28-20h81c18 0 25 6 28 20 4 13 11 18 28 18h116" fill="none" stroke="#fff" stroke-width="1" opacity=".16"/>
+            <path d="M0 5H429M0 61H429M0 117H429" fill="none" stroke="#fff" stroke-width="1" opacity=".26"/>
+            <path d="M0 173H429" fill="none" stroke="#fff" stroke-width="1" opacity=".09"/>
+
+            <path d="M0 61h95c14 0 22-6 27-20 4-13 12-20 27-20h115c15 0 23 6 27 20 5 14 13 20 28 20h110" fill="none" stroke="#fff8dd" stroke-width="1.15" opacity=".52"/>
+            <path d="M0 117h88c15 0 22-8 25-25 4-24 12-31 31-31h129c20 0 27 7 31 31 3 17 10 25 26 25h99" fill="none" stroke="#fff8dd" stroke-width="1.15" opacity=".94"/>
+
+            <circle cx="45" cy="117" r="6.5" fill="#fff"/>
+            <circle cx="133" cy="61" r="6.5" fill="#fff4a7"/>
+            <circle cx="189" cy="61" r="6.5" fill="#fff1a4"/>
+            <circle cx="319" cy="61" r="6.5" fill="#fff4a6"/>
+            <circle cx="319" cy="117" r="6.5" fill="#fff2a0"/>
+          </svg>
+        </div>
+
+        <!-- METRIC -->
+        <div class="metric metric--connections">
+          <div class="dot-number" data-dots="16"></div>
+          <span class="metric__unit">K</span>
+        </div>
+
+        <p class="caption">Connected data<br>sources</p>
+        <a href="#architecture" class="learn-more">Learn More</a>
+      </article>
+    </div>
+  </section>
+
+  <!-- 3. 3D STUDIO COCKPIT & LIVE QUERY ENGINE -->
+  <section class="section-studio" id="cockpit">
+    <div class="studio-glow-bg"></div>
+    <div class="studio-layout">
+      <!-- LEFT: QUERY COCKPIT -->
+      <div class="studio-left">
+        <div class="studio-kicker">
+          <span>✦ Interactive Graph Cockpit</span>
+        </div>
+        <h2 class="studio-title">Trace decisions back to their origin.</h2>
+        <p class="studio-desc">
+          Select any real-world Django or Requests architectural dilemma below. Watch WhyCode compile a multi-hop evidence chain or fire a conformal refusal in &lt;1 ms.
+        </p>
+
+        <div class="cockpit-box">
+          <div class="cockpit-input-wrap">
+            <input type="text" id="queryInput" class="cockpit-input" placeholder="Ask why code is like this..." value="Why does ignore_warnings match substrings by default?">
+            <button class="btn-amber-glass" id="queryBtn">
+              <span>Query</span>
+            </button>
+          </div>
+
+          <div class="cockpit-chips">
+            <button class="chip-btn active" onclick="runPreset(0)">ignore_warnings substrings?</button>
+            <button class="chip-btn" onclick="runPreset(1)">Why didn't Django fork?</button>
+            <button class="chip-btn" onclick="runPreset(2)">Why was DEP 0010 superseded?</button>
+            <button class="chip-btn" onclick="runPreset(3)">Requests: preserve leading slashes?</button>
+            <button class="chip-btn chip-refusal" onclick="runPreset(4)">Why quasiflobber? (Honest Refusal)</button>
+          </div>
+
+          <!-- RESULT CONTAINER -->
+          <div class="live-card-result">
+            <div class="res-top">
+              <span class="res-badge-grounded" id="resStatusBadge">GROUNDED EVIDENCE</span>
+              <span class="res-speed" id="resSpeed">Latency: 0.51 ms · RAM Engine</span>
+            </div>
+            <div class="res-text" id="resAnswerText">
+              Best match: Fixed #37089 -- Made ignore_warnings() match substrings by default. (commit). Evidence: 8 linked record(s) in the chain (matched 4/4 question terms).
+            </div>
+
+            <div class="res-evidence-preview" id="resEvidencePreview">
+              <div class="res-ev-row">
+                <span>[FIXES] Trac Ticket #37089</span>
+                <span style="color: var(--amber);">code.djangoproject.com/ticket/37089</span>
+              </div>
+              <div class="res-ev-row">
+                <span>[AUTHORED] HelmiDev03 (Author)</span>
+                <span style="color: var(--cyan);">commit:2d9d619676e2</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: LIVE KNOWLEDGE GRAPH TOPOLOGY VISUALIZER -->
+      <div class="studio-right">
+        <div class="graph-inspector-panel">
+          <div class="graph-inspector-header">
+            <div class="graph-header-left">
+              <div class="terminal-dots">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+              </div>
+              <span class="graph-title">whycode :: graph_topology_explorer</span>
+            </div>
+            <div class="graph-header-badge" id="graphModeBadge">NEO4J CYPHER BFS</div>
+          </div>
+          <div class="graph-canvas-container">
+            <canvas id="topoCanvas" width="560" height="380"></canvas>
+            <div class="graph-overlay-info" id="graphOverlayInfo">
+              <span id="graphActivePath">PATH: ticket:37089 ➔ [FIXES] ➔ commit:2d9d61 ➔ [AUTHORED] ➔ HelmiDev03</span>
+            </div>
+          </div>
+          <div class="graph-cypher-box">
+            <span class="cypher-prompt">$</span>
+            <code id="graphCypherText">MATCH (t:Ticket {id: '37089'})&lt;-[:FIXES]-(c:Commit)-[:AUTHORED]-&gt;(a:Author) RETURN t, c, a</code>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. BYO REPO COMMAND STATION -->
+  <section class="section-byo" id="byo">
+    <div class="byo-station">
+      <div class="studio-kicker">
+        <span>✦ Bring-Your-Own-Repo Engine</span>
+      </div>
+      <h2 style="font-family: var(--font-serif); font-size: 38px; letter-spacing: -0.02em; margin-bottom: 12px;">Ingest any public GitHub repository.</h2>
+      <p style="color: var(--body); font-size: 15.5px; line-height: 1.6; max-width: 680px;">
+        WhyCode clones your git commit history, file touches, and issue references directly into an in-memory graph. No credit card, no API keys, and no login required.
+      </p>
+
+      <div class="byo-form">
+        <input type="text" id="byoInput" class="byo-input" placeholder="https://github.com/psf/requests" value="https://github.com/psf/requests">
+        <button class="btn-amber-glass" onclick="simulateBYO()">
+          <span>Index & Ingest</span>
+        </button>
+      </div>
+
+      <div class="byo-status-box" id="byoStatus">
+        <span style="color: var(--green);">✓ Ingested 166 commits, 30 contributors, and 276 decision edges in 4.0 seconds. Ready to query.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. DUAL-PROCESS SPECS & ARGOSX AUDIT -->
+  <section class="section-specs" id="architecture">
+    <div style="text-align: center; max-width: 680px; margin: 0 auto 60px;">
+      <div class="studio-kicker" style="justify-content: center;">
+        <span>✦ Dual-Process Cognitive Architecture</span>
+      </div>
+      <h2 style="font-family: var(--font-serif); font-size: 42px; letter-spacing: -0.025em; margin-bottom: 14px;">Why generative AI fails at code history.</h2>
+      <p style="color: var(--body); font-size: 16px; line-height: 1.6;">
+        Generative LLMs hallucinate plausible reasons for code changes. WhyCode combines fast System 1 classification with deterministic System 2 graph traversal.
+      </p>
+    </div>
+
+    <div class="specs-grid">
+      <div class="spec-card">
+        <div class="spec-card-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <h3>System 1 Intent & Conformal Gate</h3>
+        <p>
+          Non-autoregressive keyword and pattern analysis in <strong>12.0 microseconds</strong>. Rejects out-of-vocabulary terms immediately before touching the graph.
+        </p>
+        <div class="spec-metric-tag">Latency: 0.012 ms · Zero Cold Start</div>
+      </div>
+
+      <div class="spec-card">
+        <div class="spec-card-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 000 20 14.5 14.5 0 000-20"/><path d="M2 12h20"/></svg>
+        </div>
+        <h3>System 2 RAM Inverted Index + Neo4j</h3>
+        <p>
+          2-hop bidirectional BFS evidence walks. Pre-indexed into memory for <strong>0.51 ms responses (1,500x faster than SQLite disk scan)</strong> with raw Cypher queries.
+        </p>
+        <div class="spec-metric-tag">Throughput: ~350,000 QPS in RAM</div>
+      </div>
+
+      <div class="spec-card">
+        <div class="spec-card-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h3>99/100 ArgosX Certified Quality</h3>
+        <p>
+          Independently audited by ArgosX (Nov 21, 2026). Perfect 100/100 Security and Performance ratings, with 107 passing automated regression tests.
+        </p>
+        <div class="spec-metric-tag">Security: 100/100 · Performance: 100/100</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. SHIPCRAFT-INSPIRED CLOSING CTA & MARBLE HANDS STAGE -->
+  <section class="section-closing-cta">
+    <div class="cta-pill">
+      <span>✦ UNDERSTAND CODE WITHOUT GUESSWORK</span>
+    </div>
+
+    <h2 class="cta-headline">
+      Your codebase history.<br><em>Understood in 0.5 ms.</em>
+    </h2>
+
+    <p class="cta-paragraph">
+      Trace every confusing function back to its original ticket, pull request, and design doc. No hallucinations, no broken builds, and zero onboarding friction.
+    </p>
+
+    <a href="#cockpit" class="btn-amber-glass" style="height: 46px; padding: 0 32px; font-size: 14.5px;">
+      <span>Explore the Live Demo</span>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </a>
+
+    <!-- REACHING MARBLE HANDS -->
+    <div class="hands-stage">
+      <img class="marble-hand-left" src="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/4c029f38-d0a0-46d1-9ebc-3edcdaa11fc1.png" alt="Left White Carrara Marble Hand with Amber Rim Light">
+      
+      <div class="hands-center-content">
+        <div class="hands-center-title">©2026 WhyCode · Team FORTEC</div>
+        <div class="hands-center-sub">Built for Developers · Proven by History</div>
+      </div>
+
+      <img class="marble-hand-right" src="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/7eba3f06-a99e-44b8-bd46-7ccfaf6b2363.png" alt="Right White Carrara Marble Hand with Amber Rim Light">
+    </div>
+
+    <!-- GIANT SINKING WORDMARK -->
+    <div class="giant-wordmark">whycode</div>
+  </section>
+
+
+
+  <script>
+    // 6 PRODUCTION DECISION CARDS
+    const CARDS = [
+      {
+        id: "ignore_warnings",
+        tag: "COMMIT · FIXES #37089",
+        sha: "commit:2d9d619676e2",
+        question: "Why does <em>ignore_warnings</em> match substrings by default?",
+        decision: "Fixed #37089 -- Made ignore_warnings() match substrings by default. Linked to Trac ticket #37089 ('handles message arg differently from other test helpers').",
+        superseded: null,
+        stat1: "0.99", stat1Lbl: "Confidence",
+        stat2: "8", stat2Lbl: "Evidence Hops",
+        stat3: "0.5 ms", stat3Lbl: "RAM Retrieval",
+        pctText: "8 Evidence Records",
+        codeTree: `commit:2d9d619676e2
+ ├── [fixes] -> ticket:#37089
+ │    ├── "ignore_warnings() handles message arg..."
+ │    └── author: HelmiDev03
+ ├── [touches] -> django/test/utils.py
+ └── [references] <- commit:8aab4fa1ab45
+      └── "Refs #37089 -- Added test coverage"`,
+        codeMeta: `<!-- engine: whycode-ram-v2 -->
+<!-- source: code.djangoproject.com/ticket/37089 -->
+<!-- status: verified_grounded -->`
+      },
+      {
+        id: "why_not_fork",
+        tag: "DEP 0009 · WHY NOT DECISION",
+        sha: "dep:0009-async",
+        question: "Why didn't Django <em>fork</em> instead of adding async?",
+        decision: "DEP 0009 explicitly considered and rejected forking Django. A fork would fracture the ecosystem and third-party packages; in-place evolutionary async preserves backwards compatibility.",
+        superseded: null,
+        stat1: "0.99", stat1Lbl: "Confidence",
+        stat2: "3", stat2Lbl: "Evidence Records",
+        stat3: "0.7 ms", stat3Lbl: "Timeline Match",
+        pctText: "Negative Decision Grounded",
+        codeTree: `dep:0009-async
+ ├── title: "Async-capable Django"
+ ├── section: "Rejected Alternatives: Forking"
+ │    ├── rationale: "Ecosystem bifurcation fatal"
+ │    └── maintainers: Andrew Godwin
+ └── [mentions] -> django/core/handlers/asgi.py`,
+        codeMeta: `<!-- type: why_not_negative_decision -->
+<!-- source: github.com/django/deps/dep-0009 -->
+<!-- status: grounded_rejection -->`
+      },
+      {
+        id: "superseded_dep",
+        tag: "DEP 0019 · SUPERSEDED DECISION",
+        sha: "dep:0019-template",
+        question: "Why was DEP 0010 <em>superseded</em> in the template system?",
+        decision: "DEP 0010 introduced multiple template engines but left configuration fragmented. DEP 0019 superseded both DEP 0010 and 0012 with unified backend settings.",
+        superseded: "SUPERSEDED ALERT: DEP 0019 supersedes DEP 0010 + DEP 0012",
+        stat1: "0.99", stat1Lbl: "Confidence",
+        stat2: "5", stat2Lbl: "Override Edges",
+        stat3: "0.6 ms", stat3Lbl: "Supersedes Traversal",
+        pctText: "Decision Override Detected",
+        codeTree: `dep:0019-template-engine
+ ├── [supersedes] -> dep:0010 (Multiple Template Engines)
+ ├── [supersedes] -> dep:0012 (Template Loaders)
+ └── [touches] -> django/template/backends/`,
+        codeMeta: `<!-- relation: supersedes -->
+<!-- rule: flag_overridden_decisions -->
+<!-- verdict: do_not_reopen_dep0010 -->`
+      },
+      {
+        id: "routing_syntax",
+        tag: "DEP 0201 · ARCHITECTURE",
+        sha: "dep:0201-simplified-routing",
+        question: "Why does Django use <em>path()</em> simplified routing syntax?",
+        decision: "DEP 0201 introduced path() with angle-bracket type converters <int:id> to replace verbose regular expressions in url() while preserving regex via re_path().",
+        superseded: null,
+        stat1: "0.99", stat1Lbl: "Confidence",
+        stat2: "4", stat2Lbl: "Linked Records",
+        stat3: "0.4 ms", stat3Lbl: "Graph Traversal",
+        pctText: "4 Evidence Records",
+        codeTree: `dep:0201-simplified-routing
+ ├── [mentions] -> django/urls/resolvers.py
+ ├── [touches] -> django/urls/conf.py
+ └── [fixes] -> ticket:#28562 (Simplified URL routing)`,
+        codeMeta: `<!-- dep_number: 0201 -->
+<!-- status: Final -->
+<!-- doc_type: design_enhancement_proposal -->`
+      },
+      {
+        id: "multiline_tags",
+        tag: "COMMIT · REFS #35899",
+        sha: "commit:refs-35899",
+        question: "Why is there a transitional option to disable <em>multiline tags</em>?",
+        decision: "Ticket #35899 allowed newlines in {% %} tags. A transitional option allow_multiline_tags was added to avoid breaking legacy custom template tag parsers.",
+        superseded: null,
+        stat1: "0.86", stat1Lbl: "Confidence",
+        stat2: "6", stat2Lbl: "Evidence Records",
+        stat3: "0.5 ms", stat3Lbl: "RAM Retrieval",
+        pctText: "6 Evidence Records",
+        codeTree: `commit:refs-35899
+ ├── [references] -> ticket:#35899
+ ├── [authored] -> Carlton Gibson
+ └── [touches] -> django/template/base.py`,
+        codeMeta: `<!-- transitional_flag: allow_multiline_tags -->
+<!-- rationale: backwards_compatibility -->`
+      },
+      {
+        id: "requests_slashes",
+        tag: "BYO REPO · PSF/REQUESTS #7315",
+        sha: "commit:psf/requests/7315",
+        question: "Why preserve leading slashes in request <em>path_url</em>?",
+        decision: "Commit #7315 by typhon8 in psf/requests preserves leading slashes so server proxies and WSGI dispatchers don't strip URI prefixes during redirection.",
+        superseded: null,
+        stat1: "0.99", stat1Lbl: "Confidence",
+        stat2: "4", stat2Lbl: "Evidence Hops",
+        stat3: "0.2 ms", stat3Lbl: "BYO Retrieval",
+        pctText: "BYO Git History Grounded",
+        codeTree: `commit:tests/conftest
+ ├── [references] -> issue:#7315
+ ├── [authored] -> typhon8
+ └── [touches] -> requests/models.py`,
+        codeMeta: `<!-- ingested_via: whycode-byo-git -->
+<!-- repo: psf/requests -->
+<!-- latency: 0.2ms -->`
+      }
+    ];
+
+    const PALETTE = ["#FF4A12", "#FF5A1F", "#FF6B2C", "#FF8A3D", "#FFB06A", "#FFD9B5", "#FFF3E6"];
+
+    function hash3(a, b, c) {
+      let h = (Math.imul(a, 374761393) + Math.imul(b, 668265263) + Math.imul(c, 2147483647)) | 0;
+      h = Math.imul(h ^ (h >>> 13), 1274126177) | 0;
+      return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+    }
+
+    const beltEl = document.getElementById("belt");
+    const cardsLayer = document.getElementById("cardsLayer");
+    const codesLayer = document.getElementById("codesLayer");
+    const canvas = document.getElementById("fxCanvas");
+    const ctx = canvas.getContext("2d");
+    const badgeNum = document.getElementById("badgeNum");
+    const badgePct = document.getElementById("badgePct");
+
+    CARDS.forEach((card, i) => {
+      const cardNode = document.createElement("div");
+      cardNode.className = "why-card";
+      cardNode.id = `card-${i}`;
+
+      const superBanner = card.superseded ? `
+        <div class="card-banner-superseded">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span>${card.superseded}</span>
+        </div>` : "";
+
+      cardNode.innerHTML = `
+        <div class="why-card-inner">
+          <div class="card-meta-bar">
+            <span class="card-tag">${card.tag}</span>
+            <span class="card-sha">${card.sha}</span>
+          </div>
+          <div class="card-question">${card.question}</div>
+          <div class="card-body-box">
+            <div class="card-decision-text">${card.decision}</div>
+            ${superBanner}
+          </div>
+          <div class="card-stats-row">
+            <div class="c-stat-col">
+              <h5>${card.stat1}</h5>
+              <span>${card.stat1Lbl}</span>
+            </div>
+            <div class="c-stat-col">
+              <h5>${card.stat2}</h5>
+              <span>${card.stat2Lbl}</span>
+            </div>
+            <div class="c-stat-col">
+              <h5>${card.stat3}</h5>
+              <span>${card.stat3Lbl}</span>
+            </div>
+          </div>
+        </div>
+      `;
+      cardsLayer.appendChild(cardNode);
+
+      const codeNode = document.createElement("div");
+      codeNode.className = "why-code";
+      codeNode.id = `code-${i}`;
+      codeNode.innerHTML = `
+        <pre class="code-tree">${card.codeTree}</pre>
+        <pre class="code-meta">${card.codeMeta}</pre>
+      `;
+      codesLayer.appendChild(codeNode);
+    });
+
+    const cardElements = CARDS.map((_, i) => document.getElementById(`card-${i}`));
+    const codeElements = CARDS.map((_, i) => document.getElementById(`code-${i}`));
+
+    let W = window.innerWidth;
+    let cw = 0, ch = 0, gap = 0, span = 0, period = 0;
+    let Lx = W / 2;
+    let dpr = Math.min(2, window.devicePixelRatio || 1);
+
+    function measure() {
+      W = window.innerWidth;
+      dpr = Math.min(2, window.devicePixelRatio || 1);
+      const rect = cardElements[0].getBoundingClientRect();
+      cw = rect.width;
+      ch = rect.height;
+
+      const rootStyle = getComputedStyle(document.documentElement);
+      const gapVw = parseFloat(rootStyle.getPropertyValue("--gap")) || 4.75;
+      gap = (gapVw / 100) * W;
+
+      span = cw + gap;
+      period = span * 6;
+      Lx = W / 2;
+
+      canvas.width = beltEl.clientWidth * dpr;
+      canvas.height = beltEl.clientHeight * dpr;
+      ctx.scale(dpr, dpr);
+    }
+
+    measure();
+    window.addEventListener("resize", measure);
+
+    let off = Lx - 0.62 * cw;
+    let vel = 0;
+    let hover = 0;
+    let isHovered = false;
+    const sparks = [];
+    let activeCardIndex = 0;
+
+    let isDragging = false;
+    let lastDragX = 0;
+    let lastDragTime = 0;
+    let startPointerX = 0;
+    let startPointerY = 0;
+    let isHorizontalDrag = false;
+
+    beltEl.addEventListener("pointerdown", (e) => {
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      isDragging = true;
+      startPointerX = e.clientX;
+      startPointerY = e.clientY;
+      lastDragX = e.clientX;
+      lastDragTime = performance.now();
+      isHorizontalDrag = (e.pointerType === "mouse");
+      if (e.pointerType === "mouse") {
+        beltEl.classList.add("is-dragging");
+        try { beltEl.setPointerCapture(e.pointerId); } catch(err) {}
+      }
+      vel = 0;
+    });
+
+    beltEl.addEventListener("pointermove", (e) => {
+      if (!isDragging) return;
+      const dx = e.clientX - lastDragX;
+      const totalDx = Math.abs(e.clientX - startPointerX);
+      const totalDy = Math.abs(e.clientY - startPointerY);
+
+      if (!isHorizontalDrag) {
+        if (totalDx > 8 && totalDx > totalDy) {
+          isHorizontalDrag = true;
+          beltEl.classList.add("is-dragging");
+          try { beltEl.setPointerCapture(e.pointerId); } catch(err) {}
+        } else if (totalDy > 8 && totalDy > totalDx) {
+          isDragging = false;
+          return;
+        }
+      }
+
+      if (isHorizontalDrag) {
+        const now = performance.now();
+        const dt = Math.max(8, now - lastDragTime);
+        off += dx;
+        const instVel = (dx / dt) * 1000;
+        vel = instVel * 0.8 + vel * 0.2;
+        lastDragX = e.clientX;
+        lastDragTime = now;
+      }
+    });
+
+    function endDrag(e) {
+      if (!isDragging && !isHorizontalDrag) return;
+      isDragging = false;
+      isHorizontalDrag = false;
+      beltEl.classList.remove("is-dragging");
+      try { beltEl.releasePointerCapture(e.pointerId); } catch(err) {}
+    }
+
+    beltEl.addEventListener("pointerup", endDrag);
+    beltEl.addEventListener("pointercancel", endDrag);
+    beltEl.addEventListener("pointerenter", () => { isHovered = true; });
+    beltEl.addEventListener("pointerleave", () => { isHovered = false; });
+
+    let lastT = performance.now();
+
+    function tick(now) {
+      const dt = Math.min(0.1, (now - lastT) / 1000);
+      lastT = now;
+      const t = now / 1000;
+
+      const targetHover = isHovered ? 1 : 0;
+      hover += (targetHover - hover) * Math.min(1, dt * 4);
+
+      const baseAuto = -0.075 * W;
+      const targetVel = baseAuto * (1 - 0.65 * hover);
+
+      if (!isDragging) {
+        vel += (targetVel - vel) * (1 - Math.exp(-2.2 * dt));
+        off += vel * dt;
+      }
+
+      ctx.clearRect(0, 0, beltEl.clientWidth, beltEl.clientHeight);
+
+      function mod(n, m) {
+        return ((n % m) + m) % m;
+      }
+
+      for (let i = 0; i < 6; i++) {
+        const x = mod(off + i * span + span, period) - span;
+        const cardNode = cardElements[i];
+        const codeNode = codeElements[i];
+        const cut = Math.max(0, Math.min(cw, Lx - x));
+
+        cardNode.style.transform = `translate3d(${x}px, 0, 0)`;
+
+        if (cut > 0) {
+          cardNode.style.clipPath = `inset(0 0 0 ${cut}px round 0 1.6vw 1.6vw 0)`;
+          cardNode.style.maskImage = `linear-gradient(90deg, transparent ${cut}px, #000 ${cut + 26}px)`;
+          cardNode.style.webkitMaskImage = `linear-gradient(90deg, transparent ${cut}px, #000 ${cut + 26}px)`;
+        } else {
+          cardNode.style.clipPath = "none";
+          cardNode.style.maskImage = "none";
+          cardNode.style.webkitMaskImage = "none";
+        }
+
+        codeNode.style.transform = `translate3d(${x}px, 0, 0)`;
+        if (cut > 0) {
+          codeNode.style.visibility = "visible";
+          codeNode.style.clipPath = `inset(0 ${cw - cut}px 0 0)`;
+        } else {
+          codeNode.style.visibility = "hidden";
+        }
+
+        if (cut > 0 && (x + cw) > Lx) {
+          drawFx(x, cut, cw, ch, i, t);
+        }
+
+        if (cut > 0 && cut < cw) {
+          if (activeCardIndex !== i) {
+            activeCardIndex = i;
+            badgeNum.textContent = CARDS[i].stat1;
+            badgePct.textContent = CARDS[i].pctText;
+          }
+        }
+      }
+
+      updateSparks(dt);
+      if (isScannerVisible) {
+        scannerRafId = requestAnimationFrame(tick);
+      } else {
+        scannerRafId = null;
+      }
+    }
+
+    function drawFx(x, cut, cardW, cardH, cardIndex, t) {
+      const cardTop = 70;
+      const hazeWidth = Math.min(150, (x + cardW) - Lx);
+      if (hazeWidth > 0) {
+        const hazeGrad = ctx.createLinearGradient(Lx, 0, Lx + hazeWidth, 0);
+        hazeGrad.addColorStop(0, "rgba(240,162,76,0.5)");
+        hazeGrad.addColorStop(1, "rgba(240,162,76,0)");
+        ctx.fillStyle = hazeGrad;
+        ctx.fillRect(Lx, cardTop, hazeWidth, cardH);
+      }
+
+      const R = 0.3 * cardW;
+      const grid = 3;
+      const startGx = Math.floor(cut / grid);
+      const endGx = Math.floor((cut + R) / grid);
+      const rows = Math.floor(cardH / grid);
+      const twinkleFloor = Math.floor(t * 9) + 97;
+
+      for (let gx = startGx; gx <= endGx; gx++) {
+        const sx = x + gx * grid;
+        const d = sx - Lx;
+        if (d < 0 || d > R) continue;
+
+        const p = Math.pow(1 - d / R, 1.7);
+
+        for (let row = -5; row <= rows + 5; row++) {
+          const isInside = (row >= 0 && row < rows);
+          const threshold = isInside ? (p * 0.92) : (p * 0.16 * Math.max(0, 1 - Math.abs(row < 0 ? row : row - rows) / 5));
+
+          const h1 = hash3(gx, row, cardIndex);
+          if (h1 >= threshold) continue;
+
+          const hTwinkle = hash3(gx, row, twinkleFloor);
+          if (hTwinkle < 0.22) continue;
+
+          const h2 = hash3(row, gx, cardIndex + 31);
+          let color;
+          if (d <= 10) {
+            const palIdx = 4 + Math.floor(h2 * 3);
+            color = PALETTE[Math.min(PALETTE.length - 1, palIdx)];
+          } else {
+            const palIdx = Math.floor(h2 * h2 * 7);
+            color = PALETTE[Math.min(PALETTE.length - 1, palIdx)];
+          }
+
+          const size = 1.1 + h2 * 1.7;
+          const jitterX = (hash3(gx, row, 11) - 0.5) * 1.6;
+          const jitterY = (hash3(row, gx, 17) - 0.5) * 1.6;
+
+          ctx.fillStyle = color;
+          ctx.fillRect(sx + jitterX, cardTop + row * grid + jitterY, size, size);
+        }
+      }
+
+      if (sparks.length < 90) {
+        for (let s = 0; s < 3; s++) {
+          if (Math.random() < 0.7) {
+            sparks.push({
+              x: Lx + Math.random() * 30,
+              y: cardTop - 10 + Math.random() * (cardH + 20),
+              vx: (-30 + Math.random() * 70) + 0.6 * vel,
+              vy: -25 + Math.random() * 50,
+              size: 0.8 + Math.random() * 1.8,
+              color: PALETTE[Math.floor(Math.random() * PALETTE.length)],
+              life: 0.3 + Math.random() * 0.8
+            });
+          }
+        }
+      }
+    }
+
+    function updateSparks(dt) {
+      for (let i = sparks.length - 1; i >= 0; i--) {
+        const s = sparks[i];
+        s.life -= dt;
+        if (s.life <= 0) {
+          sparks.splice(i, 1);
+          continue;
+        }
+        s.x += s.vx * dt;
+        s.y += s.vy * dt;
+        ctx.save();
+        ctx.globalAlpha = Math.min(1, s.life * 2.2);
+        ctx.fillStyle = s.color;
+        ctx.fillRect(s.x, s.y, s.size, s.size);
+        ctx.restore();
+      }
+    }
+
+    let isScannerVisible = true;
+    let scannerRafId = requestAnimationFrame(tick);
+
+    const scannerObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        isScannerVisible = entry.isIntersecting;
+        if (isScannerVisible) {
+          lastT = performance.now();
+          if (!scannerRafId) {
+            scannerRafId = requestAnimationFrame(tick);
+          }
+        } else {
+          if (scannerRafId) {
+            cancelAnimationFrame(scannerRafId);
+            scannerRafId = null;
+          }
+        }
+      });
+    }, { rootMargin: "150px" });
+
+    const scannerEl = document.getElementById("scanner");
+    if (scannerEl) scannerObserver.observe(scannerEl);
+
+    // INTERACTIVE PRESETS
+    const PRESETS = [
+      {
+        q: "Why does ignore_warnings match substrings by default?",
+        refused: false,
+        confidence: "0.99",
+        speed: "Latency: 0.51 ms · RAM Engine",
+        answer: "Best match: Fixed #37089 -- Made ignore_warnings() match substrings by default. (commit). Evidence: 8 linked record(s) in the chain (matched 4/4 question terms).",
+        evidence: [
+          { rel: "fixes", title: "Ticket #37089: ignore_warnings() handles message arg differently", link: "code.djangoproject.com/ticket/37089" },
+          { rel: "authored", title: "HelmiDev03 (Author)", link: "commit:2d9d619676e2" }
+        ]
+      },
+      {
+        q: "Why didn't Django fork instead of adding async?",
+        refused: false,
+        confidence: "0.99",
+        speed: "Latency: 0.77 ms · Timeline Match",
+        answer: "Best match: DEP 0009: Async-capable Django (doc). Rationale: Forking Django was rejected because ecosystem bifurcation would permanently break third-party packages. In-place async adoption preserves backwards compatibility.",
+        evidence: [
+          { rel: "mentions", title: "DEP 0009: Section: Alternatives Considered (Forking)", link: "github.com/django/deps/dep-0009" },
+          { rel: "touches", title: "django/core/handlers/asgi.py", link: "#" }
+        ]
+      },
+      {
+        q: "Why was DEP 0010 superseded in the template system?",
+        refused: false,
+        confidence: "0.99",
+        speed: "Latency: 0.62 ms · Override Traversal",
+        answer: "Best match: DEP 0019 (doc). Note: this decision superseded DEP 0010 (Multiple Template Engines) and DEP 0012 to establish a unified backend settings API.",
+        evidence: [
+          { rel: "supersedes", title: "DEP 0010: Multiple Template Engines (Overridden)", link: "#" },
+          { rel: "touches", title: "django/template/backends/", link: "#" }
+        ]
+      },
+      {
+        q: "Why preserve leading slashes in request path_url?",
+        refused: false,
+        confidence: "0.99",
+        speed: "Latency: 0.22 ms · BYO Engine",
+        answer: "Best match: Preserve leading slashes in request path_url (#7315) (commit). Evidence: 4 linked record(s) in the chain (matched 5/5 question terms). Ingested from psf/requests.",
+        evidence: [
+          { rel: "references", title: "Issue/PR #7315 (psf/requests)", link: "github.com/psf/requests/pull/7315" },
+          { rel: "authored", title: "typhon8 (Author)", link: "#" }
+        ]
+      },
+      {
+        q: "Why does Django use quasiflobber?",
+        refused: true,
+        confidence: "0.00",
+        speed: "Latency: 0.12 ms · Conformal Gate",
+        answer: "No evidence in the graph answers this. Refusing to invent an answer. The term 'quasiflobber' appears in no ingested record.",
+        evidence: []
+      }
+    ];
+
+    // KNOWLEDGE GRAPH TOPOLOGY VISUALIZER
+    const topoCanvas = document.getElementById("topoCanvas");
+    const topoCtx = topoCanvas ? topoCanvas.getContext("2d") : null;
+    let topoWidth = 560;
+    let topoHeight = 380;
+
+    const GRAPH_PRESETS = [
+      {
+        path: "ticket:37089 ➔ [FIXES] ➔ commit:2d9d61 ➔ [AUTHORED] ➔ HelmiDev03",
+        cypher: "MATCH (t:Ticket {id: '37089'})<-[:FIXES]-(c:Commit)-[:AUTHORED]->(a:Author) RETURN t, c, a",
+        mode: "NEO4J CYPHER BFS",
+        nodes: [
+          { id: "t1", label: "Ticket #37089", sub: "Trac Issue", x: 0.18, y: 0.50, color: "#F0A24C" },
+          { id: "c1", label: "commit:2d9d61", sub: "Git Commit", x: 0.48, y: 0.35, color: "#00F0FF" },
+          { id: "a1", label: "HelmiDev03", sub: "Author", x: 0.80, y: 0.25, color: "#00E676" },
+          { id: "f1", label: "django/test/utils.py", sub: "Touched File", x: 0.74, y: 0.72, color: "#FFB86C" }
+        ],
+        edges: [
+          { from: "c1", to: "t1", label: "FIXES", color: "#F0A24C" },
+          { from: "c1", to: "a1", label: "AUTHORED", color: "#00E676" },
+          { from: "c1", to: "f1", label: "TOUCHES", color: "#FFB86C" }
+        ],
+        refusal: false
+      },
+      {
+        path: "DEP 0009: Async ➔ [REJECTED] ➔ Fork Django (Bifurcation)",
+        cypher: "MATCH (d:Doc {id: 'DEP_0009'})-[:REJECTS]->(alt:Alternative) RETURN d, alt",
+        mode: "DECISION RATIONALE",
+        nodes: [
+          { id: "d1", label: "DEP 0009: Async", sub: "Design Doc", x: 0.20, y: 0.50, color: "#00F0FF" },
+          { id: "alt1", label: "Fork Django", sub: "Rejected Alt (Bifurcation)", x: 0.52, y: 0.25, color: "#FF5F56" },
+          { id: "h1", label: "handlers/asgi.py", sub: "In-Place Async", x: 0.56, y: 0.75, color: "#00E676" },
+          { id: "compat", label: "Ecosystem Compat", sub: "Preserved Rule", x: 0.84, y: 0.50, color: "#F0A24C" }
+        ],
+        edges: [
+          { from: "d1", to: "alt1", label: "REJECTED_ALT", color: "#FF5F56" },
+          { from: "d1", to: "h1", label: "IMPLEMENTS", color: "#00E676" },
+          { from: "d1", to: "compat", label: "PRESERVES", color: "#F0A24C" }
+        ],
+        refusal: false
+      },
+      {
+        path: "DEP 0019 ➔ [SUPERSEDES] ➔ DEP 0010 (Multiple Template Engines)",
+        cypher: "MATCH (d19:Doc {id: 'DEP_0019'})-[:SUPERSEDES]->(d10:Doc {id: 'DEP_0010'}) RETURN d19, d10",
+        mode: "OVERRIDE TRAVERSAL",
+        nodes: [
+          { id: "d19", label: "DEP 0019", sub: "Active Config API", x: 0.20, y: 0.50, color: "#00E676" },
+          { id: "d10", label: "DEP 0010", sub: "SUPERSEDED (Multiple Engines)", x: 0.56, y: 0.30, color: "#7A7F88" },
+          { id: "d12", label: "DEP 0012", sub: "SUPERSEDED (Backends)", x: 0.58, y: 0.70, color: "#7A7F88" },
+          { id: "tpl", label: "django/template/", sub: "Backends Package", x: 0.84, y: 0.50, color: "#F0A24C" }
+        ],
+        edges: [
+          { from: "d19", to: "d10", label: "SUPERSEDES", color: "#FF5F56" },
+          { from: "d19", to: "d12", label: "SUPERSEDES", color: "#FF5F56" },
+          { from: "d19", to: "tpl", label: "STANDARDIZES", color: "#F0A24C" }
+        ],
+        refusal: false
+      },
+      {
+        path: "issue:7315 ➔ [REFERENCES] ➔ commit:7315 ➔ [AUTHORED] ➔ typhon8",
+        cypher: "MATCH (i:Issue {id: '7315'})<-[:REFERENCES]-(c:Commit)-[:AUTHORED]->(a:Author) RETURN i, c, a",
+        mode: "BYO REPO GRAPH",
+        nodes: [
+          { id: "i7315", label: "Issue #7315", sub: "psf/requests", x: 0.18, y: 0.50, color: "#F0A24C" },
+          { id: "c7315", label: "Commit #7315", sub: "Preserve leading slashes", x: 0.48, y: 0.35, color: "#00F0FF" },
+          { id: "typhon", label: "typhon8", sub: "Contributor", x: 0.80, y: 0.25, color: "#00E676" },
+          { id: "models", label: "requests/models.py", sub: "Touched File", x: 0.74, y: 0.72, color: "#FFB86C" }
+        ],
+        edges: [
+          { from: "c7315", to: "i7315", label: "REFERENCES", color: "#F0A24C" },
+          { from: "c7315", to: "typhon", label: "AUTHORED", color: "#00E676" },
+          { from: "c7315", to: "models", label: "TOUCHES", color: "#FFB86C" }
+        ],
+        refusal: false
+      },
+      {
+        path: "query:'quasiflobber' ➔ [CONFORMAL GATE] ➔ 0 EVIDENCE HOPS",
+        cypher: "MATCH (n {name: 'quasiflobber'}) RETURN n // 0 matches -> Abstention Gate",
+        mode: "CONFORMAL ABSTENTION",
+        nodes: [
+          { id: "q1", label: '"quasiflobber"', sub: "Ungrounded Query Token", x: 0.50, y: 0.50, color: "#FF5F56" }
+        ],
+        edges: [],
+        refusal: true
+      }
+    ];
+
+    let currentGraphIdx = 0;
+    let topoParticles = [];
+    let topoTime = 0;
+
+    function resizeTopoCanvas() {
+      if (!topoCanvas) return;
+      const rect = topoCanvas.parentElement.getBoundingClientRect();
+      topoCanvas.width = rect.width * (window.devicePixelRatio || 1);
+      topoCanvas.height = rect.height * (window.devicePixelRatio || 1);
+      topoWidth = rect.width;
+      topoHeight = rect.height;
+      if (topoCtx) {
+        topoCtx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+      }
+    }
+
+    function initTopoParticles() {
+      topoParticles = [];
+      const g = GRAPH_PRESETS[currentGraphIdx] || GRAPH_PRESETS[0];
+      if (g.edges.length > 0) {
+        for (let i = 0; i < 28; i++) {
+          topoParticles.push({
+            edgeIdx: i % g.edges.length,
+            progress: Math.random(),
+            speed: 0.003 + Math.random() * 0.005,
+            size: 2 + Math.random() * 2
+          });
+        }
+      }
+    }
+
+    function updateGraphVisualizer(idx) {
+      currentGraphIdx = idx;
+      const g = GRAPH_PRESETS[idx] || GRAPH_PRESETS[0];
+      const pathEl = document.getElementById("graphActivePath");
+      if (pathEl) pathEl.textContent = "PATH: " + g.path;
+      const cypherEl = document.getElementById("graphCypherText");
+      if (cypherEl) cypherEl.textContent = g.cypher;
+      const badge = document.getElementById("graphModeBadge");
+      if (badge) {
+        badge.textContent = g.mode;
+        badge.style.color = g.refusal ? "#FF5F56" : "var(--amber)";
+        badge.style.borderColor = g.refusal ? "rgba(255,95,86,0.3)" : "rgba(240,162,76,0.3)";
+      }
+      initTopoParticles();
+    }
+
+    function drawNode(x, y, node) {
+      topoCtx.save();
+      topoCtx.beginPath();
+      topoCtx.arc(x, y, 22, 0, Math.PI * 2);
+      topoCtx.fillStyle = "rgba(0, 0, 0, 0.75)";
+      topoCtx.fill();
+      topoCtx.strokeStyle = node.color || "var(--amber)";
+      topoCtx.lineWidth = 2;
+      topoCtx.shadowColor = node.color || "var(--amber)";
+      topoCtx.shadowBlur = 12;
+      topoCtx.stroke();
+
+      topoCtx.beginPath();
+      topoCtx.arc(x, y, 16, 0, Math.PI * 2);
+      topoCtx.fillStyle = node.color || "var(--amber)";
+      topoCtx.globalAlpha = 0.25;
+      topoCtx.fill();
+      topoCtx.globalAlpha = 1.0;
+
+      topoCtx.font = "700 11px IBM Plex Mono, monospace";
+      topoCtx.fillStyle = node.color || "#fff";
+      topoCtx.textAlign = "center";
+      topoCtx.textBaseline = "middle";
+      const iconChar = node.label.replace(/[^a-zA-Z0-9]/g, '').charAt(0).toUpperCase() || "N";
+      topoCtx.fillText(iconChar, x, y);
+
+      topoCtx.font = "600 11px Inter, sans-serif";
+      topoCtx.fillStyle = "#FFFFFF";
+      topoCtx.textAlign = "center";
+      topoCtx.fillText(node.label, x, y + 34);
+
+      topoCtx.font = "400 9.5px IBM Plex Mono, monospace";
+      topoCtx.fillStyle = "#8B9098";
+      topoCtx.fillText(node.sub || "", x, y + 46);
+      topoCtx.restore();
+    }
+
+    function renderTopo() {
+      if (!topoCtx) return;
+      topoTime += 0.02;
+      topoCtx.clearRect(0, 0, topoWidth, topoHeight);
+
+      topoCtx.strokeStyle = "rgba(255, 255, 255, 0.03)";
+      topoCtx.lineWidth = 1;
+      const step = 32;
+      for (let x = 0; x < topoWidth; x += step) {
+        topoCtx.beginPath();
+        topoCtx.moveTo(x, 0);
+        topoCtx.lineTo(x, topoHeight);
+        topoCtx.stroke();
+      }
+      for (let y = 0; y < topoHeight; y += step) {
+        topoCtx.beginPath();
+        topoCtx.moveTo(0, y);
+        topoCtx.lineTo(topoWidth, y);
+        topoCtx.stroke();
+      }
+
+      const g = GRAPH_PRESETS[currentGraphIdx] || GRAPH_PRESETS[0];
+
+      if (g.refusal) {
+        const cx = topoWidth * 0.50;
+        const cy = topoHeight * 0.44;
+        const r = 85 + Math.sin(topoTime * 3) * 5;
+
+        topoCtx.save();
+        topoCtx.strokeStyle = "rgba(255, 95, 86, 0.45)";
+        topoCtx.lineWidth = 2;
+        topoCtx.setLineDash([6, 6]);
+        topoCtx.beginPath();
+        topoCtx.arc(cx, cy, r, 0, Math.PI * 2);
+        topoCtx.stroke();
+
+        topoCtx.fillStyle = "rgba(255, 95, 86, 0.06)";
+        topoCtx.beginPath();
+        topoCtx.arc(cx, cy, r, 0, Math.PI * 2);
+        topoCtx.fill();
+        topoCtx.restore();
+
+        topoCtx.font = "600 11px IBM Plex Mono, monospace";
+        topoCtx.fillStyle = "#FF5F56";
+        topoCtx.textAlign = "center";
+        topoCtx.fillText("CONFORMAL ABSTENTION GATE (α = 0.35)", cx, cy - r - 12);
+        topoCtx.font = "400 10.5px IBM Plex Mono, monospace";
+        topoCtx.fillStyle = "#8B9098";
+        topoCtx.fillText("0 EVIDENCE HOPS IN KNOWLEDGE GRAPH", cx, cy + r + 20);
+        topoCtx.fillText("REFUSING TO INVENT ANSWER", cx, cy + r + 36);
+
+        drawNode(cx, cy, g.nodes[0]);
+      } else {
+        const nodeMap = {};
+        g.nodes.forEach(n => {
+          nodeMap[n.id] = {
+            ...n,
+            px: topoWidth * n.x,
+            py: topoHeight * n.y + Math.sin(topoTime + n.x * 10) * 4
+          };
+        });
+
+        g.edges.forEach((e) => {
+          const fromNode = nodeMap[e.from];
+          const toNode = nodeMap[e.to];
+          if (!fromNode || !toNode) return;
+
+          topoCtx.save();
+          topoCtx.strokeStyle = e.color || "rgba(240, 162, 76, 0.4)";
+          topoCtx.lineWidth = 1.8;
+          topoCtx.beginPath();
+          topoCtx.moveTo(fromNode.px, fromNode.py);
+          topoCtx.lineTo(toNode.px, toNode.py);
+          topoCtx.stroke();
+
+          const mx = (fromNode.px + toNode.px) / 2;
+          const my = (fromNode.py + toNode.py) / 2;
+          topoCtx.font = "600 9.5px IBM Plex Mono, monospace";
+          topoCtx.fillStyle = "rgba(0, 0, 0, 0.85)";
+          const labelW = topoCtx.measureText(e.label).width + 10;
+          topoCtx.fillRect(mx - labelW / 2, my - 7, labelW, 14);
+          topoCtx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+          topoCtx.lineWidth = 1;
+          topoCtx.strokeRect(mx - labelW / 2, my - 7, labelW, 14);
+          topoCtx.fillStyle = e.color || "#FFB86C";
+          topoCtx.textAlign = "center";
+          topoCtx.textBaseline = "middle";
+          topoCtx.fillText(e.label, mx, my);
+          topoCtx.restore();
+        });
+
+        if (g.edges.length > 0) {
+          topoParticles.forEach(p => {
+            const e = g.edges[p.edgeIdx % g.edges.length];
+            if (!e) return;
+            const fromNode = nodeMap[e.from];
+            const toNode = nodeMap[e.to];
+            if (!fromNode || !toNode) return;
+
+            p.progress = (p.progress + p.speed) % 1;
+            const px = fromNode.px + (toNode.px - fromNode.px) * p.progress;
+            const py = fromNode.py + (toNode.py - fromNode.py) * p.progress;
+
+            topoCtx.save();
+            topoCtx.fillStyle = e.color || "#F0A24C";
+            topoCtx.shadowColor = e.color || "#F0A24C";
+            topoCtx.shadowBlur = 8;
+            topoCtx.beginPath();
+            topoCtx.arc(px, py, p.size, 0, Math.PI * 2);
+            topoCtx.fill();
+            topoCtx.restore();
+          });
+        }
+
+        g.nodes.forEach(n => {
+          const np = nodeMap[n.id];
+          drawNode(np.px, np.py, n);
+        });
+      }
+
+      if (isCockpitVisible) {
+        topoRafId = requestAnimationFrame(renderTopo);
+      } else {
+        topoRafId = null;
+      }
+    }
+
+    let isCockpitVisible = false;
+    let topoRafId = null;
+
+    const cockpitObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        isCockpitVisible = entry.isIntersecting;
+        if (isCockpitVisible) {
+          if (!topoRafId) {
+            topoRafId = requestAnimationFrame(renderTopo);
+          }
+        } else {
+          if (topoRafId) {
+            cancelAnimationFrame(topoRafId);
+            topoRafId = null;
+          }
+        }
+      });
+    }, { rootMargin: "150px" });
+
+    const cockpitEl = document.getElementById("cockpit");
+    if (cockpitEl) cockpitObserver.observe(cockpitEl);
+
+    // PAUSE OFFSCREEN VIDEOS TO PREVENT FRAME DROPS DURING SCROLL
+    const perfVideos = document.querySelectorAll(".perf-motion, .card__media");
+    const perfObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          perfVideos.forEach(v => {
+            if (v.paused) v.play().catch(() => {});
+          });
+        } else {
+          perfVideos.forEach(v => {
+            if (!v.paused) v.pause();
+          });
+        }
+      });
+    }, { rootMargin: "150px" });
+
+    const perfSec = document.getElementById("performance");
+    if (perfSec) perfObserver.observe(perfSec);
+
+    window.addEventListener("resize", resizeTopoCanvas, { passive: true });
+    setTimeout(() => {
+      resizeTopoCanvas();
+      initTopoParticles();
+      updateGraphVisualizer(0);
+    }, 100);
+
+    function runPreset(idx) {
+      document.querySelectorAll(".chip-btn").forEach((b, i) => {
+        b.classList.toggle("active", i === idx);
+      });
+      const p = PRESETS[idx];
+      document.getElementById("queryInput").value = p.q;
+      renderResult(p);
+      updateGraphVisualizer(idx);
+    }
+
+    document.getElementById("queryBtn").addEventListener("click", () => {
+      const q = document.getElementById("queryInput").value.trim().toLowerCase();
+      let match = PRESETS.find(p => p.q.toLowerCase().includes(q) || q.includes(p.q.toLowerCase().slice(0, 15)));
+      if (!match) {
+        match = {
+          q: q,
+          refused: true,
+          confidence: "0.00",
+          speed: "Latency: 0.14 ms · Conformal Gate",
+          answer: `No evidence in the graph answers this. Refusing to invent an answer. Term has 0 graph grounding.`,
+          evidence: []
+        };
+      }
+      renderResult(match);
+    });
+
+    function renderResult(data) {
+      document.getElementById("resSpeed").textContent = data.speed;
+      const badge = document.getElementById("resStatusBadge");
+      if (data.refused) {
+        badge.className = "res-badge-refusal";
+        badge.textContent = "HONEST REFUSAL";
+      } else {
+        badge.className = "res-badge-grounded";
+        badge.textContent = "GROUNDED EVIDENCE";
+      }
+      document.getElementById("resAnswerText").textContent = data.answer;
+
+      const evWrap = document.getElementById("resEvidencePreview");
+      evWrap.innerHTML = "";
+      if (data.evidence.length === 0) {
+        evWrap.innerHTML = `<div style="color: var(--muted); font-size: 12px; font-family: var(--font-mono);">[System 1 Conformal Abstention Gate] Zero hallucinations allowed.</div>`;
+      } else {
+        data.evidence.forEach(ev => {
+          const row = document.createElement("div");
+          row.className = "res-ev-row";
+          row.innerHTML = `
+            <span>[${ev.rel.toUpperCase()}] ${ev.title}</span>
+            <span style="color: var(--amber); font-family: var(--font-mono);">${ev.link}</span>
+          `;
+          evWrap.appendChild(row);
+        });
+      }
+    }
+
+    function simulateBYO() {
+      const st = document.getElementById("byoStatus");
+      st.style.display = "block";
+      st.innerHTML = "<span style='color: var(--amber);'>Cloning git repository & extracting decision topology...</span>";
+      setTimeout(() => {
+        st.innerHTML = "<span style='color: var(--green);'>✓ Ingested 166 commits, 30 contributors, and 276 decision edges in 4.0 seconds. Ready to query.</span>";
+      }, 1100);
+    }
+
+    
+    // GLYPHS & DOT MATRIX RENDERING
+    const GLYPHS = {
+      "0": ["01110", "10001", "10011", "10101", "11001", "10001", "01110"],
+      "1": ["010", "110", "010", "010", "010", "010", "111"],
+      "2": ["01110", "10001", "00001", "00010", "00100", "01000", "11111"],
+      "3": ["11110", "00001", "00001", "01110", "00001", "00001", "11110"],
+      "4": ["00010", "00110", "01010", "10010", "11111", "00010", "00010"],
+      "5": ["11111", "10000", "10000", "11110", "00001", "00001", "11110"],
+      "6": ["01110", "10000", "10000", "11110", "10001", "10001", "01110"],
+      "7": ["11111", "00001", "00010", "00100", "01000", "01000", "01000"],
+      "8": ["01110", "10001", "10001", "01110", "10001", "10001", "01110"],
+      "9": ["01110", "10001", "10001", "01111", "00001", "00001", "01110"],
+      ".": ["0", "0", "0", "0", "0", "0", "1"],
+      "I": ["111", "010", "010", "010", "010", "010", "111"],
+      "a": ["00000", "00000", "01110", "00001", "01111", "10001", "01111"],
+      "e": ["00000", "00000", "01110", "10001", "11111", "10000", "01110"],
+      "g": ["00000", "00000", "01111", "10001", "01111", "00001", "01110"],
+      "i": ["1", "0", "1", "1", "1", "1", "1"],
+      "l": ["10", "10", "10", "10", "10", "10", "01"],
+      "n": ["00000", "00000", "11110", "10001", "10001", "10001", "10001"],
+      "t": ["010", "010", "111", "010", "010", "010", "001"],
+      "r": ["00000", "00000", "10110", "11001", "10000", "10000", "10000"]
+    };
+
+    function renderDots(el) {
+      const text = el.getAttribute("data-dots") || "";
+      const isDotWord = el.classList.contains("dot-word");
+      const isContext = !!el.closest(".metric--context");
+
+      const pitchX = isDotWord ? 4 : 5;
+      const pitchY = 4;
+      const gap = 1;
+      const dotRadius = isDotWord ? 1.8 : (isContext ? 2.32 : 1.55);
+
+      let x = 0;
+      let circles = [];
+
+      for (let cIdx = 0; cIdx < text.length; cIdx++) {
+        const ch = text[cIdx];
+        const glyph = GLYPHS[ch];
+        if (!glyph) continue;
+        const w = glyph[0].length;
+        for (let row = 0; row < 7; row++) {
+          const rowStr = glyph[row];
+          for (let col = 0; col < w; col++) {
+            if (rowStr[col] === "1") {
+              const cx = x + col * pitchX + 1.55;
+              const cy = row * pitchY + 1.55;
+              circles.push(`<circle cx="${cx.toFixed(2)}" cy="${cy.toFixed(2)}" r="${dotRadius}"/>`);
+            }
+          }
+        }
+        x += (w + gap) * pitchX;
+      }
+
+      const totalW = Math.max(x - gap * pitchX, 1);
+      el.innerHTML = `<svg class="dot-svg" viewBox="0 0 ${totalW.toFixed(2)} 28" fill="currentColor">${circles.join("")}</svg>`;
+    }
+
+    document.querySelectorAll("[data-dots]").forEach(renderDots);
+
+    // GAUGE TICKS
+    const perfTicksG = document.getElementById("gaugeTicks");
+    if (perfTicksG) {
+      let s = "";
+      for (let i = 0; i <= 22; i++) {
+        const angle = (190 + i * 5) * Math.PI / 180;
+        const outer = 142;
+        const inner = (i % 5 === 0) ? 129 : 133;
+        const sw = (i % 5 === 0) ? 1.5 : 1;
+        const x1 = 163 + outer * Math.cos(angle);
+        const y1 = 163 + outer * Math.sin(angle);
+        const x2 = 163 + inner * Math.cos(angle);
+        const y2 = 163 + inner * Math.sin(angle);
+        s += `<line x1="${x1.toFixed(2)}" y1="${y1.toFixed(2)}" x2="${x2.toFixed(2)}" y2="${y2.toFixed(2)}" stroke="rgba(255,188,210,.34)" stroke-width="${sw}" stroke-linecap="round"/>`;
+      }
+      perfTicksG.innerHTML = s;
+    }
+
+    // THEME TOGGLE
+    const themeBtn = document.getElementById("themeToggleBtn");
+    const htmlEl = document.documentElement;
+
+    themeBtn.addEventListener("click", () => {
+      const current = htmlEl.getAttribute("data-theme");
+      const next = current === "dark" ? "light" : "dark";
+      htmlEl.setAttribute("data-theme", next);
+      localStorage.setItem("whycode_theme", next);
+    });
+  </script>
+</body>
+</html>

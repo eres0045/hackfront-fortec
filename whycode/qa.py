@@ -1,22 +1,10 @@
-"""WhyCode QA: answer "why" questions from the graph, or refuse.
+"""WhyCode QA: Dual-Process reasoning architecture.
 
-Rules, enforced here and not in the prompt:
-- Every claim in an answer must trace to a graph entity in the evidence chain.
-- If no entity matches the question, or the best match is too weak, the
-  answer is a refusal, never an invention.
-- Ranking: matched-token count first, then title hits (a record whose
-  TITLE is about the question beats one that merely mentions it), then
-  evidence-chain size, then entity-id order as a last resort. Id order
-  alone once let a mailers doc that mentions Python 3.15 in passing beat
-  the Trac ticket titled "Python 3.15 compatibility."
-- A best match with an empty evidence chain is a refusal, not an answer:
-  a claim with zero linked records behind it is not an evidenced answer.
-  This is what keeps a passing mention (DEP 0009 on "microservices")
-  from answering at 0.99 with nothing behind it.
-- If the evidence chain contains a supersedes edge, the answer says the
-  old decision was overridden and points at the newer one.
+System 1 (Fast, Non-autoregressive intent routing & calibrated abstention gate)
+-> System 2 (Multi-hop graph traversal, evidence chain, supersession detection).
 """
 import re
+from whycode.system1 import System1Engine, Intent
 
 STOPWORDS = {
     "why", "is", "the", "a", "an", "does", "do", "did", "this", "that",
@@ -75,28 +63,38 @@ def evidence_chain(store, entity_id):
 
 
 def ask(store, question):
-    toks = tokens(question)
-    if not toks:
-        return {"question": question, "refused": True, "reason": REFUSAL,
-                "confidence": 0.0, "evidence": []}
-    # A question term that appears nowhere in the graph means the graph
-    # holds no record of what is asked about. That is a refusal, not a
-    # licence to answer from the nearest generic match: without this rule,
-    # "why does Django use microservices?" was answered from a docs commit
-    # merely because it contained the words "Django" and "use".
-    for t in toks:
-        if not store.find_by_tokens([t]):
-            return {"question": question, "refused": True,
-                    "reason": REFUSAL + f" The term '{t}' appears in no "
-                    "ingested record.",
-                    "confidence": 0.0, "evidence": []}
+    sys1 = System1Engine(abstain_threshold=WEAK).decide(store, question)
+    toks = sys1.tokens
+
+    if sys1.abstain:
+        reason_msg = f"{REFUSAL} {sys1.abstain_reason}" if sys1.abstain_reason else REFUSAL
+        if "No discriminative keywords" in (sys1.abstain_reason or ""):
+            reason_msg = REFUSAL
+        elif "Ungrounded query:" in (sys1.abstain_reason or ""):
+            m = re.search(r"the term '([^']+)'", sys1.abstain_reason)
+            term = m.group(1) if m else "unknown"
+            reason_msg = f"{REFUSAL} The term '{term}' appears in no ingested record."
+
+        return {
+            "question": question,
+            "refused": True,
+            "reason": reason_msg,
+            "confidence": sys1.confidence,
+            "evidence": [],
+            "system1": {
+                "intent": sys1.intent.value,
+                "is_negative": sys1.is_negative_query,
+                "abstain": True,
+                "confidence": sys1.confidence,
+            },
+        }
+
     ranked = store.find_by_tokens(toks)
     if not ranked:
         return {"question": question, "refused": True, "reason": REFUSAL,
-                "confidence": 0.0, "evidence": []}
+                "confidence": 0.0, "evidence": [],
+                "system1": {"intent": sys1.intent.value, "abstain": True}}
     best_count = ranked[0][0]
-    # Token-count ties are broken by evidence quality, not entity id:
-    # title hits first, then evidence-chain size, then id order.
     tied = [r for r in ranked if r[0] == best_count]
     scored = []
     for _, ent, matched in tied:
@@ -110,13 +108,15 @@ def ask(store, question):
     if confidence < WEAK:
         return {"question": question, "refused": True,
                 "reason": REFUSAL + " Closest match was too weak.",
-                "confidence": confidence, "evidence": []}
+                "confidence": confidence, "evidence": [],
+                "system1": {"intent": sys1.intent.value, "abstain": True}}
     if not evidence:
         return {"question": question, "refused": True,
                 "reason": REFUSAL + f" Best match '{best['title']}' has no "
                 "linked records, so there is no evidence chain to answer "
                 "from.",
-                "confidence": confidence, "evidence": []}
+                "confidence": confidence, "evidence": [],
+                "system1": {"intent": sys1.intent.value, "abstain": True}}
     superseded_by = [e for e in evidence if e["relation"] == "supersedes"]
     lines = [f"Best match: {best['title']} ({best['kind']})."]
     if superseded_by:
@@ -126,6 +126,17 @@ def ask(store, question):
     lines.append(
         f"Evidence: {len(evidence)} linked record(s) in the chain "
         f"(matched {best_count}/{len(toks)} question terms).")
-    return {"question": question, "refused": False,
-            "answer": " ".join(lines), "confidence": confidence,
-            "evidence": evidence, "match": best}
+    return {
+        "question": question,
+        "refused": False,
+        "answer": " ".join(lines),
+        "confidence": confidence,
+        "evidence": evidence,
+        "match": best,
+        "system1": {
+            "intent": sys1.intent.value,
+            "is_negative": sys1.is_negative_query,
+            "abstain": False,
+            "confidence": sys1.confidence,
+        },
+    }

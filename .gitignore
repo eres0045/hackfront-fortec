@@ -1,4 +1,18 @@
-
-# swept-in build junk
+# Python
 __pycache__/
+*.py[cod]
+*$py.class
 *.log
+*.db
+.pytest_cache/
+.coverage
+
+# Node
+node_modules/
+dist/
+bionova/
+
+# Temporary / Scratch
+prompt_dump.txt
+user_brief.txt
+*.pyc

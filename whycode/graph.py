@@ -37,6 +37,7 @@ class GraphStore:
             (id, kind, title, body, url, created_at),
         )
         self.conn.commit()
+        self._inverted_index = None
 
     def add_edge(self, src, dst, relation):
         self.conn.execute(
@@ -56,21 +57,36 @@ class GraphStore:
              "JOIN entities e ON e.id = g.src WHERE g.dst = ?")
         return [dict(r) for r in self.conn.execute(q, (entity_id,)).fetchall()]
 
+    def _build_ram_index(self):
+        import collections
+        import re
+        rows = self.conn.execute("SELECT * FROM entities").fetchall()
+        self._entity_cache = {r["id"]: dict(r) for r in rows}
+        self._inverted_index = collections.defaultdict(set)
+        for eid, r in self._entity_cache.items():
+            words = set(re.findall(r"[a-z0-9_]+", (r["title"] + " " + r["body"]).lower()))
+            for w in words:
+                self._inverted_index[w].add(eid)
+
     def find_by_tokens(self, tokens):
         """Rank entities by how many question tokens appear as whole words
-        in title/body. Whole-word matching only: substring hits (e.g.
-        "use" inside "users") are false evidence and must not count."""
-        import re
+        in title/body. Ultra-fast RAM inverted index with zero disk I/O."""
         if not tokens:
             return []
-        rows = self.conn.execute("SELECT * FROM entities").fetchall()
+        if getattr(self, "_inverted_index", None) is None:
+            self._build_ram_index()
+
+        hit_counts = {}
+        for t in tokens:
+            for eid in self._inverted_index.get(t, ()):
+                if eid not in hit_counts:
+                    hit_counts[eid] = []
+                hit_counts[eid].append(t)
+
         scored = []
-        for row in rows:
-            words = set(re.findall(r"[a-z0-9_]+",
-                                   (row["title"] + " " + row["body"]).lower()))
-            matched = [t for t in tokens if t in words]
-            if matched:
-                scored.append((len(matched), dict(row), matched))
+        for eid, matched in hit_counts.items():
+            scored.append((len(matched), self._entity_cache[eid], matched))
+
         scored.sort(key=lambda s: (-s[0], s[1]["id"]))
         return scored
 
