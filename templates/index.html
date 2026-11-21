@@ -15,17 +15,37 @@
 </head>
 <body>
 <header class="topbar">
-  <h1>WhyCode</h1>
-  <p class="tagline">Why is the code like this? — answers from the django/django history graph, with the evidence to prove it.</p>
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="5" cy="13" r="3.2" fill="#fff"/>
+          <circle cx="21" cy="5" r="3.2" fill="#bbf7d0"/>
+          <circle cx="21" cy="21" r="3.2" fill="#bbf7d0"/>
+          <path d="M7.8 11.8 18.2 6.4M7.8 14.2l10.4 5.4" stroke="#fff" stroke-width="1.6"/>
+        </svg>
+      </span>
+      <div>
+        <h1>WhyCode <span>— django/django</span></h1>
+        <p class="tagline">Why is the code like this? — answers from the django/django history graph, with the evidence to prove it.</p>
+      </div>
+    </div>
+    {% if entities is not none %}
+    <span class="status-pill"><span class="dot"></span>Live · {{ entities }} entities · {{ edges }} edges</span>
+    {% endif %}
+  </div>
 </header>
 
 <main>
+  <section class="ask-card">
   <form method="post" action="/" class="ask-box">
     <label for="question">Ask about a Django decision</label>
+    <div class="ask-row">
     <input id="question" name="question" type="text" autocomplete="off"
            placeholder="e.g. Why does ignore_warnings match substrings by default?"
            value="{{ question | e }}" required>
     <button type="submit">Ask WhyCode</button>
+    </div>
   </form>
 
   <p class="examples">Try one:
@@ -33,6 +53,13 @@
       <a class="chip" href="/?q={{ ex | urlencode }}">{{ ex }}</a>
     {% endfor %}
   </p>
+  </section>
+
+  <div class="how">
+    <div class="how-step"><span class="num">1</span><h3>Ask</h3><p>Put a Django decision in your own words — a function, a file, a ticket number.</p></div>
+    <div class="how-step"><span class="num">2</span><h3>Get the answer</h3><p>Cited, with a confidence score — or an honest refusal when the graph has no evidence.</p></div>
+    <div class="how-step"><span class="num">3</span><h3>Trace it</h3><p>Every claim links to its record: the commit, PR, ticket or DEP it came from.</p></div>
+  </div>
 
   {% if notice %}
     <div class="notice">{{ notice }}</div>
@@ -62,7 +89,7 @@
         {% endif %}
         <p class="answer-text">{{ result.answer }}</p>
         <dl class="meta">
-          <div><dt>Confidence</dt><dd>
+          <div><dt>Confidence</dt><dd class="conf-value">
             <span class="conf-bar"><span style="width: {{ (result.confidence * 100) | int }}%"></span></span>
             {{ (result.confidence * 100) | int }}%
           </dd></div>
