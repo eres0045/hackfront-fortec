@@ -27,6 +27,7 @@ from whycode.features import (
 )
 from whycode.graph import GraphStore
 from whycode.neo4j_chain import cached_store_from_env
+from whycode.prbot import handle_pull_request, verify_signature
 from whycode.qa import ask, decision_timeline
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -407,6 +408,47 @@ def health():
     return render_template(
         "health.html", rows=rows, entities=entities, edges=edges,
         chain_source=source)
+
+
+@app.route("/github-webhook", methods=["POST"])
+def github_webhook():
+    """GitHub PR bot receiver (see whycode/prbot.py).
+
+    On pull_request opened / synchronised: look up decisions
+    governing the PR's changed files and post ONE comment, only when
+    a cited decision exists. Every other event is ignored with a
+    200. The token never leaves this process; a bad signature is a
+    401 when GITHUB_WEBHOOK_SECRET is set.
+    """
+    body = request.get_data()
+    if not verify_signature(
+            os.environ.get("GITHUB_WEBHOOK_SECRET", ""),
+            body, request.headers.get("X-Hub-Signature-256", "")):
+        return {"ok": False, "error": "bad signature"}, 401
+    payload = request.get_json(force=True, silent=True)
+    if not isinstance(payload, dict):
+        return {"ok": False, "error": "bad json"}, 400
+    if "pull_request" not in payload:
+        return {"ok": True, "ignored": "not a pull_request event"}, 200
+    action = payload.get("action")
+    if action not in ("opened", "synchronize"):
+        return {"ok": True, "ignored": f"action {action}"}, 200
+    token = os.environ.get("GITHUB_TOKEN", "")
+    if not token:
+        return {"ok": False, "error": "GITHUB_TOKEN not configured"}, 500
+    pr = payload["pull_request"]
+    repo = payload.get("repository", {}).get("full_name", "")
+    if not repo or not pr.get("number"):
+        return {"ok": False, "error": "bad payload"}, 400
+    store, _source = _store_for_request()
+    try:
+        outcome, _detail = handle_pull_request(
+            store, token, repo, pr["number"])
+    except Exception as exc:
+        return {"ok": False, "error": str(exc)}, 502
+    finally:
+        _close_store(store)
+    return {"ok": True, "outcome": outcome}, 200
 
 
 def _answer(question):
