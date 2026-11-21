@@ -60,7 +60,13 @@ def test_empty_question_does_not_crash(client):
     assert b"Type a question first" in r.data
 
 
-def test_superseded_banner_on_test_copy(client, tmp_path):
+def test_superseded_banner_on_test_copy(client, tmp_path, monkeypatch):
+    # The banner test mutates a COPY of the SQLite DB, so Neo4j must be
+    # out of the picture for it — otherwise the app answers from the
+    # live instance (which has no fake edge) and the banner never fires.
+    monkeypatch.delenv("NEO4J_URI", raising=False)
+    monkeypatch.delenv("NEO4J_USERNAME", raising=False)
+    monkeypatch.delenv("NEO4J_PASSWORD", raising=False)
     test_db = tmp_path / "test.db"
     shutil.copy("data/whycode.db", test_db)
     store = GraphStore(str(test_db))

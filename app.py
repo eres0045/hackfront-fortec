@@ -18,6 +18,7 @@ import time
 from flask import Flask, render_template, request
 
 from whycode.graph import GraphStore
+from whycode.neo4j_chain import cached_store_from_env
 from whycode.qa import ask, decision_timeline
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -274,6 +275,7 @@ def index():
     question = ""
     result = None
     notice = None
+    chain_source = None
     if request.method == "POST":
         question = (request.form.get("question") or "").strip()
         if not question:
@@ -293,23 +295,7 @@ def index():
             "Shorten it and try again."
         )
     elif question:
-        # Fresh store per request: sqlite3 connections are not thread-safe,
-        # and the Flask dev server is threaded.
-        store = GraphStore(DB_PATH)
-        result = ask(store, question)
-        if not result.get("refused"):
-            # Only an OUTGOING supersedes edge means this decision was
-            # replaced (see qa.py): the newer decision's chain holds the
-            # same edge incoming, and the banner must not fire on it.
-            result["superseded"] = [
-                e for e in result["evidence"]
-                if e["relation"] == "supersedes" and e["direction"] == "out"
-            ]
-            result["timeline"] = decision_timeline(
-                store, result["match"], result["evidence"])
-            if result["evidence"]:
-                result["graph_svg"] = evidence_graph_svg(
-                    result["match"], result["evidence"])
+        result, chain_source = _answer(question)
     entities, edges = db_stats()
     return render_template(
         "index.html",
@@ -319,7 +305,56 @@ def index():
         examples=EXAMPLE_QUESTIONS,
         entities=entities,
         edges=edges,
+        chain_source=chain_source,
     )
+
+
+def _answer_with_store(store, question):
+    """ask() plus the superseded banner, timeline and graph SVG."""
+    result = ask(store, question)
+    if not result.get("refused"):
+        # Only an OUTGOING supersedes edge means this decision was
+        # replaced (see qa.py): the newer decision's chain holds the
+        # same edge incoming, and the banner must not fire on it.
+        result["superseded"] = [
+            e for e in result["evidence"]
+            if e["relation"] == "supersedes" and e["direction"] == "out"
+        ]
+        result["timeline"] = decision_timeline(
+            store, result["match"], result["evidence"])
+        if result["evidence"]:
+            result["graph_svg"] = evidence_graph_svg(
+                result["match"], result["evidence"])
+    return result
+
+
+def _answer(question):
+    """(result, chain_source): Neo4j first, SQLite fallback.
+
+    Neo4j is the partner technology in the core flow, so every
+    question tries it first. ANY Neo4j failure — env vars unset,
+    bad credentials, unreachable instance, a mid-query error —
+    falls back to the SQLite store silently and still answers.
+    The evaluator gets an answer either way, never a 500.
+    """
+    neo4j_store = None
+    try:
+        neo4j_store = cached_store_from_env()
+    except Exception:
+        neo4j_store = None
+    if neo4j_store is not None:
+        try:
+            return _answer_with_store(neo4j_store, question), "neo4j"
+        except Exception:
+            pass
+        finally:
+            try:
+                neo4j_store.close()
+            except Exception:
+                pass
+    # Fresh store per request: sqlite3 connections are not thread-safe,
+    # and the Flask dev server is threaded.
+    return _answer_with_store(GraphStore(DB_PATH), question), "sqlite"
 
 
 if __name__ == "__main__":
