@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "whycode": {
+      "command": "python",
+      "args": ["whycode_mcp.py"],
+      "env": {
+        "PYTHONUNBUFFERED": "1"
+      }
+    }
+  }
+}

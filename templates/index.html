@@ -37,6 +37,18 @@
     {% if entities is not none %}
     <span class="status-pill"><span class="dot"></span>Live · {{ entities }} entities · {{ edges }} edges</span>
     {% endif %}
+    <div class="topbar-actions">
+      <button type="button" class="topbar-btn" id="connectRepoBtn" aria-label="Connect repository" title="Connect a GitHub repository">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+        <span>Connect Repo</span>
+        <span class="repo-badge">{{ repo_label }}</span>
+      </button>
+      <button type="button" class="topbar-btn" id="openSidebarBtn" aria-label="Open Developer Hub" title="Open Developer Hub &amp; MCP Bridge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+        <span>Developer Hub</span>
+        <span class="hub-badge">MCP</span>
+      </button>
+    </div>
   </div>
 </header>
 
@@ -50,6 +62,9 @@
     <input id="question" name="question" type="text" autocomplete="off"
            placeholder="e.g. Why was README changed?"
            value="{{ question | e }}" required>
+    <button type="button" class="mic-btn" id="micBtn" aria-label="Voice input" title="Speak your question">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="17" x2="12" y2="22"/></svg>
+    </button>
     <button type="submit">Ask WhyCode</button>
     </div>
     {% else %}
@@ -58,6 +73,9 @@
     <input id="question" name="question" type="text" autocomplete="off"
            placeholder="e.g. Why does ignore_warnings match substrings by default?"
            value="{{ question | e }}" required>
+    <button type="button" class="mic-btn" id="micBtn" aria-label="Voice input" title="Speak your question">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="17" x2="12" y2="22"/></svg>
+    </button>
     <button type="submit">Ask WhyCode</button>
     </div>
     {% endif %}
@@ -108,6 +126,9 @@
       <section class="card refusal" aria-label="Refusal">
         <h2>WhyCode refuses to answer this</h2>
         <p class="refusal-reason">{{ result.reason }}</p>
+        {% if result.system1 %}
+        <p class="s1-line"><span class="s1-chip">System 1 · {{ result.system1.intent }} · {{ "%.2f"|format(result.system1.confidence) }}</span></p>
+        {% endif %}
         <p class="refusal-note">Every claim here must trace to a record in the graph. When there is no
         evidence, WhyCode says so instead of inventing an answer. {% if repo_is_byo %}Try rephrasing with
         terms from this repo's history — a function, file, or commit message.{% else %}Try rephrasing with
@@ -134,6 +155,9 @@
             <span class="conf-bar"><span style="width: {{ (result.confidence * 100) | int }}%"></span></span>
             {{ (result.confidence * 100) | int }}%
           </dd></div>
+          {% if result.system1 %}
+          <div><dt>System 1</dt><dd><span class="s1-chip">System 1 · {{ result.system1.intent }} · {{ "%.2f"|format(result.system1.confidence) }}</span></dd></div>
+          {% endif %}
           <div><dt>Best match</dt><dd>
             {% if result.match.url %}<a href="{{ result.match.url }}" target="_blank" rel="noopener">{{ result.match.title }}</a>{% else %}{{ result.match.title }}{% endif %}
             <span class="kind kind-{{ result.match.kind }}">{{ result.match.kind }}</span>
@@ -265,5 +289,255 @@
   {% if entities is not none %}{{ entities }} entities, {{ edges }} edges{% else %}bundled SQLite graph{% endif %} ·
   every answer is cited or refused, never invented.</p>
 </footer>
+
+<!-- Connect Repo modal: a front door to the existing POST /ingest BYO flow. -->
+<div class="repo-modal-backdrop" id="repoModalBackdrop">
+  <div class="repo-modal" role="dialog" aria-labelledby="repoModalTitle">
+    <div class="repo-modal-header">
+      <div>
+        <div class="repo-modal-kicker">WhyCode Repository Engine</div>
+        <h3 class="repo-modal-title" id="repoModalTitle">Connect Repository</h3>
+      </div>
+      <button type="button" class="repo-modal-close" id="closeRepoModal" aria-label="Close modal">✕</button>
+    </div>
+    <p class="repo-modal-sub">Ingest any public GitHub repository — WhyCode reads its commit history
+    (commits, files, authors) and answers questions about your code. History only:
+    no PRs or issues yet, and private repos can't be read.</p>
+    <form method="post" action="/ingest" class="repo-input-group">
+      <input type="url" id="repoUrlInput" name="repo_url" class="repo-input"
+             placeholder="https://github.com/owner/repo" value="https://github.com/psf/requests" required>
+      <button type="submit" class="repo-index-btn">Ingest &amp; Connect</button>
+    </form>
+    <div class="repo-presets-wrap">
+      <div class="repo-presets-label">Popular Presets</div>
+      <div class="repo-presets-list">
+        <button type="button" class="repo-preset-chip" data-repo="django/django">django/django</button>
+        <button type="button" class="repo-preset-chip" data-repo="psf/requests">psf/requests</button>
+        <button type="button" class="repo-preset-chip" data-repo="pallets/flask">pallets/flask</button>
+        <button type="button" class="repo-preset-chip" data-repo="fastapi/fastapi">fastapi/fastapi</button>
+      </div>
+    </div>
+    <p class="repo-modal-note">Up to 300 most recent commits, ingested in under 90 seconds.
+    At most 5 ingests per hour from one address.</p>
+  </div>
+</div>
+
+<!-- Developer Hub slide-out sidebar -->
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+<aside class="dev-sidebar" id="devSidebar" aria-label="Developer Hub">
+  <div class="dev-sidebar-header">
+    <div class="dev-sidebar-title-wrap">
+      <div class="dev-sidebar-kicker">WhyCode Developer Hub</div>
+      <h2 class="dev-sidebar-title">MCP &amp; Decision Bridge</h2>
+    </div>
+    <button type="button" class="dev-sidebar-close" id="closeSidebarBtn" aria-label="Close sidebar">✕</button>
+  </div>
+  <div class="dev-sidebar-body">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">
+        <span>Model Context Protocol (MCP)</span>
+        <span class="live-dot">● Stdio Ready</span>
+      </div>
+      <p class="sidebar-section-desc">Connect the WhyCode decision graph to Cursor, Claude Desktop,
+      or VS Code — ask why from your editor. The server runs from this repo:
+      <code>python whycode_mcp.py</code> (needs the MCP dependencies in
+      <code>requirements-mcp.txt</code>).</p>
+      <div class="mcp-tabs">
+        <button type="button" class="mcp-tab-btn active" data-ide="cursor">Cursor</button>
+        <button type="button" class="mcp-tab-btn" data-ide="claude">Claude</button>
+        <button type="button" class="mcp-tab-btn" data-ide="vscode">VS Code</button>
+        <button type="button" class="mcp-tab-btn" data-ide="cli">CLI</button>
+      </div>
+      <div class="mcp-snippet-box">
+        <div class="mcp-snippet-bar">
+          <span class="mcp-snippet-file" id="mcpSnippetFile">.cursor/mcp.json</span>
+          <button type="button" class="mcp-copy-btn" id="copyMcpBtn"><span id="copyMcpText">Copy JSON</span></button>
+        </div>
+        <pre class="mcp-snippet-code" id="mcpSnippetCode">{
+  "mcpServers": {
+    "whycode": {
+      "command": "python",
+      "args": ["whycode_mcp.py"]
+    }
+  }
+}</pre>
+      </div>
+      <p class="hint">For Claude Desktop, use the absolute path to whycode_mcp.py in your checkout.</p>
+    </div>
+    {% if not repo_is_byo %}
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">
+        <span>Grounded Demo Queries</span>
+        <span>Click to Run</span>
+      </div>
+      <p class="sidebar-section-desc">Three questions the Django graph answers — or honestly refuses.
+      Click one to run it.</p>
+      <div class="quick-query-list">
+        <div class="quick-query-card" data-query="Why does Django need a steering council?">
+          <span class="quick-query-tag">DEP 0012 · Steering Council</span>
+          <span class="quick-query-text">"Why does Django need a steering council?"</span>
+        </div>
+        <div class="quick-query-card" data-query="Why did Django avoid duplicate joins in filter after aggregation?">
+          <span class="quick-query-tag">PR #22207 · ORM join optimisation</span>
+          <span class="quick-query-text">"Why did Django avoid duplicate joins in filter after aggregation?"</span>
+        </div>
+        <div class="quick-query-card" data-query="Why did the team adopt microservices?">
+          <span class="quick-query-tag">Honest refusal · no evidence</span>
+          <span class="quick-query-text">"Why did the team adopt microservices?"</span>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</aside>
+
+<script>
+(function () {
+  /* --- Connect Repo modal --- */
+  var connectRepoBtn = document.getElementById('connectRepoBtn');
+  var repoModalBackdrop = document.getElementById('repoModalBackdrop');
+  var closeRepoModal = document.getElementById('closeRepoModal');
+  var repoUrlInput = document.getElementById('repoUrlInput');
+  function openRepoModal() {
+    if (!repoModalBackdrop) return;
+    repoModalBackdrop.style.display = 'flex';
+    if (repoUrlInput) repoUrlInput.focus();
+  }
+  function closeRepoModalFn() {
+    if (repoModalBackdrop) repoModalBackdrop.style.display = 'none';
+  }
+  if (connectRepoBtn) connectRepoBtn.addEventListener('click', openRepoModal);
+  if (closeRepoModal) closeRepoModal.addEventListener('click', closeRepoModalFn);
+  if (repoModalBackdrop) repoModalBackdrop.addEventListener('click', function (e) {
+    if (e.target === repoModalBackdrop) closeRepoModalFn();
+  });
+  document.querySelectorAll('.repo-preset-chip').forEach(function (chip) {
+    chip.addEventListener('click', function () {
+      if (repoUrlInput) repoUrlInput.value = 'https://github.com/' + chip.dataset.repo;
+    });
+  });
+
+  /* --- Developer Hub sidebar --- */
+  var openSidebarBtn = document.getElementById('openSidebarBtn');
+  var closeSidebarBtn = document.getElementById('closeSidebarBtn');
+  var devSidebar = document.getElementById('devSidebar');
+  var sidebarBackdrop = document.getElementById('sidebarBackdrop');
+  function openSidebar() {
+    if (devSidebar && sidebarBackdrop) {
+      devSidebar.classList.add('active');
+      sidebarBackdrop.classList.add('active');
+    }
+  }
+  function closeSidebar() {
+    if (devSidebar && sidebarBackdrop) {
+      devSidebar.classList.remove('active');
+      sidebarBackdrop.classList.remove('active');
+    }
+  }
+  if (openSidebarBtn) openSidebarBtn.addEventListener('click', openSidebar);
+  if (closeSidebarBtn) closeSidebarBtn.addEventListener('click', closeSidebar);
+  if (sidebarBackdrop) sidebarBackdrop.addEventListener('click', closeSidebar);
+  window.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      closeRepoModalFn();
+      closeSidebar();
+    }
+  });
+
+  /* --- MCP config bridge: IDE tabs + copy --- */
+  var mcpSnippets = {
+    cursor: { file: '.cursor/mcp.json',
+      code: '{\n  "mcpServers": {\n    "whycode": {\n      "command": "python",\n      "args": ["whycode_mcp.py"]\n    }\n  }\n}' },
+    claude: { file: 'claude_desktop_config.json',
+      code: '{\n  "mcpServers": {\n    "whycode": {\n      "command": "python",\n      "args": ["/absolute/path/to/whycode_mcp.py"]\n    }\n  }\n}' },
+    vscode: { file: '.vscode/mcp.json',
+      code: '{\n  "servers": {\n    "whycode": {\n      "type": "stdio",\n      "command": "python",\n      "args": ["whycode_mcp.py"]\n    }\n  }\n}' },
+    cli: { file: 'Terminal / Shell Stdio',
+      code: '# Run the WhyCode MCP server over stdio\npython whycode_mcp.py' }
+  };
+  var mcpTabs = document.querySelectorAll('.mcp-tab-btn');
+  var mcpSnippetFile = document.getElementById('mcpSnippetFile');
+  var mcpSnippetCode = document.getElementById('mcpSnippetCode');
+  var copyMcpBtn = document.getElementById('copyMcpBtn');
+  var copyMcpText = document.getElementById('copyMcpText');
+  mcpTabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      mcpTabs.forEach(function (t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      var ide = tab.dataset.ide;
+      if (mcpSnippets[ide]) {
+        if (mcpSnippetFile) mcpSnippetFile.textContent = mcpSnippets[ide].file;
+        if (mcpSnippetCode) mcpSnippetCode.textContent = mcpSnippets[ide].code;
+      }
+    });
+  });
+  if (copyMcpBtn && mcpSnippetCode) {
+    copyMcpBtn.addEventListener('click', function () {
+      var text = mcpSnippetCode.textContent;
+      function done() {
+        if (copyMcpText) copyMcpText.textContent = 'Copied!';
+        setTimeout(function () {
+          if (copyMcpText) copyMcpText.textContent = 'Copy JSON';
+        }, 1800);
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, function () { /* stay silent */ });
+      }
+    });
+  }
+
+  /* --- Demo query cards: fill the ask form and submit it --- */
+  var askForm = document.querySelector('.ask-box');
+  var qInput = document.getElementById('question');
+  document.querySelectorAll('.quick-query-card').forEach(function (card) {
+    card.addEventListener('click', function () {
+      var q = card.dataset.query;
+      closeSidebar();
+      if (qInput && askForm) {
+        qInput.value = q;
+        askForm.submit();
+      }
+    });
+  });
+
+  /* --- Voice input (Web Speech API): fills the question box. --- */
+  var micBtn = document.getElementById('micBtn');
+  if (micBtn && qInput) {
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) {
+      micBtn.style.display = 'none';
+    } else {
+      var rec = new SR();
+      rec.lang = 'en-US';
+      rec.interimResults = false;
+      rec.maxAlternatives = 1;
+      var listening = false;
+      rec.onresult = function (e) {
+        var t = e.results[0][0].transcript;
+        if (t) { qInput.value = t; qInput.focus(); }
+      };
+      rec.onerror = function (e) {
+        if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+          qInput.placeholder = 'Microphone access blocked. Type your question instead.';
+        }
+      };
+      rec.onend = function () {
+        listening = false;
+        micBtn.classList.remove('recording');
+        micBtn.setAttribute('aria-label', 'Voice input');
+      };
+      micBtn.addEventListener('click', function () {
+        if (listening) { try { rec.stop(); } catch (err) {} return; }
+        try {
+          rec.start();
+          listening = true;
+          micBtn.classList.add('recording');
+          micBtn.setAttribute('aria-label', 'Listening... click to stop');
+        } catch (err) { /* already started or unavailable — stay silent */ }
+      });
+    }
+  }
+})();
+</script>
 </body>
 </html>

@@ -22,6 +22,8 @@ Rules, enforced here and not in the prompt:
 import math
 import re
 
+from whycode.system1 import System1Engine
+
 STOPWORDS = {
     "why", "is", "the", "a", "an", "does", "do", "did", "this", "that",
     "it", "its", "in", "on", "of", "to", "for", "how", "what", "was",
@@ -31,6 +33,28 @@ STOPWORDS = {
 
 REFUSAL = "No evidence in the graph answers this. Refusing to invent an answer."
 WEAK = 0.35
+
+_SYSTEM1 = System1Engine()
+
+
+def _system1_meta(store, question):
+    """Metadata-only System 1 classification for the answer dict.
+
+    Runs the fast intent/abstention gate over the same store and
+    reports what it saw: the intent, whether the question is phrased
+    as a "why not", its calibrated confidence, and whether it would
+    abstain. Read-only — it never changes the answer or any refusal
+    in ask(); the refusal rules there are the only deciders.
+    """
+    try:
+        decision = _SYSTEM1.decide(store, question)
+    except Exception:
+        return {"intent": "out_of_scope", "is_negative": False,
+                "confidence": 0.0, "abstain": True}
+    return {"intent": decision.intent.value,
+            "is_negative": bool(decision.is_negative_query),
+            "confidence": decision.confidence,
+            "abstain": bool(decision.abstain)}
 
 
 def tokens(question):
@@ -216,14 +240,19 @@ def ask(store, question):
     # could answer (e.g. "why use X instead of Y?").
     from whycode.alternatives import answer_why_not, is_why_not
 
+    # System 1 metadata only — see _system1_meta: the gate reads the
+    # store and reports, but the refusal rules below decide alone.
+    s1 = _system1_meta(store, question)
+
     if is_why_not(question):
         why_not = answer_why_not(store, question)
         if not why_not["refused"]:
+            why_not["system1"] = s1
             return why_not
     toks = tokens(question)
     if not toks:
         return {"question": question, "refused": True, "reason": REFUSAL,
-                "confidence": 0.0, "evidence": []}
+                "confidence": 0.0, "evidence": [], "system1": s1}
     # A question term that appears nowhere in the graph means the graph
     # holds no record of what is asked about. That is a refusal, not a
     # licence to answer from the nearest generic match: without this rule,
@@ -234,11 +263,11 @@ def ask(store, question):
             return {"question": question, "refused": True,
                     "reason": REFUSAL + f" The term '{t}' appears in no "
                     "ingested record.",
-                    "confidence": 0.0, "evidence": []}
+                    "confidence": 0.0, "evidence": [], "system1": s1}
     ranked = store.find_by_tokens(toks)
     if not ranked:
         return {"question": question, "refused": True, "reason": REFUSAL,
-                "confidence": 0.0, "evidence": []}
+                "confidence": 0.0, "evidence": [], "system1": s1}
     # Rank by BM25 (title weighted 2x) — but only within the maximal
     # token-coverage tier. The refusal system is defined on coverage:
     # a winner matching 1/2 terms with a chain would answer a question
@@ -268,13 +297,13 @@ def ask(store, question):
     if confidence < WEAK:
         return {"question": question, "refused": True,
                 "reason": REFUSAL + " Closest match was too weak.",
-                "confidence": confidence, "evidence": []}
+                "confidence": confidence, "evidence": [], "system1": s1}
     if not evidence:
         return {"question": question, "refused": True,
                 "reason": REFUSAL + f" Best match '{best['title']}' has no "
                 "linked records, so there is no evidence chain to answer "
                 "from.",
-                "confidence": confidence, "evidence": []}
+                "confidence": confidence, "evidence": [], "system1": s1}
     # Only an OUTGOING supersedes edge means this decision was replaced:
     # the newer decision's chain holds the same edge INCOMING, and
     # flagging it as superseded would point the banner backwards.
@@ -291,4 +320,4 @@ def ask(store, question):
         f"(matched {best_count}/{len(toks)} question terms).")
     return {"question": question, "refused": False,
             "answer": " ".join(lines), "confidence": confidence,
-            "evidence": evidence, "match": best}
+            "evidence": evidence, "match": best, "system1": s1}

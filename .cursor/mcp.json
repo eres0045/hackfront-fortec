@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "whycode": {
+      "command": "python",
+      "args": ["whycode_mcp.py"]
+    }
+  }
+}
