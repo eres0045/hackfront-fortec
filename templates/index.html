@@ -127,7 +127,7 @@
         <h2>WhyCode refuses to answer this</h2>
         <p class="refusal-reason">{{ result.reason }}</p>
         {% if result.system1 %}
-        <p class="s1-line"><span class="s1-chip">System 1 · {{ result.system1.intent }} · {{ "%.2f"|format(result.system1.confidence) }}</span></p>
+        <p class="s1-line"><span class="s1-chip">System 1 · {{ result.system1.intent }} · {% if result.system1.abstain %}abstained{% else %}terms grounded{% endif %}</span></p>
         {% endif %}
         <p class="refusal-note">Every claim here must trace to a record in the graph. When there is no
         evidence, WhyCode says so instead of inventing an answer. {% if repo_is_byo %}Try rephrasing with
