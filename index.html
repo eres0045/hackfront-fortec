@@ -454,8 +454,8 @@
       position: absolute;
       inset: 0;
       pointer-events: none;
-      mask-image: linear-gradient(90deg, transparent 0, #000 24vw);
-      -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 24vw);
+      mask-image: linear-gradient(90deg, transparent 0%, #000 6vw, #000 94vw, transparent 100%);
+      -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 6vw, #000 94vw, transparent 100%);
     }
 
     .cards-layer {
@@ -687,42 +687,104 @@
       color: var(--muted);
     }
 
-    /* CODE LAYER */
+    /* CODE LAYER (AST & GRAPH EVIDENCE TRACE) */
     .why-code {
       position: absolute;
       top: 70px;
       left: 0;
       width: var(--cw);
       height: var(--ch);
-      white-space: pre;
       overflow: hidden;
       font-family: var(--font-mono);
       container-type: inline-size;
       will-change: transform, clip-path;
       visibility: hidden;
-      background: #020203;
-      border: 1px solid var(--border);
+      background: #070B12;
+      border: 1px solid rgba(240, 162, 76, 0.45);
       border-radius: 1.6vw;
-      padding: 3cqw;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.9), inset 0 0 35px rgba(240, 162, 76, 0.06);
+      display: flex;
+      flex-direction: column;
+      user-select: none;
     }
 
-    .why-code pre {
+    .code-header-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 2.2cqw 3.5cqw;
+      background: rgba(240, 162, 76, 0.08);
+      border-bottom: 1px solid rgba(240, 162, 76, 0.25);
+    }
+
+    .code-tab-title {
+      display: flex;
+      align-items: center;
+      gap: 1.4cqw;
+      font-size: 1.4cqw;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: #94A3B8;
+    }
+
+    .code-dot {
+      width: 0.9cqw;
+      height: 0.9cqw;
+      border-radius: 50%;
+      background: #34D399;
+      box-shadow: 0 0 8px #34D399;
+    }
+
+    .code-badge-verified {
+      font-size: 1.2cqw;
+      color: var(--amber);
+      background: rgba(240, 162, 76, 0.15);
+      border: 1px solid rgba(240, 162, 76, 0.4);
+      border-radius: 0.5cqw;
+      padding: 0.3cqw 1cqw;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+    }
+
+    .code-body-box {
+      flex: 1;
+      padding: 2.8cqw 3.5cqw;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 1.8cqw;
+      overflow: hidden;
+    }
+
+    .code-tree-block {
       font-family: var(--font-mono);
-      font-size: 1.5cqw;
-      line-height: 1.4;
-      position: absolute;
-      top: 3cqw;
+      font-size: clamp(12px, 1.7cqw, 15px);
+      line-height: 1.6;
+      color: #CBD5E1;
+      white-space: pre;
     }
 
-    .code-tree {
-      left: 3cqw;
-      color: #7A7F88;
+    .code-meta-block {
+      font-family: var(--font-mono);
+      font-size: clamp(10.5px, 1.35cqw, 13px);
+      line-height: 1.5;
+      color: #64748B;
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 0.9cqw;
+      padding: 1.4cqw 2cqw;
+      white-space: pre;
     }
 
-    .code-meta {
-      left: 54%;
-      color: #4A5160;
-    }
+    .c-id { color: #F0A24C; font-weight: 600; }
+    .c-rel { color: #38BDF8; font-weight: 600; }
+    .c-num { color: #C084FC; font-weight: 500; }
+    .c-author { color: #FCD34D; }
+    .c-str { color: #34D399; }
+    .tree-line { line-height: 1.6; white-space: pre; }
+    .meta-line { line-height: 1.45; white-space: pre; }
+    .m-key { color: #94A3B8; font-weight: 500; }
+    .m-val { color: #F0A24C; }
 
     
     /* ==================================================
@@ -2636,6 +2698,16 @@
 
     
 
+    <!-- LASER SCANNER METRIC BADGE (SYNCED STATE) -->
+    <div class="badge" id="scannerBadge" style="display:none;" aria-hidden="true">
+      <div class="badge-pill">
+        <span class="badge-dot"></span>
+        <span class="badge-label">CONFIDENCE</span>
+        <span class="badge-num" id="badgeNum">0.99</span>
+        <span class="badge-pct" id="badgePct">Evidence</span>
+      </div>
+    </div>
+
     <!-- LASER SCANNER BEAM -->
     <div class="scan">
       <div class="scan-core"></div>
@@ -3329,6 +3401,28 @@
     const badgeNum = document.getElementById("badgeNum");
     const badgePct = document.getElementById("badgePct");
 
+    function formatCodeTree(tree) {
+      if (!tree) return "";
+      return tree.split("\n").map(line => {
+        let esc = line.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        esc = esc.replace(/(commit:[a-f0-9a-z\/-]+|dep:[0-9a-z-]+)/gi, '<span class="c-id">$1</span>');
+        esc = esc.replace(/(\[(?:fixes|touches|references|supersedes|mentions|authored)\])/gi, '<span class="c-rel">$1</span>');
+        esc = esc.replace(/(ticket:#[0-9]+|issue:#[0-9]+)/gi, '<span class="c-num">$1</span>');
+        esc = esc.replace(/(author:\s*\w+|maintainers:\s*[^<\n]+)/gi, '<span class="c-author">$1</span>');
+        esc = esc.replace(/(&quot;.*?&quot;|"[^"]*")/g, '<span class="c-str">$1</span>');
+        return `<div class="tree-line">${esc}</div>`;
+      }).join("");
+    }
+
+    function formatCodeMeta(meta) {
+      if (!meta) return "";
+      return meta.split("\n").map(line => {
+        let esc = line.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        esc = esc.replace(/(&lt;!--\s*)([\w_]+)(:?\s*)(.*?)(\s*--&gt;)/g, '$1<span class="m-key">$2</span>$3<span class="m-val">$4</span>$5');
+        return `<div class="meta-line">${esc}</div>`;
+      }).join("");
+    }
+
     CARDS.forEach((card, i) => {
       const cardNode = document.createElement("div");
       cardNode.className = "why-card";
@@ -3373,8 +3467,17 @@
       codeNode.className = "why-code";
       codeNode.id = `code-${i}`;
       codeNode.innerHTML = `
-        <pre class="code-tree">${card.codeTree}</pre>
-        <pre class="code-meta">${card.codeMeta}</pre>
+        <div class="code-header-bar">
+          <div class="code-tab-title">
+            <span class="code-dot"></span>
+            <span>AST & GRAPH EVIDENCE TRACE</span>
+          </div>
+          <span class="code-badge-verified">CYPHER · GROUNDED</span>
+        </div>
+        <div class="code-body-box">
+          <div class="code-tree-block">${formatCodeTree(card.codeTree)}</div>
+          <div class="code-meta-block">${formatCodeMeta(card.codeMeta)}</div>
+        </div>
       `;
       codesLayer.appendChild(codeNode);
     });
@@ -3390,9 +3493,15 @@
     function measure() {
       W = window.innerWidth;
       dpr = Math.min(2, window.devicePixelRatio || 1);
-      const rect = cardElements[0].getBoundingClientRect();
-      cw = rect.width;
-      ch = rect.height;
+      Lx = W / 2;
+
+      if (cardElements[0]) {
+        const rect = cardElements[0].getBoundingClientRect();
+        const computedW = parseFloat(getComputedStyle(cardElements[0]).width);
+        cw = (rect.width > 50) ? rect.width : (computedW > 50 ? computedW : Math.min(0.44 * W, 540));
+        const computedH = parseFloat(getComputedStyle(cardElements[0]).height);
+        ch = (rect.height > 50) ? rect.height : (computedH > 50 ? computedH : 414);
+      }
 
       const rootStyle = getComputedStyle(document.documentElement);
       const gapVw = parseFloat(rootStyle.getPropertyValue("--gap")) || 4.75;
@@ -3400,10 +3509,10 @@
 
       span = cw + gap;
       period = span * 6;
-      Lx = W / 2;
 
       canvas.width = beltEl.clientWidth * dpr;
       canvas.height = beltEl.clientHeight * dpr;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.scale(dpr, dpr);
     }
 
@@ -3483,67 +3592,72 @@
     let lastT = performance.now();
 
     function tick(now) {
-      const dt = Math.min(0.1, (now - lastT) / 1000);
-      lastT = now;
-      const t = now / 1000;
+      try {
+        const dt = Math.min(0.1, (now - lastT) / 1000);
+        lastT = now;
+        const t = now / 1000;
 
-      const targetHover = isHovered ? 1 : 0;
-      hover += (targetHover - hover) * Math.min(1, dt * 4);
+        const targetHover = isHovered ? 1 : 0;
+        hover += (targetHover - hover) * Math.min(1, dt * 4);
 
-      const baseAuto = -0.075 * W;
-      const targetVel = baseAuto * (1 - 0.65 * hover);
+        const baseAuto = -0.075 * W;
+        const targetVel = baseAuto * (1 - 0.65 * hover);
 
-      if (!isDragging) {
-        vel += (targetVel - vel) * (1 - Math.exp(-2.2 * dt));
-        off += vel * dt;
-      }
-
-      ctx.clearRect(0, 0, beltEl.clientWidth, beltEl.clientHeight);
-
-      function mod(n, m) {
-        return ((n % m) + m) % m;
-      }
-
-      for (let i = 0; i < 6; i++) {
-        const x = mod(off + i * span + span, period) - span;
-        const cardNode = cardElements[i];
-        const codeNode = codeElements[i];
-        const cut = Math.max(0, Math.min(cw, Lx - x));
-
-        cardNode.style.transform = `translate3d(${x}px, 0, 0)`;
-
-        if (cut > 0) {
-          cardNode.style.clipPath = `inset(0 0 0 ${cut}px round 0 1.6vw 1.6vw 0)`;
-          cardNode.style.maskImage = `linear-gradient(90deg, transparent ${cut}px, #000 ${cut + 26}px)`;
-          cardNode.style.webkitMaskImage = `linear-gradient(90deg, transparent ${cut}px, #000 ${cut + 26}px)`;
-        } else {
-          cardNode.style.clipPath = "none";
-          cardNode.style.maskImage = "none";
-          cardNode.style.webkitMaskImage = "none";
+        if (!isDragging) {
+          vel += (targetVel - vel) * (1 - Math.exp(-2.2 * dt));
+          off += vel * dt;
         }
 
-        codeNode.style.transform = `translate3d(${x}px, 0, 0)`;
-        if (cut > 0) {
-          codeNode.style.visibility = "visible";
-          codeNode.style.clipPath = `inset(0 ${cw - cut}px 0 0)`;
-        } else {
-          codeNode.style.visibility = "hidden";
+        ctx.clearRect(0, 0, beltEl.clientWidth, beltEl.clientHeight);
+
+        function mod(n, m) {
+          return ((n % m) + m) % m;
         }
 
-        if (cut > 0 && (x + cw) > Lx) {
-          drawFx(x, cut, cw, ch, i, t);
-        }
+        for (let i = 0; i < 6; i++) {
+          const x = mod(off + i * span + span, period) - span;
+          const cardNode = cardElements[i];
+          const codeNode = codeElements[i];
+          const cut = Math.max(0, Math.min(cw, Lx - x));
 
-        if (cut > 0 && cut < cw) {
-          if (activeCardIndex !== i) {
-            activeCardIndex = i;
-            badgeNum.textContent = CARDS[i].stat1;
-            badgePct.textContent = CARDS[i].pctText;
+          cardNode.style.transform = `translate3d(${x}px, 0, 0)`;
+
+          if (cut > 0) {
+            cardNode.style.clipPath = `inset(0 0 0 ${cut}px round 0 1.6vw 1.6vw 0)`;
+            cardNode.style.maskImage = "none";
+            cardNode.style.webkitMaskImage = "none";
+          } else {
+            cardNode.style.clipPath = "none";
+            cardNode.style.maskImage = "none";
+            cardNode.style.webkitMaskImage = "none";
+          }
+
+          codeNode.style.transform = `translate3d(${x}px, 0, 0)`;
+          if (cut > 0) {
+            codeNode.style.visibility = "visible";
+            codeNode.style.clipPath = `inset(0 ${cw - cut}px 0 0 round 1.6vw 0 0 1.6vw)`;
+          } else {
+            codeNode.style.visibility = "hidden";
+          }
+
+          if (cut > 0 && (x + cw) > Lx) {
+            drawFx(x, cut, cw, ch, i, t);
+          }
+
+          if (cut > 0 && cut < cw) {
+            if (activeCardIndex !== i) {
+              activeCardIndex = i;
+              if (badgeNum) badgeNum.textContent = CARDS[i].stat1;
+              if (badgePct) badgePct.textContent = CARDS[i].pctText;
+            }
           }
         }
+
+        updateSparks(dt);
+      } catch (err) {
+        console.error("Scanner belt tick error:", err);
       }
 
-      updateSparks(dt);
       if (isScannerVisible) {
         scannerRafId = requestAnimationFrame(tick);
       } else {
@@ -3658,7 +3772,7 @@
           }
         }
       });
-    }, { rootMargin: "150px" });
+    }, { rootMargin: "350px" });
 
     const scannerEl = document.getElementById("scanner");
     if (scannerEl) scannerObserver.observe(scannerEl);
