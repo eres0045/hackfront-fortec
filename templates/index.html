@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WhyCode — Why is the code like this?</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="topbar">
+  <h1>WhyCode</h1>
+  <p class="tagline">Why is the code like this? — answers from the django/django history graph, with the evidence to prove it.</p>
+</header>
+
+<main>
+  <form method="post" action="/" class="ask-box">
+    <label for="question">Ask about a Django decision</label>
+    <input id="question" name="question" type="text" autocomplete="off"
+           placeholder="e.g. Why does ignore_warnings match substrings by default?"
+           value="{{ question | e }}" required>
+    <button type="submit">Ask WhyCode</button>
+  </form>
+
+  <p class="examples">Try one:
+    {% for ex in examples %}
+      <a class="chip" href="/?q={{ ex | urlencode }}">{{ ex }}</a>
+    {% endfor %}
+  </p>
+
+  {% if notice %}
+    <div class="notice">{{ notice }}</div>
+  {% endif %}
+
+  {% if result %}
+    {% if result.refused %}
+      <section class="card refusal" aria-label="Refusal">
+        <h2>WhyCode refuses to answer this</h2>
+        <p class="refusal-reason">{{ result.reason }}</p>
+        <p class="refusal-note">Every claim here must trace to a record in the graph. When there is no
+        evidence, WhyCode says so instead of inventing an answer. Try rephrasing with
+        terms from the Django codebase — a function, file, or ticket number.</p>
+      </section>
+    {% else %}
+      <section class="card answer" aria-label="Answer">
+        <h2>Answer</h2>
+        {% if result.superseded %}
+          <div class="banner" role="alert">
+            <strong>Superseded decision.</strong>
+            This decision was superseded by:
+            {% for s in result.superseded %}
+              {% if s.url %}<a href="{{ s.url }}" target="_blank" rel="noopener">{{ s.title }}</a>{% else %}{{ s.title }}{% endif %}{% if not loop.last %}, {% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+        <p class="answer-text">{{ result.answer }}</p>
+        <dl class="meta">
+          <div><dt>Confidence</dt><dd>
+            <span class="conf-bar"><span style="width: {{ (result.confidence * 100) | int }}%"></span></span>
+            {{ (result.confidence * 100) | int }}%
+          </dd></div>
+          <div><dt>Best match</dt><dd>
+            {% if result.match.url %}<a href="{{ result.match.url }}" target="_blank" rel="noopener">{{ result.match.title }}</a>{% else %}{{ result.match.title }}{% endif %}
+            <span class="kind kind-{{ result.match.kind }}">{{ result.match.kind }}</span>
+          </dd></div>
+          <div><dt>Evidence</dt><dd>{{ result.evidence | length }} linked record(s) in the chain</dd></div>
+        </dl>
+      </section>
+
+      <section class="card chain" aria-label="Evidence chain">
+        <h2>Evidence chain</h2>
+        <p class="hint">Every record below is a real node in the graph. Titles link to the
+        GitHub commit / PR or Trac ticket they came from, where a link exists.</p>
+        <ol class="evidence">
+          {% for rec in result.evidence %}
+            <li>
+              <span class="rel">{{ rec.relation }}</span>
+              <span class="kind kind-{{ rec.kind }}">{{ rec.kind }}</span>
+              {% if rec.url %}
+                <a href="{{ rec.url }}" target="_blank" rel="noopener">{{ rec.title }}</a>
+              {% else %}
+                <span class="plain-title">{{ rec.title }}</span>
+              {% endif %}
+              <span class="from">from <code>{{ rec.from }}</code> · {{ rec.direction }}</span>
+            </li>
+          {% endfor %}
+        </ol>
+      </section>
+
+      <section class="card graph" aria-label="Evidence graph">
+        <h2>Evidence graph</h2>
+        <p class="hint">The chain above, drawn as a graph. Click a node to open its record.</p>
+        <div class="svg-wrap">{{ result.graph_svg | safe }}</div>
+      </section>
+    {% endif %}
+  {% endif %}
+</main>
+
+<footer>
+  <p>WhyCode · Team FORTEC · hackFront India Grand Finale · Graph: django/django —
+  {% if entities is not none %}{{ entities }} entities, {{ edges }} edges{% else %}bundled SQLite graph{% endif %} ·
+  every answer is cited or refused, never invented.</p>
+</footer>
+</body>
+</html>
