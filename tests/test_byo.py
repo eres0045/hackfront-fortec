@@ -149,6 +149,26 @@ def test_ingest_nonexistent_repo_errors(tmp_path, repos_dir):
                          transport="git")
 
 
+def test_dulwich_ingest_without_any_user_identity(tmp_path, repos_dir,
+                                                  monkeypatch):
+    """Regression: dulwich clone resolves a default user identity from
+    USER/EMAIL or GIT_AUTHOR_* vars. A minimal container has none of
+    those (and no passwd entry), so the clone failed with
+    DefaultIdentityNotFound until byo set safe defaults.
+    """
+    for var in ("USER", "LOGNAME", "LNAME", "USERNAME", "EMAIL",
+                "GIT_AUTHOR_NAME", "GIT_AUTHOR_EMAIL",
+                "GIT_COMMITTER_NAME", "GIT_COMMITTER_EMAIL"):
+        monkeypatch.delenv(var, raising=False)
+    import pwd
+    monkeypatch.setattr(pwd, "getpwuid",
+                        lambda uid: (_ for _ in ()).throw(KeyError(uid)))
+    fixture = make_fixture_repo(tmp_path / "fixture")
+    stats = byo.ingest_repo("fixture", "repo", url=str(fixture),
+                            transport="dulwich")
+    assert stats["commits"] == 3
+
+
 def test_registry_prunes_to_three(tmp_path, repos_dir):
     fixture = make_fixture_repo(tmp_path / "fixture")
     for i in range(4):

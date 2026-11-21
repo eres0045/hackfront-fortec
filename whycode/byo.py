@@ -227,6 +227,26 @@ def _fetch_with_dulwich(url, tmpdir, deadline):
     from dulwich import porcelain
     from dulwich.diff_tree import tree_changes
 
+    # Dulwich resolves a default user identity while cloning, from
+    # USER/EMAIL or the GIT_AUTHOR_*/GIT_COMMITTER_* vars. Minimal
+    # containers (like Embarko's, running as a user with no passwd
+    # entry and no USER var) have none of those, and the clone fails
+    # with DefaultIdentityNotFound. WhyCode never commits, so the
+    # identity is never used for authorship — these defaults only
+    # satisfy the lookup. They are set for the clone call only and
+    # restored afterwards, so a later git call in this process (a
+    # test fixture, say) still sees its own environment.
+    _identity_defaults = (
+        ("GIT_AUTHOR_NAME", "WhyCode"),
+        ("GIT_AUTHOR_EMAIL", "whycode@localhost"),
+        ("GIT_COMMITTER_NAME", "WhyCode"),
+        ("GIT_COMMITTER_EMAIL", "whycode@localhost"),
+        ("USER", "whycode"),
+        ("EMAIL", "whycode@localhost"))
+    _saved_env = {k: os.environ.get(k) for k, _ in _identity_defaults}
+    for key, value in _identity_defaults:
+        os.environ.setdefault(key, value)
+
     def _clone():
         try:
             return porcelain.clone(
@@ -249,6 +269,11 @@ def _fetch_with_dulwich(url, tmpdir, deadline):
         repo = ex.submit(_clone).result(timeout=_remaining(deadline))
     finally:
         ex.shutdown(wait=False, cancel_futures=True)
+        for key, prev in _saved_env.items():
+            if prev is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = prev
     try:
         records = []
         for entry in repo.get_walker(max_entries=MAX_COMMITS):
