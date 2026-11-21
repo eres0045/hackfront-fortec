@@ -207,7 +207,7 @@ def evidence_graph_svg(match, evidence):
         seen.add(key)
         nodes.append(rec)
     rows = len(nodes)
-    height = max(460, 70 + rows * 108 + 30)
+    height = max(340, 70 + rows * 108 + 30)
     cx, cy = 150, height // 2
     parts = [
         f'<svg viewBox="0 0 780 {height}" width="100%" role="group" '
