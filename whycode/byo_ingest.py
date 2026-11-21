@@ -19,6 +19,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from typing import Dict, Any
 from whycode.graph import GraphStore
 from whycode.ingest import FIX_RE, REF_RE
+from whycode.security import scrub_text
 
 
 def ingest_git_repo(repo_dir: str, store: GraphStore, max_commits: int = 300) -> Dict[str, int]:
@@ -49,14 +50,19 @@ def ingest_git_repo(repo_dir: str, store: GraphStore, max_commits: int = 300) ->
             continue
 
         commit_hash = parts[0].strip()
-        author = parts[1].strip()
+        author_raw = parts[1].strip()
         date = parts[2].strip()
-        subject = parts[3].strip()
+        subject_raw = parts[3].strip()
         rest = parts[4].strip()
+
+        # Proven Gitleaks/Presidio Pre-Ingest Sanitization
+        subject, _ = scrub_text(subject_raw)
+        author, _ = scrub_text(author_raw, redact_secrets=False, check_entropy=False)
 
         # The rest contains body followed by touched files
         body_and_files = rest.split("\n\n")
-        body = body_and_files[0].strip() if body_and_files else ""
+        body_raw = body_and_files[0].strip() if body_and_files else ""
+        body, _ = scrub_text(body_raw)
         touched_files = []
         if len(body_and_files) > 1:
             # Lines at the end are file paths

@@ -131,9 +131,14 @@ def whycode_ingest_repo(
         max_commits: Maximum number of commits to index (default: 250)
     """
     from whycode.byo_ingest import ingest_git_repo
+    from whycode.security import validate_repo_path_or_url
     import tempfile
     import subprocess
     
+    is_valid, validation_msg = validate_repo_path_or_url(repo_path_or_url)
+    if not is_valid:
+        return {"success": False, "error": f"Security validation rejected target: {validation_msg}"}
+
     name = repo_name or repo_path_or_url.split("/")[-1].replace(".git", "")
     db_file = os.path.abspath(os.path.join(tempfile.gettempdir(), f"whycode_{name}.db"))
     store = GraphStore(db_file)
@@ -143,7 +148,7 @@ def whycode_ingest_repo(
         clone_dir = tempfile.mkdtemp(prefix=f"whycode_{name}_")
         try:
             subprocess.run(
-                ["git", "clone", "--depth", str(max_commits), repo_path_or_url, clone_dir],
+                ["git", "clone", "--depth", str(max_commits), "--", repo_path_or_url, clone_dir],
                 check=True,
                 capture_output=True,
                 text=True
