@@ -15,7 +15,7 @@ import sqlite3
 import threading
 import time
 
-from flask import Flask, render_template, request
+from flask import Flask, redirect, render_template, request
 
 from whycode.features import (
     blast_radius,
@@ -104,6 +104,29 @@ def reset_rate_limits():
     """Clear all recorded hits (tests only)."""
     with _rate_lock:
         _rate_hits.clear()
+
+
+# Finale redirect (2026-11-21 20:31 IST, Ronit's order): the app now lives
+# on Embarko; the Render URL redirects there so the submitted link keeps
+# working. Gated on WHYCODE_REDIRECT_TO (set on Render only) — the same
+# code runs on Embarko, where the var is unset, so the Embarko copy
+# serves the app instead of redirecting to itself. 302 (temporary, not
+# cached permanently) so it can be reverted. The GitHub PR-bot webhook
+# is exempt — GitHub does not follow redirects on webhook POSTs, so
+# /github-webhook still answers on Render.
+REDIRECT_TARGET = os.environ.get("WHYCODE_REDIRECT_TO", "")
+
+
+@app.before_request
+def redirect_to_embarko():
+    if app.testing or not REDIRECT_TARGET:
+        return None
+    if request.path == "/github-webhook":
+        return None
+    target = REDIRECT_TARGET + request.path
+    if request.query_string:
+        target += "?" + request.query_string.decode("utf-8", "replace")
+    return redirect(target, code=302)
 
 
 @app.before_request
