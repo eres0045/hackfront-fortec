@@ -23,13 +23,64 @@ DB_PATH = os.environ.get("WHYCODE_DB", os.path.join(BASE_DIR, "data", "whycode.d
 
 app = Flask(__name__)
 
+# Baseline security headers (ArgosX baseline findings 1-6). CSP keeps the
+# inline confidence-bar width working via style-src 'unsafe-inline'; there
+# are no external resources (no CDN, self-contained CSS, inline SVG).
+SECURITY_HEADERS = {
+    "X-Frame-Options": "DENY",
+    "Strict-Transport-Security": "max-age=63072000; includeSubDomains",
+    "Content-Security-Policy": "default-src 'self'; style-src 'self' 'unsafe-inline'",
+    "X-Content-Type-Options": "nosniff",
+    "Permissions-Policy": "geolocation=(), camera=(), microphone=()",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+}
+
+
+@app.after_request
+def add_security_headers(response):
+    for key, value in SECURITY_HEADERS.items():
+        response.headers[key] = value
+    return response
+
+
+CANONICAL_URL = "https://whycode-ui.onrender.com"
+
+
+@app.route("/robots.txt")
+def robots():
+    return (
+        "User-agent: *\nAllow: /\n"
+        f"Sitemap: {CANONICAL_URL}/sitemap.xml\n",
+        200,
+        {"Content-Type": "text/plain"},
+    )
+
+
+@app.route("/sitemap.xml")
+def sitemap():
+    from urllib.parse import quote
+
+    urls = [
+        "",
+        "?q=" + quote(EXAMPLE_QUESTIONS[0]),
+        "?q=" + quote(EXAMPLE_QUESTIONS[1]),
+    ]
+    body = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    ]
+    for u in urls:
+        body.append(f"  <url><loc>{CANONICAL_URL}/{u}</loc></url>")
+    body.append("</urlset>")
+    return ("\n".join(body) + "\n", 200, {"Content-Type": "application/xml"})
+
 EXAMPLE_QUESTIONS = [
     "Why does ignore_warnings match substrings by default?",
     "Why does Django use microservices?",
 ]
 
 KIND_COLORS = {
-    "commit": "#16a34a",
+    "commit": "#15803d",
     "pr": "#2563eb",
     "issue": "#b45309",
     "file": "#6b7280",
@@ -89,7 +140,7 @@ def evidence_graph_svg(match, evidence):
     height = max(460, 70 + rows * 108 + 30)
     cx, cy = 150, height // 2
     parts = [
-        f'<svg viewBox="0 0 780 {height}" width="100%" role="img" '
+        f'<svg viewBox="0 0 780 {height}" width="100%" role="group" '
         f'aria-label="Evidence chain graph" xmlns="http://www.w3.org/2000/svg">',
         "<defs><marker id=\"arr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" "
         "markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\">"

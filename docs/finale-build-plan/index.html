@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>WhyCode — Finale Build Plan</title>
+<style>
+  @page { size: A4; margin: 10mm 13mm; }
+  * { box-sizing: border-box; }
+  body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; color: #1a1a1a; font-size: 9.3pt; line-height: 1.28; margin: 0; }
+  header { border-bottom: 3px solid #16a34a; padding-bottom: 4px; margin-bottom: 7px; }
+  header h1 { font-size: 15pt; margin: 0 0 1px 0; letter-spacing: -0.3px; }
+  header h1 .green { color: #16a34a; }
+  header .sub { font-size: 8.8pt; color: #555; }
+  header .sub b { color: #1a1a1a; }
+  h2 { font-size: 10pt; color: #16a34a; margin: 7px 0 2px 0; text-transform: uppercase; letter-spacing: 0.4px; }
+  h2 .n { display: inline-block; background: #16a34a; color: #fff; width: 16px; height: 16px; line-height: 16px; text-align: center; border-radius: 50%; font-size: 9pt; margin-right: 5px; }
+  p, ul { margin: 2px 0; }
+  ul { padding-left: 16px; }
+  li { margin-bottom: 2px; }
+  .two-col { display: flex; gap: 14px; }
+  .two-col > div { flex: 1; }
+  .tag { display: inline-block; background: #eef7f0; border: 1px solid #16a34a; color: #166534; border-radius: 3px; padding: 0 5px; font-size: 8.5pt; font-weight: bold; }
+  .warn { background: #fef3c7; border: 1px solid #d97706; color: #92400e; }
+  .done-box { border: 2px solid #16a34a; background: #f0fdf4; border-radius: 6px; padding: 6px 9px; margin-top: 7px; }
+  .done-box p { font-size: 10pt; margin: 0; }
+  .done-box .label { font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.4px; color: #16a34a; font-weight: bold; }
+  table { width: 100%; border-collapse: collapse; font-size: 8.8pt; margin-top: 2px; }
+  th { text-align: left; background: #f7f7f2; border-bottom: 1.5px solid #16a34a; padding: 2px 4px; }
+  td { border-bottom: 1px solid #ddd; padding: 2px 4px; vertical-align: top; }
+  footer { margin-top: 6px; font-size: 8pt; color: #777; border-top: 1px solid #ddd; padding-top: 3px; }
+  .fill { color: #b91c1c; font-weight: bold; }
+</style>
+</head>
+<body>
+<header>
+  <h1>WhyCode <span class="green">— Finale Build Plan</span></h1>
+  <div class="sub"><b>Team FORTEC</b> · Ronit Shrimankar + Udita Singh · hackFront India Grand Finale, IIIT Delhi · Build: Sat 21 Nov 14:00 → Sun 22 Nov 12:00 · Problem T1.1 — “Why The Code Is Like This” (django/django)</div>
+</header>
+
+<h2><span class="n">1</span>Where we are</h2>
+<p><b>Works today (verified live, 21 Nov):</b> ingests django/django into a graph — <b>678 entities, 641 edges</b> (200 commits, 100 PRs, 100 Trac tickets, 161 files, 90 people, 27 DEPs). Answers “why is the code like this?” with a <b>cited 2-hop evidence chain + confidence score</b>. Refuses honestly under <b>4 tested rules</b> (no terms / term in no record / confidence &lt; 0.35 / empty chain): “Why does Django use microservices?” is refused; “Why does ignore_warnings match substrings?” is answered at 0.99 with 8 records. <b>13/13 tests green.</b> Zero-dependency, runs offline from the bundled DB.</p>
+<p><b>Mocked / hardcoded / missing:</b> CLI only — <span class="tag warn">no UI, no live URL</span>. Supersession advertised but the DB holds <b>zero</b> real <i>supersedes</i> edges. Evidence chains carry noise (unrelated same-author PR; match entity listed twice). File-level entities only, no functions. Raw token-count ranking, no BM25. Snapshot data only, no refresh. <b>No partner technology integrated.</b> No auth. No security scan yet.</p>
+
+<h2><span class="n">2</span>Where we will be — by 12:00 Sun 22 Nov, all working in the live build</h2>
+<ul>
+  <li><b>Flask web UI on a public live URL:</b> ask a question → answer card (confidence, best match, superseded banner) → clickable evidence chain (every record links to GitHub / Trac) → interactive graph of the chain. An evaluator can use it with no one driving.</li>
+  <li><b>Real <i>supersedes</i> edges</b> from DEP “Superseded by” text and “Reverts” commits; superseded decisions show a banner in the answer.</li>
+  <li><b>BM25 ranking</b> (title weighted 2×) replacing raw token count; all 4 refusal rules untouched.</li>
+  <li><b>Evidence-chain cleanup:</b> no <i>authored</i> expansion on hop 2; match entity removed from its own chain.</li>
+  <li><b>Neo4j AuraDB Free mirror</b> of the graph, with the UI’s evidence chain served by <b>Cypher queries</b> — partner tech inside the core flow, not a side demo.</li>
+  <li><b>ArgosX:</b> baseline scan by midnight tonight, final scan by 11:00 Sun, both reports + remediation log submitted.</li>
+  <li><span class="tag">Stretch, only if the above is green</span> tree-sitter function-level entities (“why is this function like this?”); live ingest of a second repo from the UI.</li>
+</ul>
+
+<h2><span class="n">3</span>User segments</h2>
+<table>
+  <tr><th>Segment</th><th>Their version of the problem</th><th>Use cases (2 each)</th><th>Status by 12:00 Sun</th></tr>
+  <tr><td><b>Primary — new Django contributors</b> (e.g. GSoC aspirants onboarding to the codebase)</td><td>“Why is this code like this?” — digging through 10 years of tickets to understand one decision</td><td>Ask why a behaviour exists and get a cited answer; ask why a function is written that way</td><td><b>Working</b> (live UI)</td></tr>
+  <tr><td><b>Maintainers &amp; reviewers</b></td><td>Re-deciding something already decided — or already superseded — because the history is buried</td><td>Check if a decision was superseded before re-opening it; trace a fix back to the Trac ticket that motivated it</td><td><b>Working</b> (supersedes banner)</td></tr>
+  <tr><td><b>Engineering teams onboarding devs</b> onto any large open-source codebase</td><td>New hires take weeks to trust a codebase they did not write</td><td>Ingest their own repo and ask the same “why” questions; use the evidence chain as onboarding docs</td><td><b>Working</b> (ingest any repo) / Planned if ingest slips</td></tr>
+</table>
+<p style="font-size:9.5pt;">First user: <b>Udita Singh</b> (FORTEC teammate, new Django contributor — first to use the live UI). Payer hypothesis (to validate in the 3 customer interviews): engineering teams, $20/user/month team plan.</p>
+
+<h2><span class="n">4</span>Partner technology — Neo4j</h2>
+<p><b>Neo4j (AuraDB Free, $0, no card).</b> WhyCode <i>is</i> a knowledge graph — commits, PRs, tickets and DEPs as nodes, decisions as edges. Neo4j makes the graph itself the query engine: the UI’s evidence chain is served by Cypher, enabling GraphRAG-style retrieval in the core flow, visible in the demo. Sarvam AI does not serve the core need (Django internals are English technical docs); Arduino does not apply to a software product. SQLite stays the source of truth; Neo4j serves the live answers.</p>
+
+<div class="done-box">
+  <div class="label">5 · Definition of done</div>
+  <p>“A stranger can open the live WhyCode URL, ask why any Django decision is the way it is, and get a cited answer — or an honest refusal — with the evidence graph running on Neo4j, without us in the room.”</p>
+</div>
+
+<footer>Sources: WhyCode repo (HEAD 074bee8, verified 21 Nov) · docs/finale-notes.md — 678 entities / 641 edges, 13/13 tests, demo Q&amp;A re-run 21 Nov. Partner rule per the brief: the integration must sit in the core flow and be visible in the demo; one token API call scores zero.</footer>
+</body>
+</html>

@@ -3,7 +3,7 @@ body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   color: #1a1a1a; background: #f7f7f2; margin: 0; line-height: 1.45;
 }
-.topbar { background: #16a34a; color: #fff; padding: 18px 20px 14px; }
+.topbar { background: #15803d; color: #fff; padding: 18px 20px 14px; }
 .topbar h1 { margin: 0; font-size: 26px; letter-spacing: -0.5px; }
 .topbar .tagline { margin: 4px 0 0; font-size: 14px; opacity: 0.95; max-width: 720px; }
 main { max-width: 860px; margin: 0 auto; padding: 20px 16px 8px; }
@@ -14,9 +14,9 @@ main { max-width: 860px; margin: 0 auto; padding: 20px 16px 8px; }
 }
 .ask-box button {
   margin-top: 10px; padding: 11px 22px; font-size: 16px; font-weight: bold;
-  color: #fff; background: #16a34a; border: none; border-radius: 8px; cursor: pointer;
+  color: #fff; background: #15803d; border: none; border-radius: 8px; cursor: pointer;
 }
-.ask-box button:hover { background: #15803d; }
+.ask-box button:hover { background: #166534; }
 .examples { margin: 14px 0 0; font-size: 14px; color: #555; }
 .chip {
   display: inline-block; margin: 3px 4px 3px 0; padding: 4px 10px;
@@ -68,12 +68,12 @@ main { max-width: 860px; margin: 0 auto; padding: 20px 16px 8px; }
 .evidence .rel {
   font-style: italic; color: #475569; margin-right: 4px; font-size: 13px;
 }
-.evidence .from { display: block; color: #777; font-size: 12px; margin-top: 2px; }
+.evidence .from { display: block; color: #595959; font-size: 12px; margin-top: 2px; }
 .evidence a { color: #166534; }
 .plain-title { font-weight: bold; }
 .svg-wrap { overflow-x: auto; }
 .svg-wrap svg { min-width: 640px; }
 footer {
   max-width: 860px; margin: 24px auto 0; padding: 12px 16px 24px;
-  color: #777; font-size: 13px; border-top: 1px solid #ddd;
+  color: #595959; font-size: 13px; border-top: 1px solid #ddd;
 }
