@@ -59,6 +59,50 @@
       padding: 0;
     }
 
+    /* Custom Slender Scrollbar (Thin Accent Glow) */
+    html, body, * {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(122, 162, 255, 0.45) rgba(10, 10, 14, 0.6);
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-button {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(10, 10, 14, 0.7);
+      border-radius: 9999px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, rgba(122, 162, 255, 0.45) 0%, rgba(90, 140, 255, 0.3) 100%);
+      border-radius: 9999px;
+      border: 1px solid rgba(122, 162, 255, 0.2);
+      transition: background 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, rgba(122, 162, 255, 0.85) 0%, rgba(90, 140, 255, 0.75) 100%);
+      box-shadow: 0 0 10px rgba(122, 162, 255, 0.55);
+      border-color: rgba(122, 162, 255, 0.45);
+    }
+
+    ::-webkit-scrollbar-thumb:active {
+      background: #7aa2ff;
+      box-shadow: 0 0 14px rgba(122, 162, 255, 0.85);
+    }
+
+    ::-webkit-scrollbar-corner {
+      background: transparent;
+    }
+
     html, body {
       width: 100%;
       height: 100%;
