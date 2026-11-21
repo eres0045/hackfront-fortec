@@ -2290,15 +2290,37 @@
   // Initial UI sync
   updateRepoUI(activeRepo, activeNodes);
 
-  if (connectRepoBtn && repoModalBackdrop) {
-    connectRepoBtn.addEventListener('click', () => {
+  if (repoModalBackdrop) {
+    function openRepoModal(prefillUrl) {
+      if (!repoModalBackdrop) return;
       repoModalBackdrop.style.display = 'flex';
       if (repoStatusFeedback) repoStatusFeedback.innerHTML = '';
       if (repoUrlInput) {
-        repoUrlInput.value = activeRepo.includes('http') ? activeRepo : `https://github.com/${activeRepo}`;
-        repoUrlInput.focus();
+        if (prefillUrl) {
+          repoUrlInput.value = prefillUrl.includes('http') ? prefillUrl : `https://github.com/${prefillUrl}`;
+        } else {
+          repoUrlInput.value = activeRepo.includes('http') ? activeRepo : `https://github.com/${activeRepo}`;
+        }
+        setTimeout(() => repoUrlInput.focus(), 60);
       }
-    });
+    }
+
+    if (connectRepoBtn) {
+      connectRepoBtn.addEventListener('click', () => openRepoModal());
+    }
+
+    // Auto-open Connect Repository Modal if redirected from landing page with ?connect=true or ?ingest=true or #connect
+    const urlParams = new URLSearchParams(window.location.search);
+    const shouldOpenConnect = urlParams.get('connect') === 'true' || 
+                              urlParams.get('ingest') === 'true' || 
+                              window.location.hash === '#connect' || 
+                              window.location.hash === '#ingest';
+    const repoParam = urlParams.get('repo');
+    if (shouldOpenConnect) {
+      setTimeout(() => {
+        openRepoModal(repoParam || '');
+      }, 150);
+    }
 
     if (closeRepoModal) {
       closeRepoModal.addEventListener('click', () => {
@@ -2326,7 +2348,7 @@
     function ingestRepo(repoName, nodeCount) {
       const cleaned = cleanRepoName(repoName);
       if (repoStatusFeedback) {
-        repoStatusFeedback.innerHTML = `<span style="color: #7aa2ff;">✦ Ingesting git commit lineage & decision topology for <strong>${cleaned}</strong>...</span>`;
+        repoStatusFeedback.innerHTML = `<span style="color: #f0a24c;">✦ Ingesting git commit lineage & decision topology for <strong>${cleaned}</strong>...</span>`;
       }
       if (indexRepoBtn) indexRepoBtn.disabled = true;
 
@@ -2464,13 +2486,13 @@
     testMcpToolBtn.addEventListener('click', () => {
       testMcpToolBtn.disabled = true;
       mcpTestOutput.style.display = 'block';
-      mcpTestOutput.innerHTML = '<span style="color: #7aa2ff;">✦ Invoking MCP Tool: `whycode_ask("why did Django avoid duplicate joins?")`...</span>';
+      mcpTestOutput.innerHTML = '<span style="color: #f0a24c;">✦ Invoking MCP Tool: `whycode_ask("why did Django avoid duplicate joins?")`...</span>';
 
       setTimeout(() => {
         mcpTestOutput.innerHTML = `
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
             <strong style="color:#4ade80;">✓ MCP Response (whycode_ask)</strong>
-            <span style="font-family:'Geist Mono',monospace; font-size:10px; color:#7aa2ff;">12.0 µs</span>
+            <span style="font-family:'Geist Mono',monospace; font-size:10px; color:#f0a24c;">12.0 µs</span>
           </div>
           <div style="font-size:11.5px; color:#e2e8f0; line-height:1.4;">
             <strong>Fixed #16603 (PR #22207):</strong> Avoided duplicate joins in filter() after aggregation. Filters now use an <code>EXISTS</code> subquery to prevent inflating <code>Count()</code> / <code>Sum()</code> aggregates.

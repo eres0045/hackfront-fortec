@@ -2551,10 +2551,10 @@
       <a href="#scanner" class="nav-link">Why Scanner</a>
       <a href="#performance" class="nav-link">Performance</a>
       <a href="#cockpit" class="nav-link">3D Cockpit</a>
-      <a href="#byo" class="nav-link">BYO Repo</a>
+      <a href="glyph_animals.html?connect=true" class="nav-link" style="color: var(--amber); display: inline-flex; align-items: center; gap: 5px;"><span style="width: 6px; height: 6px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 8px var(--amber);"></span>Ingest Repo</a>
       <a href="#mcp" class="nav-link">MCP Server</a>
       <a href="#architecture" class="nav-link">Architecture</a>
-      <a href="glyph_animals.html" class="nav-link" target="_blank" style="color: #7aa2ff; display: inline-flex; align-items: center; gap: 5px;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #7aa2ff; box-shadow: 0 0 8px #7aa2ff;"></span>Query Area</a>
+      <a href="glyph_animals.html" class="nav-link" style="color: #f0a24c; display: inline-flex; align-items: center; gap: 5px;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #f0a24c; box-shadow: 0 0 8px #f0a24c;"></span>Query Area</a>
     </div>
 
     <div class="nav-actions">
@@ -2601,7 +2601,7 @@
             <span>Ask a Decision</span>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
           </a>
-          <a href="#byo" class="btn-github">
+          <a href="glyph_animals.html?connect=true" class="btn-github">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             <span>Ingest Your Repo</span>
           </a>
@@ -4121,12 +4121,16 @@
     }
 
     function simulateBYO() {
+      const input = document.getElementById("byoInput");
+      const repoUrl = input ? input.value.trim() : "";
       const st = document.getElementById("byoStatus");
-      st.style.display = "block";
-      st.innerHTML = "<span style='color: var(--amber);'>Cloning git repository & extracting decision topology...</span>";
+      if (st) {
+        st.style.display = "block";
+        st.innerHTML = "<span style='color: var(--amber);'>✦ Opening Query Dashboard & Ingest Repository engine...</span>";
+      }
       setTimeout(() => {
-        st.innerHTML = "<span style='color: var(--green);'>✓ Ingested 166 commits, 30 contributors, and 276 decision edges in 4.0 seconds. Ready to query.</span>";
-      }, 1100);
+        window.location.href = `glyph_animals.html?connect=true&repo=${encodeURIComponent(repoUrl)}`;
+      }, 400);
     }
 
     

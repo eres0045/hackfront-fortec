@@ -41,16 +41,16 @@
       --glass-edge: rgba(255, 255, 255, calc(0.14 * var(--edge)));
       --glass-rim: rgba(255, 255, 255, calc(0.32 * var(--edge)));
       --glass-rim-low: rgba(255, 255, 255, calc(0.08 * var(--edge)));
-      --glass-glow: rgba(140, 170, 255, 0.07);
+      --glass-glow: rgba(240, 162, 76, 0.08);
       --glass-sheen: rgba(255, 255, 255, 0.1);
       --glass-shadow: 0 16px 48px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.4);
 
       --chip: rgba(255, 255, 255, 0.05);
       --chip-hover: rgba(255, 255, 255, 0.12);
       --chip-edge: rgba(255, 255, 255, 0.1);
-      --accent: #7aa2ff;
+      --accent: #f0a24c;
       --thumb: rgba(255, 255, 255, 0.14);
-      --focus: rgba(122, 162, 255, 0.3);
+      --focus: rgba(240, 162, 76, 0.3);
     }
 
     *, *::before, *::after {
@@ -59,10 +59,10 @@
       padding: 0;
     }
 
-    /* Custom Slender Scrollbar (Thin Accent Glow) */
+    /* Custom Slender Scrollbar (Thin Amber Glow) */
     html, body, * {
       scrollbar-width: thin;
-      scrollbar-color: rgba(122, 162, 255, 0.45) rgba(10, 10, 14, 0.6);
+      scrollbar-color: rgba(240, 162, 76, 0.45) rgba(10, 10, 14, 0.6);
     }
 
     ::-webkit-scrollbar {
@@ -82,21 +82,21 @@
     }
 
     ::-webkit-scrollbar-thumb {
-      background: linear-gradient(180deg, rgba(122, 162, 255, 0.45) 0%, rgba(90, 140, 255, 0.3) 100%);
+      background: linear-gradient(180deg, rgba(240, 162, 76, 0.5) 0%, rgba(255, 90, 31, 0.35) 100%);
       border-radius: 9999px;
-      border: 1px solid rgba(122, 162, 255, 0.2);
+      border: 1px solid rgba(240, 162, 76, 0.25);
       transition: background 0.2s ease, box-shadow 0.2s ease;
     }
 
     ::-webkit-scrollbar-thumb:hover {
-      background: linear-gradient(180deg, rgba(122, 162, 255, 0.85) 0%, rgba(90, 140, 255, 0.75) 100%);
-      box-shadow: 0 0 10px rgba(122, 162, 255, 0.55);
-      border-color: rgba(122, 162, 255, 0.45);
+      background: linear-gradient(180deg, rgba(240, 162, 76, 0.85) 0%, rgba(255, 90, 31, 0.75) 100%);
+      box-shadow: 0 0 10px rgba(240, 162, 76, 0.55);
+      border-color: rgba(240, 162, 76, 0.45);
     }
 
     ::-webkit-scrollbar-thumb:active {
-      background: #7aa2ff;
-      box-shadow: 0 0 14px rgba(122, 162, 255, 0.85);
+      background: #f0a24c;
+      box-shadow: 0 0 14px rgba(240, 162, 76, 0.85);
     }
 
     ::-webkit-scrollbar-corner {
@@ -1772,7 +1772,7 @@
         <div class="sidebar-telemetry-grid">
           <div class="telemetry-tile">
             <span class="telemetry-tile-label">System 1 Gate</span>
-            <span class="telemetry-tile-val" style="color: #7aa2ff;">12.0 µs</span>
+            <span class="telemetry-tile-val" style="color: #f0a24c;">12.0 µs</span>
           </div>
           <div class="telemetry-tile">
             <span class="telemetry-tile-label">Graph Walk</span>
