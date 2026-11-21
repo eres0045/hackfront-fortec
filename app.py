@@ -16,7 +16,7 @@ import sqlite3
 from flask import Flask, render_template, request
 
 from whycode.graph import GraphStore
-from whycode.qa import ask
+from whycode.qa import ask, decision_timeline
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.environ.get("WHYCODE_DB", os.path.join(BASE_DIR, "data", "whycode.db"))
@@ -77,6 +77,7 @@ def sitemap():
 EXAMPLE_QUESTIONS = [
     "Why does ignore_warnings match substrings by default?",
     "Why does Django use microservices?",
+    "Why didn't Django fork instead of adding async?",
 ]
 
 KIND_COLORS = {
@@ -214,13 +215,17 @@ def index():
     if question and request.method in ("GET", "POST"):
         # Fresh store per request: sqlite3 connections are not thread-safe,
         # and the Flask dev server is threaded.
-        result = ask(GraphStore(DB_PATH), question)
+        store = GraphStore(DB_PATH)
+        result = ask(store, question)
         if not result.get("refused"):
             result["superseded"] = [
                 e for e in result["evidence"] if e["relation"] == "supersedes"
             ]
-            result["graph_svg"] = evidence_graph_svg(
-                result["match"], result["evidence"])
+            result["timeline"] = decision_timeline(
+                store, result["match"], result["evidence"])
+            if result["evidence"]:
+                result["graph_svg"] = evidence_graph_svg(
+                    result["match"], result["evidence"])
     entities, edges = db_stats()
     return render_template(
         "index.html",

@@ -69,10 +69,34 @@
             {% if result.match.url %}<a href="{{ result.match.url }}" target="_blank" rel="noopener">{{ result.match.title }}</a>{% else %}{{ result.match.title }}{% endif %}
             <span class="kind kind-{{ result.match.kind }}">{{ result.match.kind }}</span>
           </dd></div>
+          {% if result.mode == "why_not" %}
+          <div><dt>Source</dt><dd>Alternatives section of
+            <a href="{{ result.rejected.dep_url }}" target="_blank" rel="noopener">{{ result.rejected.dep_title }}</a>
+          </dd></div>
+          {% else %}
           <div><dt>Evidence</dt><dd>{{ result.evidence | length }} linked record(s) in the chain</dd></div>
+          {% endif %}
         </dl>
       </section>
 
+      {% if result.mode == "why_not" and result.rejected %}
+      <section class="card why-not" aria-label="Rejected alternative">
+        <h2>Why not — the rejected alternative</h2>
+        <p><strong>{{ result.rejected.option }}</strong> — considered in
+        <a href="{{ result.rejected.dep_url }}" target="_blank" rel="noopener">{{ result.rejected.dep_title }}</a>
+        and not taken.</p>
+        {% if result.rejected.reason %}
+          <blockquote>{{ result.rejected.reason }}</blockquote>
+          <p class="hint">Quoted verbatim from the DEP's Alternatives section — the reason as the
+          authors wrote it, not a paraphrase.</p>
+        {% else %}
+          <p class="hint">The DEP lists this option among the alternatives considered, but gives
+          no per-option reason in its text — so no reason is shown here rather than one invented.</p>
+        {% endif %}
+      </section>
+      {% endif %}
+
+      {% if result.evidence %}
       <section class="card chain" aria-label="Evidence chain">
         <h2>Evidence chain</h2>
         <p class="hint">Every record below is a real node in the graph. Titles link to the
@@ -98,6 +122,25 @@
         <p class="hint">The chain above, drawn as a graph. Click a node to open its record.</p>
         <div class="svg-wrap">{{ result.graph_svg | safe }}</div>
       </section>
+      {% endif %}
+
+      {% if result.timeline %}
+      <section class="card timeline" aria-label="Decision timeline">
+        <h2>Decision timeline</h2>
+        <p class="hint">The decision's life story, from the graph's own dates — oldest first.
+        Events with no date in the record are left out, never guessed.</p>
+        <ol class="tl">
+          {% for ev in result.timeline %}
+          <li>
+            <span class="tl-date">{{ ev.date }}</span>
+            <span class="kind kind-{{ ev.kind }}">{{ ev.kind }}</span>
+            {% if ev.url %}<a href="{{ ev.url }}" target="_blank" rel="noopener">{{ ev.title }}</a>{% else %}{{ ev.title }}{% endif %}
+            <span class="tl-label">{{ ev.label }}</span>
+          </li>
+          {% endfor %}
+        </ol>
+      </section>
+      {% endif %}
     {% endif %}
   {% endif %}
 </main>

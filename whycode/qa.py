@@ -48,6 +48,7 @@ def evidence_chain(store, entity_id):
                     continue
                 seen.add(key)
                 evidence.append({
+                    "id": nb["id"],
                     "from": eid,
                     "relation": nb["relation"],
                     "title": nb["title"],
@@ -62,6 +63,7 @@ def evidence_chain(store, entity_id):
                     continue
                 seen.add(key)
                 evidence.append({
+                    "id": nb["id"],
                     "from": nb["id"],
                     "relation": nb["relation"],
                     "title": nb["title"],
@@ -74,7 +76,82 @@ def evidence_chain(store, entity_id):
     return evidence
 
 
+def _dep_created_at(entity):
+    """Date a DEP was created, from its `:Created:` header field.
+
+    Docs carry no created_at in the graph; the date lives in the DEP
+    body itself. Returns "YYYY-MM-DD" or "".
+    """
+    if entity.get("kind") != "doc":
+        return ""
+    m = re.search(r":Created:\s*(\d{4}-\d{2}-\d{2})", entity.get("body") or "")
+    return m.group(1) if m else ""
+
+
+def decision_timeline(store, match, evidence):
+    """Dated events for a decision, oldest first — the decision's life story.
+
+    Every event needs a real date: commits/PRs carry created_at, DEPs
+    carry :Created: in their body. Entities with no date are omitted,
+    never guessed. A supersedes edge marks the newer entity's event.
+    """
+    newer_ids = set()
+    for rec in evidence:
+        if rec["relation"] != "supersedes":
+            continue
+        # "out": match -> newer record; "in": older record -> match (newer).
+        newer_ids.add(rec["id"] if rec["direction"] == "out" else match["id"])
+    events = []
+    seen_ids = set()
+    ordered = [match] + [store.get_entity(r["id"]) for r in evidence
+                         if r.get("id")]
+    for ent in ordered:
+        if not ent or ent["id"] in seen_ids:
+            continue
+        seen_ids.add(ent["id"])
+        date = ent.get("created_at") or _dep_created_at(ent)
+        if not date:
+            continue
+        kind = ent["kind"]
+        if kind == "doc":
+            label = "DEP published"
+        elif kind == "commit":
+            label = "Commit landed"
+        elif kind == "pr":
+            label = "Pull request"
+        elif kind == "issue":
+            label = "Ticket opened"
+        else:
+            label = kind
+        if ent["id"] in newer_ids:
+            label = "Supersedes an earlier decision"
+        events.append({"date": date, "title": ent["title"], "kind": kind,
+                       "url": ent.get("url") or "", "label": label})
+    # Same (date, title) twice is one event, not two.
+    deduped, seen_keys = [], set()
+    for ev in events:
+        key = (ev["date"], ev["title"])
+        if key in seen_keys:
+            continue
+        seen_keys.add(key)
+        deduped.append(ev)
+    deduped.sort(key=lambda e: e["date"])
+    return deduped
+
+
 def ask(store, question):
+    # "Why not" questions ("why didn't Django do X?") are answered from
+    # the DEPs' own Alternatives sections, not from the evidence chain:
+    # the record of what was rejected lives in the DEP text itself. If
+    # no rejected alternative matches, fall through to the normal path —
+    # a why-not phrasing must never refuse a question the normal engine
+    # could answer (e.g. "why use X instead of Y?").
+    from whycode.alternatives import answer_why_not, is_why_not
+
+    if is_why_not(question):
+        why_not = answer_why_not(store, question)
+        if not why_not["refused"]:
+            return why_not
     toks = tokens(question)
     if not toks:
         return {"question": question, "refused": True, "reason": REFUSAL,
