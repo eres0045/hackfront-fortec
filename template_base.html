@@ -1337,6 +1337,101 @@
       transform: none !important;
     }
 
+  
+    /* Agent-Native Setup Pill */
+    .agent-pill-container {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin: 4px 0 14px;
+      width: 100%;
+    }
+    .agent-pill {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      width: 100%;
+      height: 44px;
+      padding: 0 6px 0 14px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+      cursor: pointer;
+      user-select: none;
+    }
+    .agent-pill:hover {
+      border-color: rgba(122, 162, 255, 0.55);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.05) 100%);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.65), 0 0 20px rgba(122, 162, 255, 0.25);
+    }
+    .agent-pill-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .agent-pill-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: #fff;
+      letter-spacing: -0.01em;
+    }
+    .agent-pill-icons {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+    .agent-pill-copy-btn {
+      height: 30px;
+      padding: 0 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(122, 162, 255, 0.35);
+      background: rgba(122, 162, 255, 0.15);
+      color: #93b4ff;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+    .agent-pill-copy-btn:hover {
+      background: rgba(122, 162, 255, 0.3);
+      color: #fff;
+      border-color: rgba(122, 162, 255, 0.6);
+    }
+    .agent-pill-copy-btn.copied {
+      background: rgba(74, 222, 128, 0.2) !important;
+      border-color: rgba(74, 222, 128, 0.5) !important;
+      color: #4ade80 !important;
+    }
+    .agent-pill-caption {
+      font-size: 11.5px;
+      color: var(--text-soft);
+      line-height: 1.4;
+      margin: 0;
+    }
+    .agent-pill-caption code {
+      font-family: 'Geist Mono', monospace;
+      font-size: 10.5px;
+      color: #93b4ff;
+      background: rgba(122, 162, 255, 0.1);
+      padding: 1px 4px;
+      border-radius: 4px;
+    }
+
   </style>
 </head>
 <body>
@@ -1503,6 +1598,26 @@
         <p class="sidebar-section-desc">
           Connect WhyCode decision graph directly to Cursor, Claude Desktop, or VS Code for zero-hallucination code reviews.
         </p>
+        <!-- Agent-Native 1-Click Setup Pill -->
+        <div class="agent-pill-container">
+          <div class="agent-pill" id="sidebarAgentPill" title="Click to copy prompt for Cursor, Claude Code, or Codex">
+            <div class="agent-pill-left">
+              <span style="color: var(--accent);">✦</span>
+              <span class="agent-pill-title">Connect your agent to WhyCode</span>
+              <div class="agent-pill-icons">
+                <span>✻</span><span>🤖</span><span>◬</span><span>⋀</span>
+              </div>
+            </div>
+            <button type="button" class="agent-pill-copy-btn" id="sidebarCopyPillBtn">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              <span id="sidebarCopyPillText">COPY</span>
+            </button>
+          </div>
+          <p class="agent-pill-caption">
+            Paste one sentence into Cursor, Claude Code, or Codex. Your agent reads <code>whycode/agent.md</code> and sets it all up.
+          </p>
+        </div>
+
 
         <!-- IDE Tabs -->
         <div class="mcp-tabs">

@@ -2167,7 +2167,231 @@
         overflow: hidden;
       }
     }
-    </style>
+    
+    /* HERO AGENT-NATIVE SETUP PILL */
+    .hero-agent-pill-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 24px;
+      width: 100%;
+      max-width: 520px;
+    }
+    .hero-agent-pill {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      width: 100%;
+      height: 52px;
+      padding: 0 8px 0 18px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      transition: all 0.25s ease;
+      cursor: pointer;
+      user-select: none;
+    }
+    .hero-agent-pill:hover {
+      border-color: rgba(240, 162, 76, 0.5);
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 16px 45px rgba(0, 0, 0, 0.8), 0 0 25px rgba(240, 162, 76, 0.25);
+    }
+    .hero-agent-pill-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .hero-agent-pill-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: #fff;
+      letter-spacing: -0.01em;
+    }
+    .hero-agent-pill-icons {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+    .hero-agent-pill-copy-btn {
+      height: 36px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(240, 162, 76, 0.4);
+      background: rgba(240, 162, 76, 0.15);
+      color: #f0a24c;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+    }
+    .hero-agent-pill-copy-btn:hover {
+      background: rgba(240, 162, 76, 0.3);
+      color: #fff;
+      border-color: rgba(240, 162, 76, 0.7);
+    }
+    .hero-agent-pill-copy-btn.copied {
+      background: rgba(74, 222, 128, 0.2) !important;
+      border-color: rgba(74, 222, 128, 0.5) !important;
+      color: #4ade80 !important;
+    }
+    .hero-agent-pill-caption {
+      font-size: 13px;
+      color: var(--body);
+      line-height: 1.5;
+    }
+    .hero-agent-pill-caption code {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: #f0a24c;
+      background: rgba(240, 162, 76, 0.1);
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+
+    /* SECTION MCP */
+    .section-mcp {
+      padding: 80px 4vw;
+      border-top: 1px solid var(--border);
+      background: radial-gradient(circle at 50% 0%, rgba(122, 162, 255, 0.07) 0%, transparent 70%);
+    }
+    .mcp-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+  
+    /* HIDE CONFIDENCE BADGE */
+    .badge {
+      display: none !important;
+    }
+
+    /* CENTERED, LARGER HERO AGENT PILL */
+    .hero-agent-pill-center {
+      position: relative;
+      z-index: 15;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin: 40px auto 0;
+      width: 100%;
+      max-width: 620px;
+      text-align: center;
+    }
+    .hero-agent-pill {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      width: 100%;
+      height: 60px;
+      padding: 0 10px 0 24px;
+      border-radius: 9999px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer;
+      user-select: none;
+    }
+    .hero-agent-pill:hover {
+      border-color: rgba(240, 162, 76, 0.6);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.04) 100%);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.9), 0 0 30px rgba(240, 162, 76, 0.3);
+      transform: translateY(-2px);
+    }
+    .hero-agent-pill-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .pill-sparkle {
+      color: var(--amber);
+      font-size: 16px;
+      filter: drop-shadow(0 0 8px var(--amber));
+    }
+    .hero-agent-pill-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: #fff;
+      letter-spacing: -0.01em;
+    }
+    .hero-agent-pill-icons {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: rgba(255, 255, 255, 0.45);
+      font-size: 15px;
+      margin-left: 2px;
+    }
+    .hero-agent-pill-copy-btn {
+      height: 42px;
+      padding: 0 18px;
+      border-radius: 9999px;
+      border: 1px solid rgba(240, 162, 76, 0.45);
+      background: linear-gradient(135deg, rgba(240, 162, 76, 0.25) 0%, rgba(240, 162, 76, 0.12) 100%);
+      color: #f0a24c;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+    }
+    .hero-agent-pill-copy-btn:hover {
+      background: linear-gradient(135deg, rgba(240, 162, 76, 0.45) 0%, rgba(240, 162, 76, 0.22) 100%);
+      color: #fff;
+      border-color: rgba(240, 162, 76, 0.8);
+      box-shadow: 0 0 15px rgba(240, 162, 76, 0.4);
+    }
+    .hero-agent-pill-copy-btn.copied {
+      background: rgba(74, 222, 128, 0.25) !important;
+      border-color: rgba(74, 222, 128, 0.6) !important;
+      color: #4ade80 !important;
+      box-shadow: 0 0 15px rgba(74, 222, 128, 0.4) !important;
+    }
+    .hero-agent-pill-caption {
+      font-size: 13.5px;
+      color: var(--body);
+      line-height: 1.5;
+    }
+    .hero-agent-pill-caption code {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: #f0a24c;
+      background: rgba(240, 162, 76, 0.12);
+      border: 1px solid rgba(240, 162, 76, 0.25);
+      padding: 2px 6px;
+      border-radius: 5px;
+    }
+
+  </style>
 </head>
 <body>
   <!-- PERFORMANCE FILTER DEFINITIONS -->
@@ -2247,6 +2471,7 @@
       <a href="#performance" class="nav-link">Performance</a>
       <a href="#cockpit" class="nav-link">3D Cockpit</a>
       <a href="#byo" class="nav-link">BYO Repo</a>
+      <a href="#mcp" class="nav-link">MCP Server</a>
       <a href="#architecture" class="nav-link">Architecture</a>
       <a href="glyph_animals.html" class="nav-link" target="_blank" style="color: #7aa2ff; display: inline-flex; align-items: center; gap: 5px;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #7aa2ff; box-shadow: 0 0 8px #7aa2ff;"></span>Query Area</a>
     </div>
@@ -2300,18 +2525,32 @@
             <span>Ingest Your Repo</span>
           </a>
         </div>
+
+
       </div>
     </div>
 
-    <!-- INTEGRATED TELEMETRY BADGE -->
-    <div class="badge">
-      <div class="badge-pill">
-        <span class="badge-dot"></span>
-        <span class="badge-label">CONFIDENCE</span>
-        <span class="badge-num" id="badgeNum">0.99</span>
-        <span class="badge-pct" id="badgePct">8 Evidence Records</span>
+    <!-- CENTERED, LARGER AGENT-NATIVE SETUP PILL -->
+    <div class="hero-agent-pill-center">
+      <div class="hero-agent-pill" id="heroAgentPill" title="Click to copy prompt for Cursor, Claude Code, or Codex">
+        <div class="hero-agent-pill-left">
+          <span class="pill-sparkle">✦</span>
+          <span class="hero-agent-pill-title">Connect your agent to WhyCode</span>
+          <div class="hero-agent-pill-icons">
+            <span>✻</span><span>🤖</span><span>◬</span><span>⋀</span>
+          </div>
+        </div>
+        <button type="button" class="hero-agent-pill-copy-btn" id="heroCopyPillBtn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          <span id="heroCopyPillText">COPY</span>
+        </button>
+      </div>
+      <div class="hero-agent-pill-caption">
+        Paste one sentence into Claude Code, Codex, or Cursor. Your agent reads <code>whycode/agent.md</code> and sets it all up.
       </div>
     </div>
+
+    
 
     <!-- LASER SCANNER BEAM -->
     <div class="scan">
@@ -2728,6 +2967,56 @@
 
       <div class="byo-status-box" id="byoStatus">
         <span style="color: var(--green);">✓ Ingested 166 commits, 30 contributors, and 276 decision edges in 4.0 seconds. Ready to query.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3.5 MODEL CONTEXT PROTOCOL (MCP) & IDE BRIDGE -->
+  <section class="section-mcp" id="mcp">
+    <div class="mcp-container">
+      <div style="text-align: center; max-width: 720px; margin: 0 auto;">
+        <div class="studio-kicker" style="justify-content: center;">
+          <span>✦ Model Context Protocol (MCP) · Stdio JSON-RPC 2.0</span>
+        </div>
+        <h2 style="font-family: var(--font-serif); font-size: 38px; letter-spacing: -0.02em; margin-bottom: 12px;">Put architectural decision intelligence inside your IDE.</h2>
+        <p style="color: var(--body); font-size: 15.5px; line-height: 1.6;">
+          WhyCode exposes an official MCP server. When an AI agent modifies complex code in Cursor, Claude Desktop, or VS Code, it queries WhyCode to understand past design rationale with 12 µs non-autoregressive verification.
+        </p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+        <div style="padding: 24px; border-radius: 16px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); display: flex; flex-direction: column; gap: 12px;">
+          <div style="font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; color: var(--amber); font-weight: 600;">1. Zero-Friction Agent Prompt</div>
+          <h4 style="font-size: 18px; margin: 0; color: #fff;">Just ask your agent</h4>
+          <p style="color: var(--body); font-size: 13.5px; line-height: 1.5; margin: 0;">
+            Copy one sentence into Cursor, Claude Code, or Codex. Your agent reads <code>whycode/agent.md</code> and registers the tools automatically.
+          </p>
+          <div style="padding: 12px; border-radius: 8px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.08); font-family: var(--font-mono); font-size: 12px; color: #f0a24c;">
+            "Read whycode/agent.md and configure the WhyCode MCP server in my editor."
+          </div>
+        </div>
+
+        <div style="padding: 24px; border-radius: 16px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); display: flex; flex-direction: column; gap: 12px;">
+          <div style="font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; color: var(--green); font-weight: 600;">2. Pre-Configured in Repository</div>
+          <h4 style="font-size: 18px; margin: 0; color: #fff;">Out of the box in Cursor</h4>
+          <p style="color: var(--body); font-size: 13.5px; line-height: 1.5; margin: 0;">
+            <code>.cursor/mcp.json</code> and <code>whycode_mcp.py</code> are included in the repo. Opening this project in Cursor enables <code>whycode_ask</code> instantly.
+          </p>
+          <div style="padding: 12px; border-radius: 8px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.08); font-family: var(--font-mono); font-size: 12px; color: #4ade80;">
+            ✓ Registered: whycode_ask, whycode_ingest_repo, whycode_get_entity
+          </div>
+        </div>
+
+        <div style="padding: 24px; border-radius: 16px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); display: flex; flex-direction: column; gap: 12px;">
+          <div style="font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; color: #7aa2ff; font-weight: 600;">3. Anti-Hallucination Conformal Gate</div>
+          <h4 style="font-size: 18px; margin: 0; color: #fff;">Strict Refusal Guarantee</h4>
+          <p style="color: var(--body); font-size: 13.5px; line-height: 1.5; margin: 0;">
+            If an agent queries an ungrounded term or empty evidence chain, System 1 refuses with 0.99 confidence, preventing LLM fabrication.
+          </p>
+          <div style="padding: 12px; border-radius: 8px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.08); font-family: var(--font-mono); font-size: 12px; color: #7aa2ff;">
+            12.0 µs Latency · 0.0% Hallucination Rate
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -3846,6 +4135,35 @@
       htmlEl.setAttribute("data-theme", next);
       localStorage.setItem("whycode_theme", next);
     });
+
+    // Hero Agent Pill 1-Click Copy Handler
+    const heroCopyBtn = document.getElementById("heroCopyPillBtn");
+    const heroCopyPill = document.getElementById("heroAgentPill");
+    const heroCopyText = document.getElementById("heroCopyPillText");
+    const agentPrompt = "Read whycode/agent.md and configure the WhyCode MCP server in my editor so you can query architectural decisions and PR rationale.";
+
+    function copyHeroPrompt() {
+      navigator.clipboard.writeText(agentPrompt).then(() => {
+        if (heroCopyBtn) heroCopyBtn.classList.add("copied");
+        if (heroCopyText) heroCopyText.textContent = "✓ COPIED!";
+        setTimeout(() => {
+          if (heroCopyBtn) heroCopyBtn.classList.remove("copied");
+          if (heroCopyText) heroCopyText.textContent = "COPY";
+        }, 2000);
+      }).catch(err => {
+        console.warn("Clipboard copy error:", err);
+      });
+    }
+
+    if (heroCopyBtn) {
+      heroCopyBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        copyHeroPrompt();
+      });
+    }
+    if (heroCopyPill) {
+      heroCopyPill.addEventListener("click", copyHeroPrompt);
+    }
   </script>
 </body>
 </html>

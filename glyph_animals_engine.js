@@ -2499,3 +2499,29 @@
       }
     });
   });
+
+
+  // --- Agent-Native Pill 1-Click Copy ---
+  const sidebarAgentPill = document.getElementById('sidebarAgentPill');
+  const sidebarCopyPillBtn = document.getElementById('sidebarCopyPillBtn');
+  const sidebarCopyPillText = document.getElementById('sidebarCopyPillText');
+  const agentPromptText = "Read whycode/agent.md and configure the WhyCode MCP server in my editor so you can query architectural decisions and PR rationale.";
+
+  function copyAgentPrompt() {
+    navigator.clipboard.writeText(agentPromptText).then(() => {
+      if (sidebarCopyPillBtn) sidebarCopyPillBtn.classList.add('copied');
+      if (sidebarCopyPillText) sidebarCopyPillText.textContent = '✓ COPIED!';
+      setTimeout(() => {
+        if (sidebarCopyPillBtn) sidebarCopyPillBtn.classList.remove('copied');
+        if (sidebarCopyPillText) sidebarCopyPillText.textContent = 'COPY';
+      }, 2000);
+    }).catch(err => {
+      console.warn('Clipboard write failed:', err);
+    });
+  }
+
+  if (sidebarCopyPillBtn) sidebarCopyPillBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    copyAgentPrompt();
+  });
+  if (sidebarAgentPill) sidebarAgentPill.addEventListener('click', copyAgentPrompt);
