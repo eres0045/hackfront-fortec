@@ -1,0 +1,2 @@
+# WhyCode Dependencies
+fastmcp>=0.1.0
