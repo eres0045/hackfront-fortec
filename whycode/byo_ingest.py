@@ -27,24 +27,21 @@ def ingest_git_repo(repo_dir: str, store: GraphStore, max_commits: int = 300) ->
     if not os.path.isdir(os.path.join(repo_dir, ".git")):
         raise ValueError(f"Not a valid git repository: {repo_dir}")
 
-    # Format: hash%x1fauthor%x1fdate%x1fsubject%x1fbody%x1e
+    # Format: COMMIT_START\x1f hash \x1f author \x1f date \x1f subject \x1f body \x1f FILES_START
     cmd = [
         "git", "-C", repo_dir, "log",
         f"-n{max_commits}",
         "--name-only",
-        "--format=%H%x1f%an%x1f%ad%x1f%s%x1f%b%x1e"
+        "--format=COMMIT_START%x1f%H%x1f%an%x1f%ad%x1f%s%x1f%b%x1fFILES_START"
     ]
     out = subprocess.run(cmd, capture_output=True, text=True, errors="replace", check=True)
-    raw_entries = out.stdout.split("\x1e")
+    raw_entries = [e for e in out.stdout.split("COMMIT_START\x1f") if e.strip()]
 
     counts = {"commits": 0, "people": 0, "files": 0, "edges": 0}
     seen_people = set()
     seen_files = set()
 
     for entry in raw_entries:
-        entry = entry.strip()
-        if not entry:
-            continue
         parts = entry.split("\x1f")
         if len(parts) < 5:
             continue
@@ -53,21 +50,19 @@ def ingest_git_repo(repo_dir: str, store: GraphStore, max_commits: int = 300) ->
         author_raw = parts[1].strip()
         date = parts[2].strip()
         subject_raw = parts[3].strip()
-        rest = parts[4].strip()
+        body_raw = parts[4].strip() if len(parts) > 4 else ""
+        files_raw = parts[5].strip() if len(parts) > 5 else ""
 
         # Proven Gitleaks/Presidio Pre-Ingest Sanitization
         subject, _ = scrub_text(subject_raw)
         author, _ = scrub_text(author_raw, redact_secrets=False, check_entropy=False)
-
-        # The rest contains body followed by touched files
-        body_and_files = rest.split("\n\n")
-        body_raw = body_and_files[0].strip() if body_and_files else ""
         body, _ = scrub_text(body_raw)
+
+        # Parse touched files
         touched_files = []
-        if len(body_and_files) > 1:
-            # Lines at the end are file paths
-            file_lines = body_and_files[-1].strip().splitlines()
-            touched_files = [f.strip() for f in file_lines if f.strip() and not " " in f.strip() and ("." in f or "/" in f)]
+        if files_raw:
+            file_lines = files_raw.replace("FILES_START", "").strip().splitlines()
+            touched_files = [f.strip() for f in file_lines if f.strip() and " " not in f.strip() and ("." in f or "/" in f)]
 
         cid = f"commit:{commit_hash[:12]}"
         full_text = f"{subject}\n\n{body}" if body else subject
