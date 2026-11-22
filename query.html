@@ -1611,6 +1611,16 @@
       <h1 class="greeting" id="greeting">Good morning, Rosalie</h1>
     </div>
 
+    <!-- Live Preset Query Chips for Mentors & Judges (Placed ABOVE input so expanded card never overlaps!) -->
+    <div class="composer-preset-row" style="margin-bottom: 14px; margin-top: 6px;">
+      <span style="font-size: 11.5px; font-weight: 500; color: var(--muted); margin-right: 2px;">Try live:</span>
+      <button type="button" class="preset-query-pill" data-query="Why does ignore_warnings match substrings by default?">ignore_warnings substrings</button>
+      <button type="button" class="preset-query-pill" data-query="Why didn't Django fork instead of adding async?">Why didn't Django fork?</button>
+      <button type="button" class="preset-query-pill pill-superseded" data-query="Why was DEP 0010 superseded in the template system?">DEP 0010 Superseded Alert</button>
+      <button type="button" class="preset-query-pill" data-query="Why does Django use path() simplified routing syntax?">path() simplified routing</button>
+      <button type="button" class="preset-query-pill pill-refusal" data-query="Why did we switch to Rust and Kubernetes?">Test Refusal (Rust & K8s)</button>
+    </div>
+
     <form class="composer glass" id="composer" onsubmit="return false;">
       <svg class="composer-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="10.5" cy="10.5" r="6.5"></circle>
@@ -1648,16 +1658,6 @@
         <div id="whycodeOutput"></div>
       </div>
     </form>
-
-    <!-- Live Preset Query Chips for Mentors & Judges -->
-    <div class="composer-preset-row">
-      <span style="font-size: 11.5px; font-weight: 500; color: var(--muted); margin-right: 2px;">Try live:</span>
-      <button type="button" class="preset-query-pill" data-query="Why does ignore_warnings match substrings by default?">ignore_warnings substrings</button>
-      <button type="button" class="preset-query-pill" data-query="Why didn't Django fork instead of adding async?">Why didn't Django fork?</button>
-      <button type="button" class="preset-query-pill pill-superseded" data-query="Why was DEP 0010 superseded in the template system?">DEP 0010 Superseded Alert</button>
-      <button type="button" class="preset-query-pill" data-query="Why does Django use path() simplified routing syntax?">path() simplified routing</button>
-      <button type="button" class="preset-query-pill pill-refusal" data-query="Why did we switch to Rust and Kubernetes?">Test Refusal (Rust & K8s)</button>
-    </div>
   </main>
 
   
