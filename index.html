@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WhyCode — Built for Developers. Proven by History.</title>
+  <link rel="icon" type="image/png" href="assets/logo-icon.png">
+  <link rel="shortcut icon" href="favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;500;600;700&family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap" rel="stylesheet">
@@ -228,6 +230,21 @@
 
     .brand-name span {
       color: var(--hot);
+    }
+
+    .brand-logo-img {
+      height: 34px;
+      width: auto;
+      max-width: 170px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 14px rgba(240, 162, 76, 0.45));
+      transition: transform 0.25s ease, filter 0.25s ease;
+      display: block;
+    }
+
+    .brand-logo-img:hover {
+      transform: scale(1.05);
+      filter: drop-shadow(0 0 22px rgba(240, 162, 76, 0.75));
     }
 
     .live-status-pill {
@@ -1963,6 +1980,10 @@
         gap: 8px;
         flex-shrink: 0;
       }
+      .brand-logo-img {
+        height: 26px;
+        max-width: 120px;
+      }
       .brand-name {
         font-size: 16px;
       }
@@ -2590,17 +2611,8 @@
 
   <!-- FIXED NAVIGATION -->
   <nav>
-    <a href="#" class="brand">
-      <div class="brand-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="18" cy="5" r="3"/>
-          <circle cx="6" cy="12" r="3"/>
-          <circle cx="18" cy="19" r="3"/>
-          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
-          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-        </svg>
-      </div>
-      <div class="brand-name">Why<span>Code</span></div>
+    <a href="#" class="brand" aria-label="WhyCode — Decision Intelligence">
+      <img src="assets/logo.png" alt="WhyCode" class="brand-logo-img">
     </a>
 
     <div class="live-status-pill">
@@ -3249,6 +3261,9 @@
       <img class="marble-hand-left" src="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/4c029f38-d0a0-46d1-9ebc-3edcdaa11fc1.png" alt="Left White Carrara Marble Hand with Amber Rim Light">
       
       <div class="hands-center-content">
+        <div style="margin-bottom: 14px; display: flex; justify-content: center;">
+          <img src="assets/logo.png" alt="WhyCode" style="height: 48px; width: auto; object-fit: contain; filter: drop-shadow(0 0 24px rgba(240, 162, 76, 0.65));">
+        </div>
         <div class="hands-center-title">©2026 WhyCode · Team FORTEC</div>
         <div class="hands-center-sub">Built for Developers · Proven by History</div>
       </div>

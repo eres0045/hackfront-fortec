@@ -1,6 +1,8 @@
-# WhyCode — Decision Intelligence Knowledge Graph
-
 <div align="center">
+
+<img src="assets/logo.png" alt="WhyCode Tech Logo" width="480" />
+
+# WhyCode — Decision Intelligence Knowledge Graph
 
 [![Live Site](https://img.shields.io/badge/Live%20Production-whycode.embarko.app-f0a24c?style=for-the-badge&logo=cloudflare&logoColor=white)](https://whycode.embarko.app/)
 [![Hackathon](https://img.shields.io/badge/hackFront%20India%202026-Grand%20Finale%20%40%20IIIT%20Delhi-38bdf8?style=for-the-badge)](https://whycode.embarko.app/)

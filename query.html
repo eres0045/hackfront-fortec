@@ -4,6 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>WhyCode — Decision Intelligence</title>
+  <link rel="icon" type="image/png" href="assets/logo-icon.png">
+  <link rel="shortcut icon" href="favicon.ico">
   <script>
     if (navigator.userAgent.includes("Chrome/")) {
       document.documentElement.classList.add("liquid");
@@ -1540,9 +1542,9 @@
 
   <!-- Top-Left: WhyCode Back + Developer Hub Sidebar Trigger -->
   <div class="top-left-controls" style="position: fixed; top: 16px; left: 16px; z-index: 30; display: flex; gap: 8px; align-items: center;">
-    <a href="index.html" class="glass no-liquid" style="height: 34px; padding: 0 14px 0 12px; border-radius: 999px; font-size: 13px; font-weight: 500; color: var(--text-soft); text-decoration: none; display: inline-flex; align-items: center; gap: 7px; background-color: rgba(10, 10, 11, 0.85); border: 1px solid rgba(240, 162, 76, 0.25); transition: color 0.2s ease;">
+    <a href="index.html" class="glass no-liquid" style="height: 36px; padding: 0 14px 0 10px; border-radius: 999px; font-size: 13px; font-weight: 500; color: var(--text-soft); text-decoration: none; display: inline-flex; align-items: center; gap: 8px; background-color: rgba(10, 10, 11, 0.85); border: 1px solid rgba(240, 162, 76, 0.25); transition: all 0.2s ease;" title="Back to WhyCode Home">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
-      <span>WhyCode</span>
+      <img src="assets/logo.png" alt="WhyCode" style="height: 20px; width: auto; object-fit: contain; filter: drop-shadow(0 0 8px rgba(240, 162, 76, 0.35));">
     </a>
 
     <button type="button" class="glass no-liquid dev-hub-btn" id="openSidebarBtn" aria-label="Open Developer Hub" title="Open Developer Hub & MCP Bridge">
@@ -1629,9 +1631,12 @@
     <div class="repo-modal glass no-liquid" id="repoModal" role="dialog" aria-labelledby="repoModalTitle">
       <div class="repo-modal-header">
         <div>
+          <div style="margin-bottom: 6px;">
+            <img src="assets/logo.png" alt="WhyCode" style="height: 22px; width: auto; object-fit: contain; filter: drop-shadow(0 0 10px rgba(240, 162, 76, 0.4));">
+          </div>
           <div class="repo-modal-kicker">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg>
-            WhyCode Repository Engine
+            Repository Ingestion Engine
           </div>
           <h3 class="repo-modal-title" id="repoModalTitle">Connect Repository</h3>
         </div>
@@ -1670,9 +1675,12 @@
   <aside class="dev-sidebar" id="devSidebar" aria-label="Developer Hub">
     <div class="dev-sidebar-header">
       <div class="dev-sidebar-title-wrap">
+        <div style="margin-bottom: 6px;">
+          <img src="assets/logo.png" alt="WhyCode" style="height: 24px; width: auto; object-fit: contain; filter: drop-shadow(0 0 12px rgba(240, 162, 76, 0.45));">
+        </div>
         <div class="dev-sidebar-kicker">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg>
-          WhyCode Developer Hub
+          Developer Hub & Ecosystem
         </div>
         <h2 class="dev-sidebar-title">MCP & Decision Bridge</h2>
       </div>
