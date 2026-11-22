@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://whycode.embarko.app/sitemap.xml
